@@ -12,7 +12,7 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 
 /**
- * GET /api/resofire/digest-mail/subscribers
+ * GET /api/ernestdefoe/digest-mail/subscribers
  *
  * Returns a paginated list of subscribers for a given frequency.
  *

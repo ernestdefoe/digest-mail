@@ -108,10 +108,10 @@ class SendDigestCommand extends Command
 
     private function dueFrequencies(): array
     {
-        $timezone    = $this->settings->get('resofire-digest-mail.timezone', 'UTC');
+        $timezone    = $this->settings->get('ernestdefoe-digest-mail.timezone', 'UTC');
         $now         = Carbon::now($timezone);
-        $weeklyDay   = (int) $this->settings->get('resofire-digest-mail.weekly_day',  1);
-        $monthlyDay  = (int) $this->settings->get('resofire-digest-mail.monthly_day', 1);
+        $weeklyDay   = (int) $this->settings->get('ernestdefoe-digest-mail.weekly_day',  1);
+        $monthlyDay  = (int) $this->settings->get('ernestdefoe-digest-mail.monthly_day', 1);
 
         // Window mode: send_window_start and send_window_end define a range of
         // hours during which the scheduler fires repeatedly, dispatching one
@@ -119,9 +119,9 @@ class SendDigestCommand extends Command
         //
         // Single-hour mode (legacy): if send_window_end is not set or equals
         // send_window_start, behave exactly as before — fire once at that hour.
-        $windowStart = (int) $this->settings->get('resofire-digest-mail.send_window_start',
-            $this->settings->get('resofire-digest-mail.send_hour', 8));
-        $windowEnd   = (int) $this->settings->get('resofire-digest-mail.send_window_end', $windowStart);
+        $windowStart = (int) $this->settings->get('ernestdefoe-digest-mail.send_window_start',
+            $this->settings->get('ernestdefoe-digest-mail.send_hour', 8));
+        $windowEnd   = (int) $this->settings->get('ernestdefoe-digest-mail.send_window_end', $windowStart);
 
         $inWindow = ($windowEnd > $windowStart)
             ? ($now->hour >= $windowStart && $now->hour < $windowEnd)
@@ -191,14 +191,14 @@ class SendDigestCommand extends Command
 
         // Resolve queue settings — CLI flags take priority over admin settings.
         $queueName = $this->option('queue')
-            ?? $this->settings->get('resofire-digest-mail.queue_name', 'digest');
+            ?? $this->settings->get('ernestdefoe-digest-mail.queue_name', 'digest');
 
         $delaySecs = $this->option('delay') !== null
             ? (int) $this->option('delay')
-            : (int) $this->settings->get('resofire-digest-mail.queue_delay', 0);
+            : (int) $this->settings->get('ernestdefoe-digest-mail.queue_delay', 0);
 
         $chunkSize = max(50, min(10000,
-            (int) $this->settings->get('resofire-digest-mail.queue_chunk_size', 200)
+            (int) $this->settings->get('ernestdefoe-digest-mail.queue_chunk_size', 200)
         ));
 
         $this->info(
@@ -292,7 +292,7 @@ class SendDigestCommand extends Command
         // With window mode dispatching one chunk per minute, we update today's
         // row rather than inserting a new one for each chunk.
         if (!$isDryRun && $dispatched > 0) {
-            $timezone = $this->settings->get('resofire-digest-mail.timezone', 'UTC');
+            $timezone = $this->settings->get('ernestdefoe-digest-mail.timezone', 'UTC');
             $today    = Carbon::now($timezone)->toDateString();
             $nowUtc   = Carbon::now('UTC')->toDateTimeString();
 
@@ -345,7 +345,7 @@ class SendDigestCommand extends Command
         // Window-complete check: if no eligible users remain for this frequency,
         // mark it done so dueFrequencies() skips it for the rest of the window.
         if (!$isDryRun) {
-            $timezone = $this->settings->get('resofire-digest-mail.timezone', 'UTC');
+            $timezone = $this->settings->get('ernestdefoe-digest-mail.timezone', 'UTC');
             $now      = Carbon::now($timezone);
             $cutoff   = $this->lastSentCutoff($frequency);
 
@@ -394,7 +394,7 @@ class SendDigestCommand extends Command
 
     private function jobTries(): int
     {
-        return max(1, (int) $this->settings->get('resofire-digest-mail.queue_tries', 3));
+        return max(1, (int) $this->settings->get('ernestdefoe-digest-mail.queue_tries', 3));
     }
 
     /**

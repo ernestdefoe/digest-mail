@@ -3,7 +3,7 @@
     $forumTitle = $settings->get('forum_title', 'Forum');
 @endphp
 
-@section('title', $translator->trans('resofire-digest-mail.unsubscribe_saved.page_title'))
+@section('title', $translator->trans('ernestdefoe-digest-mail.unsubscribe_saved.page_title'))
 
 @section('content')
 
@@ -42,9 +42,9 @@
 
 <div class="digest-card">
     <div class="icon">✅</div>
-    <h2>{{ $translator->trans('resofire-digest-mail.unsubscribe_saved.heading') }}</h2>
-    <p>{{ $translator->trans('resofire-digest-mail.unsubscribe_saved.body') }}</p>
-    <p><a href="{{ $forumUrl }}">{!! $translator->trans('resofire-digest-mail.unsubscribe_saved.return_link', ['{forum}' => e($settings->get('forum_title', 'Forum'))]) !!}</a></p>
+    <h2>{{ $translator->trans('ernestdefoe-digest-mail.unsubscribe_saved.heading') }}</h2>
+    <p>{{ $translator->trans('ernestdefoe-digest-mail.unsubscribe_saved.body') }}</p>
+    <p><a href="{{ $forumUrl }}">{!! $translator->trans('ernestdefoe-digest-mail.unsubscribe_saved.return_link', ['{forum}' => e($settings->get('forum_title', 'Forum'))]) !!}</a></p>
 </div>
 
 @endsection

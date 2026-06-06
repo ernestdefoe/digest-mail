@@ -3,9 +3,9 @@
     $forumTitle   = $settings->get('forum_title', 'Forum');
 
     $weekDayNames   = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
-    $weeklyDayLabel = $weekDayNames[(int) $settings->get('resofire-digest-mail.weekly_day', 1)] ?? 'Monday';
+    $weeklyDayLabel = $weekDayNames[(int) $settings->get('ernestdefoe-digest-mail.weekly_day', 1)] ?? 'Monday';
 
-    $monthlyDayInt = (int) $settings->get('resofire-digest-mail.monthly_day', 1);
+    $monthlyDayInt = (int) $settings->get('ernestdefoe-digest-mail.monthly_day', 1);
     $suffix = match (true) {
         ($monthlyDayInt % 100 >= 11 && $monthlyDayInt % 100 <= 13) => 'th',
         ($monthlyDayInt % 10 === 1) => 'st',
@@ -16,18 +16,18 @@
     $monthlyDayLabel = $monthlyDayInt . $suffix;
 
     // Only show frequencies the admin has enabled
-    $allowDaily   = $settings->get('resofire-digest-mail.allow_daily',   '0') === '1';
-    $allowWeekly  = $settings->get('resofire-digest-mail.allow_weekly',  '1') === '1';
-    $allowMonthly = $settings->get('resofire-digest-mail.allow_monthly', '1') === '1';
+    $allowDaily   = $settings->get('ernestdefoe-digest-mail.allow_daily',   '0') === '1';
+    $allowWeekly  = $settings->get('ernestdefoe-digest-mail.allow_weekly',  '1') === '1';
+    $allowMonthly = $settings->get('ernestdefoe-digest-mail.allow_monthly', '1') === '1';
 
     $options = [];
-    if ($allowDaily)   $options[] = ['value' => 'daily',   'emoji' => '☀️', 'title' => $translator->trans('resofire-digest-mail.unsubscribe.daily_title'),   'desc' => $translator->trans('resofire-digest-mail.unsubscribe.daily_desc')];
-    if ($allowWeekly)  $options[] = ['value' => 'weekly',  'emoji' => '📅', 'title' => $translator->trans('resofire-digest-mail.unsubscribe.weekly_title'),  'desc' => $translator->trans('resofire-digest-mail.unsubscribe.weekly_desc', ['{day}' => $weeklyDayLabel])];
-    if ($allowMonthly) $options[] = ['value' => 'monthly', 'emoji' => '📆', 'title' => $translator->trans('resofire-digest-mail.unsubscribe.monthly_title'), 'desc' => $translator->trans('resofire-digest-mail.unsubscribe.monthly_desc', ['{day}' => $monthlyDayLabel])];
-    $options[] =                    ['value' => 'off',     'emoji' => '🔕', 'title' => $translator->trans('resofire-digest-mail.unsubscribe.off_title'),     'desc' => $translator->trans('resofire-digest-mail.unsubscribe.off_desc'), 'off' => true];
+    if ($allowDaily)   $options[] = ['value' => 'daily',   'emoji' => '☀️', 'title' => $translator->trans('ernestdefoe-digest-mail.unsubscribe.daily_title'),   'desc' => $translator->trans('ernestdefoe-digest-mail.unsubscribe.daily_desc')];
+    if ($allowWeekly)  $options[] = ['value' => 'weekly',  'emoji' => '📅', 'title' => $translator->trans('ernestdefoe-digest-mail.unsubscribe.weekly_title'),  'desc' => $translator->trans('ernestdefoe-digest-mail.unsubscribe.weekly_desc', ['{day}' => $weeklyDayLabel])];
+    if ($allowMonthly) $options[] = ['value' => 'monthly', 'emoji' => '📆', 'title' => $translator->trans('ernestdefoe-digest-mail.unsubscribe.monthly_title'), 'desc' => $translator->trans('ernestdefoe-digest-mail.unsubscribe.monthly_desc', ['{day}' => $monthlyDayLabel])];
+    $options[] =                    ['value' => 'off',     'emoji' => '🔕', 'title' => $translator->trans('ernestdefoe-digest-mail.unsubscribe.off_title'),     'desc' => $translator->trans('ernestdefoe-digest-mail.unsubscribe.off_desc'), 'off' => true];
 @endphp
 
-@section('title', $translator->trans('resofire-digest-mail.unsubscribe.page_title'))
+@section('title', $translator->trans('ernestdefoe-digest-mail.unsubscribe.page_title'))
 
 @section('content')
 
@@ -119,11 +119,11 @@
 
 <div class="digest-card">
 
-    <h2>📧 {{ $translator->trans('resofire-digest-mail.unsubscribe.heading') }}</h2>
+    <h2>📧 {{ $translator->trans('ernestdefoe-digest-mail.unsubscribe.heading') }}</h2>
     <p class="subtitle">
-        {!! $translator->trans('resofire-digest-mail.unsubscribe.greeting', ['{name}' => '<strong>' . e($user->display_name) . '</strong>', '{forum}' => '<strong>' . e($forumTitle) . '</strong>']) !!}
+        {!! $translator->trans('ernestdefoe-digest-mail.unsubscribe.greeting', ['{name}' => '<strong>' . e($user->display_name) . '</strong>', '{forum}' => '<strong>' . e($forumTitle) . '</strong>']) !!}
     </p>
-    <p class="click-hint">👆 {{ $translator->trans('resofire-digest-mail.unsubscribe.click_hint') }}</p>
+    <p class="click-hint">👆 {{ $translator->trans('ernestdefoe-digest-mail.unsubscribe.click_hint') }}</p>
 
     @foreach ($options as $option)
     <a href="{{ $postUrl }}{{ $option['value'] }}"

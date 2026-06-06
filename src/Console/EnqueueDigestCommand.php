@@ -71,17 +71,17 @@ class EnqueueDigestCommand extends Command
         }
 
         $queueName = $this->option('queue')
-            ?? $this->settings->get('resofire-digest-mail.queue_name', 'digest');
+            ?? $this->settings->get('ernestdefoe-digest-mail.queue_name', 'digest');
 
         $delaySecs = $this->option('delay') !== null
             ? (int) $this->option('delay')
-            : (int) $this->settings->get('resofire-digest-mail.queue_delay', 0);
+            : (int) $this->settings->get('ernestdefoe-digest-mail.queue_delay', 0);
 
         $chunkSize = max(50, min(10000,
-            (int) $this->settings->get('resofire-digest-mail.queue_chunk_size', 200)
+            (int) $this->settings->get('ernestdefoe-digest-mail.queue_chunk_size', 200)
         ));
 
-        $tries     = max(1, (int) $this->settings->get('resofire-digest-mail.queue_tries', 3));
+        $tries     = max(1, (int) $this->settings->get('ernestdefoe-digest-mail.queue_tries', 3));
 
         $since  = $this->periodStart($frequency);
         $cutoff = $this->lastSentCutoff($frequency);

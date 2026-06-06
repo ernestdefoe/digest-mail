@@ -86,7 +86,7 @@ class UnsubscribeController extends AbstractHtmlController
         $saved    = (bool) Arr::get($params, 'saved', false);
 
         if ($saved) {
-            return $this->view->make('resofire-digest-mail::unsubscribe-saved')
+            return $this->view->make('ernestdefoe-digest-mail::unsubscribe-saved')
                 ->with('forumUrl',    $this->url->to('forum')->base())
                 ->with('settings',    $this->settings)
                 ->with('translator',  $this->translator);
@@ -95,7 +95,7 @@ class UnsubscribeController extends AbstractHtmlController
         $token = UnsubscribeToken::findValid($rawToken);
 
         if ($token === null) {
-            return $this->view->make('resofire-digest-mail::unsubscribe-invalid')
+            return $this->view->make('ernestdefoe-digest-mail::unsubscribe-invalid')
                 ->with('forumUrl',    $this->url->to('forum')->base())
                 ->with('settings',    $this->settings)
                 ->with('translator',  $this->translator);
@@ -105,7 +105,7 @@ class UnsubscribeController extends AbstractHtmlController
         $baseUrl = $this->url->to('forum')->route('resofire.digest-mail.unsubscribe')
             . '?token=' . urlencode($rawToken) . '&frequency=';
 
-        return $this->view->make('resofire-digest-mail::unsubscribe')
+        return $this->view->make('ernestdefoe-digest-mail::unsubscribe')
             ->with('user',             $user)
             ->with('currentFrequency', $user->digest_frequency)
             ->with('token',            $rawToken)

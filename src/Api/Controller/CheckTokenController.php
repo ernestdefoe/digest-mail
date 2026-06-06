@@ -12,7 +12,7 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 
 /**
- * GET /api/resofire/digest-mail/check-token?token=...
+ * GET /api/ernestdefoe/digest-mail/check-token?token=...
  *
  * Admin-only. Checks whether an unsubscribe token is valid and returns
  * the associated user and expiry information.

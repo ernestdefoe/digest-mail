@@ -18,7 +18,7 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 
 /**
- * POST /api/resofire/digest-mail/test-send
+ * POST /api/ernestdefoe/digest-mail/test-send
  *
  * Renders and sends a digest email immediately to an arbitrary address,
  * without touching digest_last_sent_at or consuming any unsubscribe token.

@@ -24,12 +24,12 @@ return [
     // -------------------------------------------------------------------------
     // Blade view namespace
     //
-    // Registers the /views directory under the 'resofire-digest-mail' namespace so that
-    // views can be referenced as 'resofire-digest-mail::emails.digest' and
-    // 'resofire-digest-mail::unsubscribe' anywhere in the extension.
+    // Registers the /views directory under the 'ernestdefoe-digest-mail' namespace so that
+    // views can be referenced as 'ernestdefoe-digest-mail::emails.digest' and
+    // 'ernestdefoe-digest-mail::unsubscribe' anywhere in the extension.
     // -------------------------------------------------------------------------
     (new Extend\View)
-        ->namespace('resofire-digest-mail', __DIR__ . '/views'),
+        ->namespace('ernestdefoe-digest-mail', __DIR__ . '/views'),
 
     // -------------------------------------------------------------------------
     // New user onboarding — event listener
@@ -106,28 +106,28 @@ return [
     // -------------------------------------------------------------------------
     // API route — test send
     //
-    // POST /api/resofire/digest-mail/test-send
+    // POST /api/ernestdefoe/digest-mail/test-send
     //   Admin-only. Sends a live digest email to an arbitrary address.
     //   Does not update digest_last_sent_at or consume unsubscribe tokens.
     // -------------------------------------------------------------------------
     (new Extend\Routes('api'))
         ->post(
-            '/resofire/digest-mail/test-send',
+            '/ernestdefoe/digest-mail/test-send',
             'resofire.digest-mail.test-send',
             SendTestDigestController::class
         )
         ->get(
-            '/resofire/digest-mail/stats',
+            '/ernestdefoe/digest-mail/stats',
             'resofire.digest-mail.stats',
             DigestStatsController::class
         )
         ->get(
-            '/resofire/digest-mail/subscribers',
+            '/ernestdefoe/digest-mail/subscribers',
             'resofire.digest-mail.subscribers',
             DigestSubscribersController::class
         )
         ->get(
-            '/resofire/digest-mail/check-token',
+            '/ernestdefoe/digest-mail/check-token',
             'resofire.digest-mail.check-token',
             CheckTokenController::class
         ),
@@ -243,9 +243,9 @@ return [
                 Schema\Arr::make('digestAllowedFrequencies')
                     ->get(function () use ($raw) {
                         return [
-                            'daily'   => $raw('resofire-digest-mail.allow_daily',   '0') === '1',
-                            'weekly'  => $raw('resofire-digest-mail.allow_weekly',  '1') === '1',
-                            'monthly' => $raw('resofire-digest-mail.allow_monthly', '1') === '1',
+                            'daily'   => $raw('ernestdefoe-digest-mail.allow_daily',   '0') === '1',
+                            'weekly'  => $raw('ernestdefoe-digest-mail.allow_weekly',  '1') === '1',
+                            'monthly' => $raw('ernestdefoe-digest-mail.allow_monthly', '1') === '1',
                         ];
                     }),
             ];
@@ -254,32 +254,32 @@ return [
     // Settings defaults — returned by Flarum before the admin saves for the
     // first time, so the extension behaves sensibly out of the box.
     (new Extend\Settings())
-        ->default('resofire-digest-mail.enable_badges',      '1')
-        ->default('resofire-digest-mail.enable_leaderboard', '1')
-        ->default('resofire-digest-mail.enable_picks',       '1')
-        ->default('resofire-digest-mail.limit_picks',        '5')
-        ->default('resofire-digest-mail.picks_leaderboard_scope', 'alltime')
-        ->default('resofire-digest-mail.enable_gamepedia',              '1')
-        ->default('resofire-digest-mail.enable_resofire_gamepedia',     '1')
-        ->default('resofire-digest-mail.limit_resofire_gamepedia',      '5')
-        ->default('resofire-digest-mail.enable_reactions',   '1')
-        ->default('resofire-digest-mail.enable_awards',      '1')
-        ->default('resofire-digest-mail.limit_favorites',    '6')
-        ->default('resofire-digest-mail.queue_name',         'digest')
-        ->default('resofire-digest-mail.queue_chunk_size',   '200')
-        ->default('resofire-digest-mail.queue_delay',        '0')
-        ->default('resofire-digest-mail.queue_tries',        '3')
-        ->default('resofire-digest-mail.section_order',      '')
-        ->default('resofire-digest-mail.allow_daily',        '0')
-        ->default('resofire-digest-mail.allow_weekly',       '1')
-        ->default('resofire-digest-mail.allow_monthly',      '1')
-        ->default('resofire-digest-mail.timezone',           'UTC')
-        ->default('resofire-digest-mail.send_hour',          '8')
-        ->default('resofire-digest-mail.send_window_start',  '8')
-        ->default('resofire-digest-mail.send_window_end',    '8')
-        ->default('resofire-digest-mail.weekly_day',         '1')
-        ->default('resofire-digest-mail.monthly_day',        '1')
-        ->default('resofire-digest-mail.onboarding_mode',    'none')
-        ->default('resofire-digest-mail.onboarding_frequency', 'weekly'),
+        ->default('ernestdefoe-digest-mail.enable_badges',      '1')
+        ->default('ernestdefoe-digest-mail.enable_leaderboard', '1')
+        ->default('ernestdefoe-digest-mail.enable_picks',       '1')
+        ->default('ernestdefoe-digest-mail.limit_picks',        '5')
+        ->default('ernestdefoe-digest-mail.picks_leaderboard_scope', 'alltime')
+        ->default('ernestdefoe-digest-mail.enable_gamepedia',              '1')
+        ->default('ernestdefoe-digest-mail.enable_resofire_gamepedia',     '1')
+        ->default('ernestdefoe-digest-mail.limit_resofire_gamepedia',      '5')
+        ->default('ernestdefoe-digest-mail.enable_reactions',   '1')
+        ->default('ernestdefoe-digest-mail.enable_awards',      '1')
+        ->default('ernestdefoe-digest-mail.limit_favorites',    '6')
+        ->default('ernestdefoe-digest-mail.queue_name',         'digest')
+        ->default('ernestdefoe-digest-mail.queue_chunk_size',   '200')
+        ->default('ernestdefoe-digest-mail.queue_delay',        '0')
+        ->default('ernestdefoe-digest-mail.queue_tries',        '3')
+        ->default('ernestdefoe-digest-mail.section_order',      '')
+        ->default('ernestdefoe-digest-mail.allow_daily',        '0')
+        ->default('ernestdefoe-digest-mail.allow_weekly',       '1')
+        ->default('ernestdefoe-digest-mail.allow_monthly',      '1')
+        ->default('ernestdefoe-digest-mail.timezone',           'UTC')
+        ->default('ernestdefoe-digest-mail.send_hour',          '8')
+        ->default('ernestdefoe-digest-mail.send_window_start',  '8')
+        ->default('ernestdefoe-digest-mail.send_window_end',    '8')
+        ->default('ernestdefoe-digest-mail.weekly_day',         '1')
+        ->default('ernestdefoe-digest-mail.monthly_day',        '1')
+        ->default('ernestdefoe-digest-mail.onboarding_mode',    'none')
+        ->default('ernestdefoe-digest-mail.onboarding_frequency', 'weekly'),
 
 ];

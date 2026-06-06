@@ -3,7 +3,7 @@
     $forumTitle = $settings->get('forum_title', 'Forum');
 @endphp
 
-@section('title', $translator->trans('resofire-digest-mail.unsubscribe_invalid.page_title'))
+@section('title', $translator->trans('ernestdefoe-digest-mail.unsubscribe_invalid.page_title'))
 
 @section('content')
 
@@ -42,10 +42,10 @@
 
 <div class="digest-card">
     <div class="icon">🔗</div>
-    <h2>{{ $translator->trans('resofire-digest-mail.unsubscribe_invalid.heading') }}</h2>
-    <p>{{ $translator->trans('resofire-digest-mail.unsubscribe_invalid.body_expired') }}</p>
+    <h2>{{ $translator->trans('ernestdefoe-digest-mail.unsubscribe_invalid.heading') }}</h2>
+    <p>{{ $translator->trans('ernestdefoe-digest-mail.unsubscribe_invalid.body_expired') }}</p>
     <p>
-        {!! $translator->trans('resofire-digest-mail.unsubscribe_invalid.body_signin', ['{forum}' => '<a href="' . e($forumUrl) . '">' . e($forumTitle) . '</a>']) !!}
+        {!! $translator->trans('ernestdefoe-digest-mail.unsubscribe_invalid.body_signin', ['{forum}' => '<a href="' . e($forumUrl) . '">' . e($forumTitle) . '</a>']) !!}
     </p>
 </div>
 

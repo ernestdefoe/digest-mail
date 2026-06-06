@@ -210,7 +210,7 @@
 {{-- ── TITLE + DATE ──────────────────────────────────────────────────────── --}}
 <tr>
     <td class="pad" style="padding:30px 48px 26px; text-align:center; border-bottom:0.5px solid {{ $c['border'] }};">
-        <h1 class="t-main" style="margin:0 0 10px; font-size:26px; font-weight:600; color:{{ $c['text'] }}; letter-spacing:-0.5px; line-height:1.3;">{{ $translator->trans('resofire-digest-mail.email.heading', ['{period}' => $periodWord]) }}</h1>
+        <h1 class="t-main" style="margin:0 0 10px; font-size:26px; font-weight:600; color:{{ $c['text'] }}; letter-spacing:-0.5px; line-height:1.3;">{{ $translator->trans('ernestdefoe-digest-mail.email.heading', ['{period}' => $periodWord]) }}</h1>
         <p class="t-muted" style="margin:0; font-size:15px; color:{{ $c['textMuted'] }};">{{ $content->periodStart->format('F j') }} – {{ $periodEnd->format('F j, Y') }}</p>
     </td>
 </tr>
@@ -222,19 +222,19 @@
         <table width="100%" cellpadding="0" cellspacing="0" role="presentation"><tr>
             <td width="25%" style="padding:18px 8px; text-align:center; border-right:1px solid rgba(255,255,255,.2);">
                 <span style="display:block; font-size:26px; font-weight:600; color:#fff; line-height:1; margin-bottom:5px;">{{ number_format($content->stats['posts']) }}</span>
-                <span style="display:block; font-size:10px; font-weight:600; letter-spacing:1.2px; text-transform:uppercase; color:rgba(255,255,255,.75);">{{ $translator->trans('resofire-digest-mail.email.stats.posts') }}</span>
+                <span style="display:block; font-size:10px; font-weight:600; letter-spacing:1.2px; text-transform:uppercase; color:rgba(255,255,255,.75);">{{ $translator->trans('ernestdefoe-digest-mail.email.stats.posts') }}</span>
             </td>
             <td width="25%" style="padding:18px 8px; text-align:center; border-right:1px solid rgba(255,255,255,.2);">
                 <span style="display:block; font-size:26px; font-weight:600; color:#fff; line-height:1; margin-bottom:5px;">{{ number_format($content->stats['discussions']) }}</span>
-                <span style="display:block; font-size:10px; font-weight:600; letter-spacing:1.2px; text-transform:uppercase; color:rgba(255,255,255,.75);">{{ $translator->trans('resofire-digest-mail.email.stats.discussions') }}</span>
+                <span style="display:block; font-size:10px; font-weight:600; letter-spacing:1.2px; text-transform:uppercase; color:rgba(255,255,255,.75);">{{ $translator->trans('ernestdefoe-digest-mail.email.stats.discussions') }}</span>
             </td>
             <td width="25%" style="padding:18px 8px; text-align:center; border-right:1px solid rgba(255,255,255,.2);">
                 <span style="display:block; font-size:26px; font-weight:600; color:#fff; line-height:1; margin-bottom:5px;">{{ number_format($content->stats['newMembers']) }}</span>
-                <span style="display:block; font-size:10px; font-weight:600; letter-spacing:1.2px; text-transform:uppercase; color:rgba(255,255,255,.75);">{{ $translator->trans('resofire-digest-mail.email.stats.new_members') }}</span>
+                <span style="display:block; font-size:10px; font-weight:600; letter-spacing:1.2px; text-transform:uppercase; color:rgba(255,255,255,.75);">{{ $translator->trans('ernestdefoe-digest-mail.email.stats.new_members') }}</span>
             </td>
             <td width="25%" style="padding:18px 8px; text-align:center;">
                 <span style="display:block; font-size:26px; font-weight:600; color:#fff; line-height:1; margin-bottom:5px;">{{ number_format($content->stats['activeUsers']) }}</span>
-                <span style="display:block; font-size:10px; font-weight:600; letter-spacing:1.2px; text-transform:uppercase; color:rgba(255,255,255,.75);">{{ $translator->trans('resofire-digest-mail.email.stats.active_users') }}</span>
+                <span style="display:block; font-size:10px; font-weight:600; letter-spacing:1.2px; text-transform:uppercase; color:rgba(255,255,255,.75);">{{ $translator->trans('ernestdefoe-digest-mail.email.stats.active_users') }}</span>
             </td>
         </tr></table>
     </td>
@@ -279,18 +279,18 @@ $discRow = function ($disc, string $metaHtml) use ($url, $c, $renderAvatar) {
                     <td style="vertical-align:middle; padding-right:12px;">{!! $renderAvatar($fd->user, 44, 17) !!}</td>
                     <td style="vertical-align:middle;">
                         <span class="t-main" style="font-size:15px; font-weight:500; color:{{ $c['text'] }}; display:block;">{{ $fd->user->display_name }}</span>
-                        <span class="t-muted" style="font-size:13px; color:{{ $c['textMuted'] }};">{{ $translator->trans('resofire-digest-mail.email.featured.author_label') }}</span>
+                        <span class="t-muted" style="font-size:13px; color:{{ $c['textMuted'] }};">{{ $translator->trans('ernestdefoe-digest-mail.email.featured.author_label') }}</span>
                     </td>
                     @endif
                     <td style="vertical-align:middle; padding-left:12px;">
-                        <span style="font-size:11px; font-weight:600; letter-spacing:1px; text-transform:uppercase; background-color:{{ $primaryColor }}; color:#fff; padding:3px 10px; border-radius:20px;">{{ $translator->trans('resofire-digest-mail.email.featured.badge') }}</span>
+                        <span style="font-size:11px; font-weight:600; letter-spacing:1px; text-transform:uppercase; background-color:{{ $primaryColor }}; color:#fff; padding:3px 10px; border-radius:20px;">{{ $translator->trans('ernestdefoe-digest-mail.email.featured.badge') }}</span>
                     </td>
                 </tr></table>
             </td></tr>
             <tr><td>
                 <a href="{{ $fdHref }}" class="t-main" style="font-size:19px; font-weight:600; color:{{ $c['text'] }}; text-decoration:none; line-height:1.4; display:block; margin-bottom:8px;">{{ $fd->title }}</a>
                 <p class="t-muted" style="margin:0 0 18px; font-size:14px; color:{{ $c['textMuted'] }};">{!! $fdMeta !!}</p>
-                <a href="{{ $fdHref }}" style="display:inline-block; padding:10px 22px; background-color:{{ $primaryColor }}; color:#fff; font-size:14px; font-weight:500; text-decoration:none; border-radius:6px;">{{ $translator->trans('resofire-digest-mail.email.featured.cta') }}</a>
+                <a href="{{ $fdHref }}" style="display:inline-block; padding:10px 22px; background-color:{{ $primaryColor }}; color:#fff; font-size:14px; font-weight:500; text-decoration:none; border-radius:6px;">{{ $translator->trans('ernestdefoe-digest-mail.email.featured.cta') }}</a>
             </td></tr>
         </table>
     </td></tr>
@@ -305,7 +305,7 @@ $discRow = function ($disc, string $metaHtml) use ($url, $c, $renderAvatar) {
 {{-- ── NEW DISCUSSIONS ───────────────────────────────────────────────────── --}}
 @if ($content->newDiscussions->isNotEmpty())
 <table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="margin-bottom:36px;">
-    <tr><td>{!! $sectionHeader($translator->trans('resofire-digest-mail.email.sections.new_discussions')) !!}</td></tr>
+    <tr><td>{!! $sectionHeader($translator->trans('ernestdefoe-digest-mail.email.sections.new_discussions')) !!}</td></tr>
     @foreach ($content->newDiscussions as $disc)
     @php
         $meta = '';
@@ -320,7 +320,7 @@ $discRow = function ($disc, string $metaHtml) use ($url, $c, $renderAvatar) {
 {{-- ── HOT DISCUSSIONS ───────────────────────────────────────────────────── --}}
 @if ($content->hotDiscussions->isNotEmpty())
 <table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="margin-bottom:36px;">
-    <tr><td>{!! $sectionHeader($translator->trans('resofire-digest-mail.email.sections.active_discussions')) !!}</td></tr>
+    <tr><td>{!! $sectionHeader($translator->trans('ernestdefoe-digest-mail.email.sections.active_discussions')) !!}</td></tr>
     @foreach ($content->hotDiscussions as $disc)
     @php
         $meta = $disc->comment_count . ' ' . ($disc->comment_count === 1 ? 'reply' : 'replies');
@@ -335,7 +335,7 @@ $discRow = function ($disc, string $metaHtml) use ($url, $c, $renderAvatar) {
 {{-- ── UNREAD DISCUSSIONS ────────────────────────────────────────────────── --}}
 @if ($content->unreadDiscussions->isNotEmpty())
 <table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="margin-bottom:36px;">
-    <tr><td>{!! $sectionHeader($translator->trans('resofire-digest-mail.email.sections.unread')) !!}</td></tr>
+    <tr><td>{!! $sectionHeader($translator->trans('ernestdefoe-digest-mail.email.sections.unread')) !!}</td></tr>
     @foreach ($content->unreadDiscussions as $disc)
     @php
         $meta = '';
@@ -353,7 +353,7 @@ $discRow = function ($disc, string $metaHtml) use ($url, $c, $renderAvatar) {
 {{-- ── NEW MEMBERS ───────────────────────────────────────────────────────── --}}
 @if ($content->newMembers->isNotEmpty())
 <table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="margin-bottom:36px;">
-    <tr><td>{!! $sectionHeader($translator->trans('resofire-digest-mail.email.sections.new_members')) !!}</td></tr>
+    <tr><td>{!! $sectionHeader($translator->trans('ernestdefoe-digest-mail.email.sections.new_members')) !!}</td></tr>
     @foreach ($content->newMembers as $member)
     <tr><td style="padding-bottom:8px;">
         <table width="100%" cellpadding="0" cellspacing="0" role="presentation">
@@ -362,7 +362,7 @@ $discRow = function ($disc, string $metaHtml) use ($url, $c, $renderAvatar) {
                     <td style="vertical-align:middle; padding-right:14px;">{!! $renderAvatar($member, 44, 17) !!}</td>
                     <td style="vertical-align:middle;">
                         <span class="t-main" style="font-size:15px; font-weight:500; color:{{ $c['text'] }}; display:block;">{{ $member->display_name }}</span>
-                        <span class="t-muted" style="font-size:13px; color:{{ $c['textMuted'] }};">{{ $translator->trans('resofire-digest-mail.email.members.joined', ['{time_ago}' => $member->joined_at->diffForHumans()]) }}</span>
+                        <span class="t-muted" style="font-size:13px; color:{{ $c['textMuted'] }};">{{ $translator->trans('ernestdefoe-digest-mail.email.members.joined', ['{time_ago}' => $member->joined_at->diffForHumans()]) }}</span>
                     </td>
                 </tr></table>
             </td></tr>
@@ -382,10 +382,10 @@ $discRow = function ($disc, string $metaHtml) use ($url, $c, $renderAvatar) {
 @if ($lbEnabled && !empty($lbEntries))
 {!! $sectionDivider() !!}
 <table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="margin-bottom:36px;">
-    <tr><td>{!! $sectionHeader($translator->trans('resofire-digest-mail.email.sections.leaderboard')) !!}</td></tr>
+    <tr><td>{!! $sectionHeader($translator->trans('ernestdefoe-digest-mail.email.sections.leaderboard')) !!}</td></tr>
 
     <tr><td style="padding-bottom:20px;">
-        <p class="t-muted" style="margin:0; font-size:14px; color:{{ $c['textMuted'] }}; line-height:1.6;">{{ $translator->trans('resofire-digest-mail.email.leaderboard.rankings_note') }}</p>
+        <p class="t-muted" style="margin:0; font-size:14px; color:{{ $c['textMuted'] }}; line-height:1.6;">{{ $translator->trans('ernestdefoe-digest-mail.email.leaderboard.rankings_note') }}</p>
     </td></tr>
 
     {{-- Podium top 3 --}}
@@ -434,10 +434,10 @@ $discRow = function ($disc, string $metaHtml) use ($url, $c, $renderAvatar) {
     <tr><td>
         <table width="100%" cellpadding="0" cellspacing="0" role="presentation">
             <tr>
-                <td width="28" style="padding:0 0 10px; font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:1px; color:{{ $c['textMuted'] }};">{{ $translator->trans('resofire-digest-mail.email.leaderboard.col_rank') }}</td>
-                <td style="padding:0 0 10px; font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:1px; color:{{ $c['textMuted'] }};">{{ $translator->trans('resofire-digest-mail.email.leaderboard.col_member') }}</td>
-                <td width="56" style="padding:0 0 10px; text-align:center; font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:1px; color:{{ $c['textMuted'] }};">{{ $translator->trans('resofire-digest-mail.email.leaderboard.col_move') }}</td>
-                <td width="80" style="padding:0 0 10px; text-align:right; font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:1px; color:{{ $c['textMuted'] }};">{{ $translator->trans('resofire-digest-mail.email.leaderboard.col_score') }}</td>
+                <td width="28" style="padding:0 0 10px; font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:1px; color:{{ $c['textMuted'] }};">{{ $translator->trans('ernestdefoe-digest-mail.email.leaderboard.col_rank') }}</td>
+                <td style="padding:0 0 10px; font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:1px; color:{{ $c['textMuted'] }};">{{ $translator->trans('ernestdefoe-digest-mail.email.leaderboard.col_member') }}</td>
+                <td width="56" style="padding:0 0 10px; text-align:center; font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:1px; color:{{ $c['textMuted'] }};">{{ $translator->trans('ernestdefoe-digest-mail.email.leaderboard.col_move') }}</td>
+                <td width="80" style="padding:0 0 10px; text-align:right; font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:1px; color:{{ $c['textMuted'] }};">{{ $translator->trans('ernestdefoe-digest-mail.email.leaderboard.col_score') }}</td>
             </tr>
             @foreach ($lbRest as $entry)
             @php
@@ -464,7 +464,7 @@ $discRow = function ($disc, string $metaHtml) use ($url, $c, $renderAvatar) {
                         <td style="vertical-align:middle; padding-right:12px;">{!! $renderAvatar($u, 36, 14) !!}</td>
                         <td style="vertical-align:middle;">
                             <span class="t-main" style="font-size:15px; font-weight:500; color:{{ $c['text'] }}; display:block;">{{ $u->display_name }}</span>
-                            @if ($isNew)<span style="font-size:10px; font-weight:600; background:#e9f8f5; color:#2fa899; padding:2px 6px; border-radius:4px; letter-spacing:.5px; text-transform:uppercase; margin-top:2px; display:inline-block;">{{ $translator->trans('resofire-digest-mail.email.leaderboard.new_badge') }}</span>@endif
+                            @if ($isNew)<span style="font-size:10px; font-weight:600; background:#e9f8f5; color:#2fa899; padding:2px 6px; border-radius:4px; letter-spacing:.5px; text-transform:uppercase; margin-top:2px; display:inline-block;">{{ $translator->trans('ernestdefoe-digest-mail.email.leaderboard.new_badge') }}</span>@endif
                         </td>
                     </tr></table>
                 </td>
@@ -490,14 +490,14 @@ $discRow = function ($disc, string $metaHtml) use ($url, $c, $renderAvatar) {
                 <table width="100%" cellpadding="0" cellspacing="0" role="presentation"><tr>
                     <td width="40" style="vertical-align:middle; padding-right:14px; font-size:28px; line-height:1;">&#128640;</td>
                     <td style="vertical-align:middle;">
-                        <div style="font-size:10px; font-weight:600; text-transform:uppercase; letter-spacing:1.5px; color:#2fa899; margin-bottom:4px;">{{ $translator->trans('resofire-digest-mail.email.leaderboard.biggest_mover', ['{period}' => ucfirst($periodWord)]) }}</div>
+                        <div style="font-size:10px; font-weight:600; text-transform:uppercase; letter-spacing:1.5px; color:#2fa899; margin-bottom:4px;">{{ $translator->trans('ernestdefoe-digest-mail.email.leaderboard.biggest_mover', ['{period}' => ucfirst($periodWord)]) }}</div>
                         <div style="font-size:16px; font-weight:500; color:#111;">{{ $mu->display_name }}</div>
-                        <div style="font-size:13px; color:#777; margin-top:3px;">+{{ number_format($mPts) }} pts this {{ $periodWord }}@if ($mMove > 0) &nbsp;&middot;&nbsp; &#9650; {{ $mMove }} {{ $mMove === 1 ? $translator->trans('resofire-digest-mail.email.leaderboard.spot_singular') : $translator->trans('resofire-digest-mail.email.leaderboard.spot_plural') }}@endif</div>
+                        <div style="font-size:13px; color:#777; margin-top:3px;">+{{ number_format($mPts) }} pts this {{ $periodWord }}@if ($mMove > 0) &nbsp;&middot;&nbsp; &#9650; {{ $mMove }} {{ $mMove === 1 ? $translator->trans('ernestdefoe-digest-mail.email.leaderboard.spot_singular') : $translator->trans('ernestdefoe-digest-mail.email.leaderboard.spot_plural') }}@endif</div>
                     </td>
                     @if ($mMove > 0)
                     <td width="52" style="text-align:right; vertical-align:middle;">
                         <div style="font-size:30px; font-weight:700; color:#2e9e5b; line-height:1;">&#9650;{{ $mMove }}</div>
-                        <div style="font-size:10px; color:#999; text-transform:uppercase; letter-spacing:.5px;">{{ $mMove === 1 ? $translator->trans('resofire-digest-mail.email.leaderboard.spot_singular') : $translator->trans('resofire-digest-mail.email.leaderboard.spot_plural') }}</div>
+                        <div style="font-size:10px; color:#999; text-transform:uppercase; letter-spacing:.5px;">{{ $mMove === 1 ? $translator->trans('ernestdefoe-digest-mail.email.leaderboard.spot_singular') : $translator->trans('ernestdefoe-digest-mail.email.leaderboard.spot_plural') }}</div>
                     </td>
                     @endif
                 </tr></table>
@@ -516,10 +516,10 @@ $discRow = function ($disc, string $metaHtml) use ($url, $c, $renderAvatar) {
 @if ($bdgEnabled && !empty($bdgEarners))
 {!! $sectionDivider() !!}
 <table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="margin-bottom:36px;">
-    <tr><td>{!! $sectionHeader($translator->trans('resofire-digest-mail.email.sections.badges')) !!}</td></tr>
+    <tr><td>{!! $sectionHeader($translator->trans('ernestdefoe-digest-mail.email.sections.badges')) !!}</td></tr>
 
     <tr><td style="padding-bottom:16px;">
-        <p class="t-muted" style="margin:0; font-size:14px; color:{{ $c['textMuted'] }}; line-height:1.6;">{{ $translator->trans('resofire-digest-mail.email.badges.intro', ['{period}' => $periodWord]) }}</p>
+        <p class="t-muted" style="margin:0; font-size:14px; color:{{ $c['textMuted'] }}; line-height:1.6;">{{ $translator->trans('ernestdefoe-digest-mail.email.badges.intro', ['{period}' => $periodWord]) }}</p>
     </td></tr>
 
     @foreach ($bdgEarners as $earner)
@@ -562,14 +562,14 @@ $discRow = function ($disc, string $metaHtml) use ($url, $c, $renderAvatar) {
             <td style="width:{{ $bdgRarest ? '48%' : '100%' }}; vertical-align:top; @if ($bdgRarest) padding-right:8px; @endif">
                 <table width="100%" cellpadding="0" cellspacing="0" role="presentation">
                     <tr><td class="surface2 card-tint" style="background-color:{{ $c['surface2'] }}; border:0.5px solid {{ $c['border'] }}; border-radius:10px; padding:18px 20px;">
-                        <p style="margin:0 0 12px; font-size:10px; font-weight:600; letter-spacing:1.5px; text-transform:uppercase; color:{{ $primaryColor }};">&#128293; {{ $translator->trans('resofire-digest-mail.email.badges.most_earned', ['{period}' => ucfirst($periodWord)]) }}</p>
+                        <p style="margin:0 0 12px; font-size:10px; font-weight:600; letter-spacing:1.5px; text-transform:uppercase; color:{{ $primaryColor }};">&#128293; {{ $translator->trans('ernestdefoe-digest-mail.email.badges.most_earned', ['{period}' => ucfirst($periodWord)]) }}</p>
                         <table cellpadding="0" cellspacing="0" role="presentation"><tr>
                             <td style="vertical-align:middle; padding-right:12px;">
                                 {!! $badgeCircle($mb, 40) !!}
                             </td>
                             <td style="vertical-align:middle;">
                                 <div class="t-main" style="font-size:15px; font-weight:500; color:{{ $c['text'] }}; margin-bottom:3px;">{{ $mb->name }}</div>
-                                <div class="t-muted" style="font-size:13px; color:{{ $c['textMuted'] }};">{{ $mc === 1 ? $translator->trans('resofire-digest-mail.email.badges.earned_count_singular', ['{count}' => $mc, '{period}' => $periodWord]) : $translator->trans('resofire-digest-mail.email.badges.earned_count_plural', ['{count}' => $mc, '{period}' => $periodWord]) }}</div>
+                                <div class="t-muted" style="font-size:13px; color:{{ $c['textMuted'] }};">{{ $mc === 1 ? $translator->trans('ernestdefoe-digest-mail.email.badges.earned_count_singular', ['{count}' => $mc, '{period}' => $periodWord]) : $translator->trans('ernestdefoe-digest-mail.email.badges.earned_count_plural', ['{count}' => $mc, '{period}' => $periodWord]) }}</div>
                             </td>
                         </tr></table>
                     </td></tr>
@@ -582,14 +582,14 @@ $discRow = function ($disc, string $metaHtml) use ($url, $c, $renderAvatar) {
             <td style="width:{{ $bdgMostEarned ? '48%' : '100%' }}; vertical-align:top; @if ($bdgMostEarned) padding-left:8px; @endif">
                 <table width="100%" cellpadding="0" cellspacing="0" role="presentation">
                     <tr><td class="surface2 card-tint" style="background-color:{{ $c['surface2'] }}; border:0.5px solid {{ $c['border'] }}; border-radius:10px; padding:18px 20px;">
-                        <p style="margin:0 0 12px; font-size:10px; font-weight:600; letter-spacing:1.5px; text-transform:uppercase; color:{{ $primaryColor }};">&#128142; {{ $translator->trans('resofire-digest-mail.email.badges.rarest') }}</p>
+                        <p style="margin:0 0 12px; font-size:10px; font-weight:600; letter-spacing:1.5px; text-transform:uppercase; color:{{ $primaryColor }};">&#128142; {{ $translator->trans('ernestdefoe-digest-mail.email.badges.rarest') }}</p>
                         <table cellpadding="0" cellspacing="0" role="presentation"><tr>
                             <td style="vertical-align:middle; padding-right:12px;">
                                 {!! $badgeCircle($rb, 40) !!}
                             </td>
                             <td style="vertical-align:middle;">
                                 <div class="t-main" style="font-size:15px; font-weight:500; color:{{ $c['text'] }}; margin-bottom:3px;">{{ $rb->name }}</div>
-                                <div class="t-muted" style="font-size:13px; color:{{ $c['textMuted'] }};">{{ $rc === 1 ? $translator->trans('resofire-digest-mail.email.badges.rarest_count_singular', ['{count}' => $rc]) : $translator->trans('resofire-digest-mail.email.badges.rarest_count_plural', ['{count}' => $rc]) }}</div>
+                                <div class="t-muted" style="font-size:13px; color:{{ $c['textMuted'] }};">{{ $rc === 1 ? $translator->trans('ernestdefoe-digest-mail.email.badges.rarest_count_singular', ['{count}' => $rc]) : $translator->trans('ernestdefoe-digest-mail.email.badges.rarest_count_plural', ['{count}' => $rc]) }}</div>
                             </td>
                         </tr></table>
                     </td></tr>
@@ -611,13 +611,13 @@ $discRow = function ($disc, string $metaHtml) use ($url, $c, $renderAvatar) {
 @if ($pkEnabled && (!empty($pkUpcoming) || !empty($pkResults) || !empty($pkLeaderboard)))
 {!! $sectionDivider() !!}
 <table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="margin-bottom:36px;">
-    <tr><td>{!! $sectionHeader($translator->trans('resofire-digest-mail.email.sections.pickem')) !!}</td></tr>
+    <tr><td>{!! $sectionHeader($translator->trans('ernestdefoe-digest-mail.email.sections.pickem')) !!}</td></tr>
 
     {{-- Upcoming matches --}}
     @if (!empty($pkUpcoming))
     <tr><td style="padding-bottom:12px;">
-        <p style="margin:0 0 6px; font-size:13px; font-weight:600; letter-spacing:1px; text-transform:uppercase; color:{{ $c['textMuted'] }};">{{ $translator->trans('resofire-digest-mail.email.pickem.upcoming_heading') }}</p>
-        <p class="t-muted" style="margin:0; font-size:14px; color:{{ $c['textMuted'] }}; line-height:1.6;">{{ $translator->trans('resofire-digest-mail.email.pickem.upcoming_note') }}</p>
+        <p style="margin:0 0 6px; font-size:13px; font-weight:600; letter-spacing:1px; text-transform:uppercase; color:{{ $c['textMuted'] }};">{{ $translator->trans('ernestdefoe-digest-mail.email.pickem.upcoming_heading') }}</p>
+        <p class="t-muted" style="margin:0; font-size:14px; color:{{ $c['textMuted'] }}; line-height:1.6;">{{ $translator->trans('ernestdefoe-digest-mail.email.pickem.upcoming_note') }}</p>
     </td></tr>
     @foreach ($pkUpcoming as $ev)
     <tr>
@@ -637,14 +637,14 @@ $discRow = function ($disc, string $metaHtml) use ($url, $c, $renderAvatar) {
     </tr>
     @endforeach
     <tr><td style="padding-top:22px; text-align:center;">
-        <a href="{{ $pkForumUrl }}" style="display:inline-block; padding:11px 28px; background-color:{{ $primaryColor }}; color:#fff; font-size:14px; font-weight:500; text-decoration:none; border-radius:6px;">{{ $translator->trans('resofire-digest-mail.email.pickem.cta') }}</a>
+        <a href="{{ $pkForumUrl }}" style="display:inline-block; padding:11px 28px; background-color:{{ $primaryColor }}; color:#fff; font-size:14px; font-weight:500; text-decoration:none; border-radius:6px;">{{ $translator->trans('ernestdefoe-digest-mail.email.pickem.cta') }}</a>
     </td></tr>
     @endif
 
     {{-- Recent results --}}
     @if (!empty($pkResults))
     <tr><td style="padding:{{ !empty($pkUpcoming) ? '32px' : '0px' }} 0 12px;">
-        <p style="margin:0; font-size:13px; font-weight:600; letter-spacing:1px; text-transform:uppercase; color:{{ $c['textMuted'] }};">{{ $translator->trans('resofire-digest-mail.email.pickem.results_heading') }}</p>
+        <p style="margin:0; font-size:13px; font-weight:600; letter-spacing:1px; text-transform:uppercase; color:{{ $c['textMuted'] }};">{{ $translator->trans('ernestdefoe-digest-mail.email.pickem.results_heading') }}</p>
     </td></tr>
     @foreach ($pkResults as $res)
     @php
@@ -661,7 +661,7 @@ $discRow = function ($disc, string $metaHtml) use ($url, $c, $renderAvatar) {
                 </td>
                 <td style="vertical-align:middle; text-align:center; width:30%;">
                     <span class="score-bg" style="font-size:20px; font-weight:600; color:{{ $c['text'] }}; background-color:{{ $c['surface2'] }}; border:0.5px solid {{ $c['border'] }}; border-radius:8px; padding:6px 14px; white-space:nowrap; display:inline-block;">{{ $res['homeScore'] }} – {{ $res['awayScore'] }}</span>
-                    @if ($isDraw)<div class="t-muted" style="font-size:11px; font-weight:600; color:{{ $c['textMuted'] }}; text-transform:uppercase; letter-spacing:1px; margin-top:6px;">{{ $translator->trans('resofire-digest-mail.email.pickem.draw') }}</div>@endif
+                    @if ($isDraw)<div class="t-muted" style="font-size:11px; font-weight:600; color:{{ $c['textMuted'] }}; text-transform:uppercase; letter-spacing:1px; margin-top:6px;">{{ $translator->trans('ernestdefoe-digest-mail.email.pickem.draw') }}</div>@endif
                 </td>
                 <td style="vertical-align:middle; text-align:right; width:35%;">
                     {!! $renderTeam($res['awayTeam'], 'right') !!}
@@ -677,15 +677,15 @@ $discRow = function ($disc, string $metaHtml) use ($url, $c, $renderAvatar) {
     {{-- Pick'em leaderboard --}}
     @if (!empty($pkLeaderboard))
     <tr><td style="padding:{{ (!empty($pkUpcoming) || !empty($pkResults)) ? '32px' : '0px' }} 0 12px;">
-        <p style="margin:0; font-size:13px; font-weight:600; letter-spacing:1px; text-transform:uppercase; color:{{ $c['textMuted'] }};">{{ $translator->trans('resofire-digest-mail.email.pickem.leaderboard_heading') }}</p>
+        <p style="margin:0; font-size:13px; font-weight:600; letter-spacing:1px; text-transform:uppercase; color:{{ $c['textMuted'] }};">{{ $translator->trans('ernestdefoe-digest-mail.email.pickem.leaderboard_heading') }}</p>
     </td></tr>
     <tr><td>
         <table width="100%" cellpadding="0" cellspacing="0" role="presentation">
             <tr>
-                <td width="36" style="padding:0 0 10px; font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:1px; color:{{ $c['textMuted'] }};">{{ $translator->trans('resofire-digest-mail.email.pickem.col_rank') }}</td>
-                <td style="padding:0 0 10px; font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:1px; color:{{ $c['textMuted'] }};">{{ $translator->trans('resofire-digest-mail.email.pickem.col_player') }}</td>
-                <td width="48" style="padding:0 0 10px; text-align:right; font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:1px; color:{{ $c['textMuted'] }};">{{ $translator->trans('resofire-digest-mail.email.pickem.col_pts') }}</td>
-                <td width="72" style="padding:0 0 10px; text-align:right; font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:1px; color:{{ $c['textMuted'] }};">{{ $translator->trans('resofire-digest-mail.email.pickem.col_accuracy') }}</td>
+                <td width="36" style="padding:0 0 10px; font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:1px; color:{{ $c['textMuted'] }};">{{ $translator->trans('ernestdefoe-digest-mail.email.pickem.col_rank') }}</td>
+                <td style="padding:0 0 10px; font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:1px; color:{{ $c['textMuted'] }};">{{ $translator->trans('ernestdefoe-digest-mail.email.pickem.col_player') }}</td>
+                <td width="48" style="padding:0 0 10px; text-align:right; font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:1px; color:{{ $c['textMuted'] }};">{{ $translator->trans('ernestdefoe-digest-mail.email.pickem.col_pts') }}</td>
+                <td width="72" style="padding:0 0 10px; text-align:right; font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:1px; color:{{ $c['textMuted'] }};">{{ $translator->trans('ernestdefoe-digest-mail.email.pickem.col_accuracy') }}</td>
             </tr>
             @foreach ($pkLeaderboard as $entry)
             @php $pkMedals = [1=>'🥇',2=>'🥈',3=>'🥉']; $rankEmoji = $pkMedals[$entry['rank']] ?? $entry['rank'] . '.'; @endphp
@@ -722,7 +722,7 @@ $discRow = function ($disc, string $metaHtml) use ($url, $c, $renderAvatar) {
 @if ($pksEnabled && (!empty($pksUpcoming) || !empty($pksResults) || !empty($pksLeaderboard)))
 {!! $sectionDivider() !!}
 <table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="margin-bottom:36px;">
-    <tr><td>{!! $sectionHeader($translator->trans('resofire-digest-mail.email.sections.picks')) !!}</td></tr>
+    <tr><td>{!! $sectionHeader($translator->trans('ernestdefoe-digest-mail.email.sections.picks')) !!}</td></tr>
 
     {{-- Confidence mode notice --}}
     @if ($pksConfidenceMode)
@@ -731,7 +731,7 @@ $discRow = function ($disc, string $metaHtml) use ($url, $c, $renderAvatar) {
             <tr><td style="background-color:#fefce8; border:0.5px solid #fef08a; border-radius:8px; padding:10px 16px;">
                 <table width="100%" cellpadding="0" cellspacing="0" role="presentation"><tr>
                     <td width="20" style="vertical-align:middle; padding-right:10px; font-size:16px; line-height:1;">&#9733;</td>
-                    <td style="vertical-align:middle; font-size:13px; color:#854d0e; line-height:1.5;">{{ $translator->trans('resofire-digest-mail.email.picks.confidence_note') }}</td>
+                    <td style="vertical-align:middle; font-size:13px; color:#854d0e; line-height:1.5;">{{ $translator->trans('ernestdefoe-digest-mail.email.picks.confidence_note') }}</td>
                 </tr></table>
             </td></tr>
         </table>
@@ -748,15 +748,15 @@ $discRow = function ($disc, string $metaHtml) use ($url, $c, $renderAvatar) {
     <tr><td style="padding-bottom:12px;">
         <table width="100%" cellpadding="0" cellspacing="0" role="presentation"><tr>
             <td style="vertical-align:middle;">
-                <p style="margin:0; font-size:13px; font-weight:600; letter-spacing:1px; text-transform:uppercase; color:{{ $c['textMuted'] }};">{{ $translator->trans('resofire-digest-mail.email.picks.upcoming_heading') }}@if ($pksWeekName) &nbsp;&mdash;&nbsp; {{ e($pksWeekName) }}@endif</p>
+                <p style="margin:0; font-size:13px; font-weight:600; letter-spacing:1px; text-transform:uppercase; color:{{ $c['textMuted'] }};">{{ $translator->trans('ernestdefoe-digest-mail.email.picks.upcoming_heading') }}@if ($pksWeekName) &nbsp;&mdash;&nbsp; {{ e($pksWeekName) }}@endif</p>
             </td>
             @if ($pksWeekIsOpen)
             <td style="vertical-align:middle; text-align:right;">
-                <span style="font-size:10px; font-weight:600; letter-spacing:1px; text-transform:uppercase; background-color:#dcfce7; color:#166534; border-radius:4px; padding:3px 8px; white-space:nowrap;">{{ $translator->trans('resofire-digest-mail.email.picks.week_open') }}</span>
+                <span style="font-size:10px; font-weight:600; letter-spacing:1px; text-transform:uppercase; background-color:#dcfce7; color:#166534; border-radius:4px; padding:3px 8px; white-space:nowrap;">{{ $translator->trans('ernestdefoe-digest-mail.email.picks.week_open') }}</span>
             </td>
             @endif
         </tr></table>
-        <p class="t-muted" style="margin:6px 0 0; font-size:14px; color:{{ $c['textMuted'] }}; line-height:1.6;">{{ $translator->trans('resofire-digest-mail.email.picks.upcoming_note') }}</p>
+        <p class="t-muted" style="margin:6px 0 0; font-size:14px; color:{{ $c['textMuted'] }}; line-height:1.6;">{{ $translator->trans('ernestdefoe-digest-mail.email.picks.upcoming_note') }}</p>
     </td></tr>
     @foreach ($pksUpcoming as $ev)
     @php
@@ -790,7 +790,7 @@ $discRow = function ($disc, string $metaHtml) use ($url, $c, $renderAvatar) {
                     <span class="vs-bg" style="font-size:12px; font-weight:600; color:{{ $c['textMuted'] }}; background-color:{{ $c['surface2'] }}; border:0.5px solid {{ $c['border'] }}; border-radius:6px; padding:5px 14px;">vs</span>
                     @if ($ev['neutralSite'])
                     <div style="margin-top:6px;">
-                        <span style="font-size:10px; font-weight:600; letter-spacing:0.8px; text-transform:uppercase; background-color:{{ $c['surface2'] }}; color:{{ $c['textMuted'] }}; border-radius:4px; padding:2px 7px;">{{ $translator->trans('resofire-digest-mail.email.picks.neutral_site') }}</span>
+                        <span style="font-size:10px; font-weight:600; letter-spacing:0.8px; text-transform:uppercase; background-color:{{ $c['surface2'] }}; color:{{ $c['textMuted'] }}; border-radius:4px; padding:2px 7px;">{{ $translator->trans('ernestdefoe-digest-mail.email.picks.neutral_site') }}</span>
                     </div>
                     @endif
                 </td>
@@ -810,14 +810,14 @@ $discRow = function ($disc, string $metaHtml) use ($url, $c, $renderAvatar) {
     </tr>
     @endforeach
     <tr><td style="padding-top:22px; text-align:center;">
-        <a href="{{ $pksForumUrl }}" style="display:inline-block; padding:11px 28px; background-color:{{ $primaryColor }}; color:#fff; font-size:14px; font-weight:500; text-decoration:none; border-radius:6px;">{{ $translator->trans('resofire-digest-mail.email.picks.cta') }}</a>
+        <a href="{{ $pksForumUrl }}" style="display:inline-block; padding:11px 28px; background-color:{{ $primaryColor }}; color:#fff; font-size:14px; font-weight:500; text-decoration:none; border-radius:6px;">{{ $translator->trans('ernestdefoe-digest-mail.email.picks.cta') }}</a>
     </td></tr>
     @endif
 
     {{-- Recent results --}}
     @if (!empty($pksResults))
     <tr><td style="padding:{{ !empty($pksUpcoming) ? '32px' : '0px' }} 0 12px;">
-        <p style="margin:0; font-size:13px; font-weight:600; letter-spacing:1px; text-transform:uppercase; color:{{ $c['textMuted'] }};">{{ $translator->trans('resofire-digest-mail.email.picks.results_heading') }}</p>
+        <p style="margin:0; font-size:13px; font-weight:600; letter-spacing:1px; text-transform:uppercase; color:{{ $c['textMuted'] }};">{{ $translator->trans('ernestdefoe-digest-mail.email.picks.results_heading') }}</p>
     </td></tr>
     @foreach ($pksResults as $res)
     @php
@@ -845,7 +845,7 @@ $discRow = function ($disc, string $metaHtml) use ($url, $c, $renderAvatar) {
                         <img src="{{ $pksResHomeLogo }}" alt="{{ $pksResHomeAbbr }}" width="56" height="56" style="width:56px; height:56px; object-fit:contain; display:block; border-radius:6px;" />
                     @endif
                     <span style="font-size:14px; font-weight:500; color:{{ $c['text'] }}; display:block; margin-top:6px;">{{ e($res['homeTeam']->name) }}</span>
-                    @if ($pksHomeWon)<div style="font-size:13px; margin-top:4px;">&#127942; <span style="color:#16a34a; font-weight:500;">{{ $translator->trans('resofire-digest-mail.email.picks.winner') }}</span></div>@endif
+                    @if ($pksHomeWon)<div style="font-size:13px; margin-top:4px;">&#127942; <span style="color:#16a34a; font-weight:500;">{{ $translator->trans('ernestdefoe-digest-mail.email.picks.winner') }}</span></div>@endif
                 </td>
                 {{-- Score --}}
                 <td style="vertical-align:middle; text-align:center; width:30%;">
@@ -857,7 +857,7 @@ $discRow = function ($disc, string $metaHtml) use ($url, $c, $renderAvatar) {
                         <img src="{{ $pksResAwayLogo }}" alt="{{ $pksResAwayAbbr }}" width="56" height="56" style="width:56px; height:56px; object-fit:contain; display:block; border-radius:6px; margin-left:auto;" />
                     @endif
                     <span style="font-size:14px; font-weight:500; color:{{ $c['text'] }}; display:block; margin-top:6px; text-align:right;">{{ e($res['awayTeam']->name) }}</span>
-                    @if ($pksAwayWon)<div style="font-size:13px; margin-top:4px; text-align:right;">&#127942; <span style="color:#16a34a; font-weight:500;">{{ $translator->trans('resofire-digest-mail.email.picks.winner') }}</span></div>@endif
+                    @if ($pksAwayWon)<div style="font-size:13px; margin-top:4px; text-align:right;">&#127942; <span style="color:#16a34a; font-weight:500;">{{ $translator->trans('ernestdefoe-digest-mail.email.picks.winner') }}</span></div>@endif
                 </td>
             </tr></table>
             <p class="t-muted" style="margin:8px 0 0; font-size:13px; color:{{ $c['textMuted'] }};">{{ $res['matchDate']->format('D, M j') }}</p>
@@ -874,10 +874,10 @@ $discRow = function ($disc, string $metaHtml) use ($url, $c, $renderAvatar) {
     <tr><td>
         <table width="100%" cellpadding="0" cellspacing="0" role="presentation">
             <tr>
-                <td width="36" style="padding:0 0 10px; font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:1px; color:{{ $c['textMuted'] }};">{{ $translator->trans('resofire-digest-mail.email.picks.col_rank') }}</td>
-                <td style="padding:0 0 10px; font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:1px; color:{{ $c['textMuted'] }};">{{ $translator->trans('resofire-digest-mail.email.picks.col_player') }}</td>
-                <td width="60" style="padding:0 8px 10px 0; text-align:right; font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:1px; color:{{ $c['textMuted'] }};">{{ $translator->trans('resofire-digest-mail.email.picks.col_pts') }}</td>
-                <td width="68" style="padding:0 0 10px; text-align:right; font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:1px; color:{{ $c['textMuted'] }};">{{ $translator->trans('resofire-digest-mail.email.picks.col_accuracy') }}</td>
+                <td width="36" style="padding:0 0 10px; font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:1px; color:{{ $c['textMuted'] }};">{{ $translator->trans('ernestdefoe-digest-mail.email.picks.col_rank') }}</td>
+                <td style="padding:0 0 10px; font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:1px; color:{{ $c['textMuted'] }};">{{ $translator->trans('ernestdefoe-digest-mail.email.picks.col_player') }}</td>
+                <td width="60" style="padding:0 8px 10px 0; text-align:right; font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:1px; color:{{ $c['textMuted'] }};">{{ $translator->trans('ernestdefoe-digest-mail.email.picks.col_pts') }}</td>
+                <td width="68" style="padding:0 0 10px; text-align:right; font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:1px; color:{{ $c['textMuted'] }};">{{ $translator->trans('ernestdefoe-digest-mail.email.picks.col_accuracy') }}</td>
             </tr>
             @foreach ($pksLeaderboard as $entry)
             @php
@@ -885,13 +885,13 @@ $discRow = function ($disc, string $metaHtml) use ($url, $c, $renderAvatar) {
                 $pksRankEmoji = $pksMedals[$entry['rank']] ?? ($entry['rank'] . '.');
                 $pksMovement  = $entry['movement'];
                 if ($pksMovement === null) {
-                    $pksMoveHtml = '<span style="font-size:11px; font-weight:600; color:#2fa899;">&#9733; ' . $translator->trans('resofire-digest-mail.email.picks.move_new') . '</span>';
+                    $pksMoveHtml = '<span style="font-size:11px; font-weight:600; color:#2fa899;">&#9733; ' . $translator->trans('ernestdefoe-digest-mail.email.picks.move_new') . '</span>';
                 } elseif ($pksMovement > 0) {
-                    $pksMoveHtml = '<span style="font-size:11px; font-weight:600; color:#16a34a;">&#9650; ' . $translator->trans('resofire-digest-mail.email.picks.move_up', ['{n}' => $pksMovement]) . '</span>';
+                    $pksMoveHtml = '<span style="font-size:11px; font-weight:600; color:#16a34a;">&#9650; ' . $translator->trans('ernestdefoe-digest-mail.email.picks.move_up', ['{n}' => $pksMovement]) . '</span>';
                 } elseif ($pksMovement < 0) {
-                    $pksMoveHtml = '<span style="font-size:11px; font-weight:600; color:#dc2626;">&#9660; ' . $translator->trans('resofire-digest-mail.email.picks.move_down', ['{n}' => abs($pksMovement)]) . '</span>';
+                    $pksMoveHtml = '<span style="font-size:11px; font-weight:600; color:#dc2626;">&#9660; ' . $translator->trans('ernestdefoe-digest-mail.email.picks.move_down', ['{n}' => abs($pksMovement)]) . '</span>';
                 } else {
-                    $pksMoveHtml = '<span style="font-size:11px; color:#9ca3af;">' . $translator->trans('resofire-digest-mail.email.picks.move_held') . '</span>';
+                    $pksMoveHtml = '<span style="font-size:11px; color:#9ca3af;">' . $translator->trans('ernestdefoe-digest-mail.email.picks.move_held') . '</span>';
                 }
             @endphp
             <tr>
@@ -927,11 +927,11 @@ $discRow = function ($disc, string $metaHtml) use ($url, $c, $renderAvatar) {
 @if ($gpEnabled && (!empty($gpMostDiscussed) || !empty($gpNewGames)))
 {!! $sectionDivider() !!}
 <table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="margin-bottom:36px;">
-    <tr><td>{!! $sectionHeader($translator->trans('resofire-digest-mail.email.sections.gamepedia')) !!}</td></tr>
+    <tr><td>{!! $sectionHeader($translator->trans('ernestdefoe-digest-mail.email.sections.gamepedia')) !!}</td></tr>
 
     {{-- Most discussed --}}
     <tr><td style="padding-bottom:16px;">
-        <p style="margin:0; font-size:12px; font-weight:600; letter-spacing:1px; text-transform:uppercase; text-align:center; color:{{ $c['textMuted'] }};">{{ $translator->trans('resofire-digest-mail.email.gamepedia.most_discussed', ['{period}' => ucfirst($periodWord)]) }}</p>
+        <p style="margin:0; font-size:12px; font-weight:600; letter-spacing:1px; text-transform:uppercase; text-align:center; color:{{ $c['textMuted'] }};">{{ $translator->trans('ernestdefoe-digest-mail.email.gamepedia.most_discussed', ['{period}' => ucfirst($periodWord)]) }}</p>
     </td></tr>
     <tr><td>
         <table width="100%" cellpadding="0" cellspacing="0" role="presentation"><tr>
@@ -968,7 +968,7 @@ $discRow = function ($disc, string $metaHtml) use ($url, $c, $renderAvatar) {
     {{-- New games --}}
     @if (!empty($gpNewGames))
     <tr><td style="padding:{{ !empty($gpMostDiscussed) ? '28px' : '0px' }} 0 16px;">
-        <p style="margin:0; font-size:12px; font-weight:600; letter-spacing:1px; text-transform:uppercase; text-align:center; color:{{ $c['textMuted'] }};">{{ $translator->trans('resofire-digest-mail.email.gamepedia.newly_added') }}</p>
+        <p style="margin:0; font-size:12px; font-weight:600; letter-spacing:1px; text-transform:uppercase; text-align:center; color:{{ $c['textMuted'] }};">{{ $translator->trans('ernestdefoe-digest-mail.email.gamepedia.newly_added') }}</p>
     </td></tr>
     <tr><td>
         <table width="100%" cellpadding="0" cellspacing="0" role="presentation"><tr>
@@ -1003,7 +1003,7 @@ $discRow = function ($disc, string $metaHtml) use ($url, $c, $renderAvatar) {
 
     {{-- CTA --}}
     <tr><td style="padding-top:24px; text-align:center;">
-        <a href="{{ $gpForumUrl }}" style="display:inline-block; padding:11px 28px; background-color:{{ $primaryColor }}; color:#fff; font-size:14px; font-weight:500; text-decoration:none; border-radius:6px;">{{ $translator->trans('resofire-digest-mail.email.gamepedia.cta') }}</a>
+        <a href="{{ $gpForumUrl }}" style="display:inline-block; padding:11px 28px; background-color:{{ $primaryColor }}; color:#fff; font-size:14px; font-weight:500; text-decoration:none; border-radius:6px;">{{ $translator->trans('ernestdefoe-digest-mail.email.gamepedia.cta') }}</a>
     </td></tr>
 
 </table>
@@ -1016,11 +1016,11 @@ $discRow = function ($disc, string $metaHtml) use ($url, $c, $renderAvatar) {
 @if ($rgpEnabled && (!empty($rgpMostDiscussed) || !empty($rgpNewGames) || !empty($rgpTopGenres)))
 {!! $sectionDivider() !!}
 <table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="margin-bottom:36px;">
-    <tr><td>{!! $sectionHeader($translator->trans('resofire-digest-mail.email.sections.gamepedia')) !!}</td></tr>
+    <tr><td>{!! $sectionHeader($translator->trans('ernestdefoe-digest-mail.email.sections.gamepedia')) !!}</td></tr>
 
     {{-- Most discussed --}}
     <tr><td style="padding-bottom:16px;">
-        <p style="margin:0; font-size:12px; font-weight:600; letter-spacing:1px; text-transform:uppercase; text-align:center; color:{{ $c['textMuted'] }};">{{ $translator->trans('resofire-digest-mail.email.resofire_gamepedia.most_discussed', ['{period}' => ucfirst($periodWord)]) }}</p>
+        <p style="margin:0; font-size:12px; font-weight:600; letter-spacing:1px; text-transform:uppercase; text-align:center; color:{{ $c['textMuted'] }};">{{ $translator->trans('ernestdefoe-digest-mail.email.resofire_gamepedia.most_discussed', ['{period}' => ucfirst($periodWord)]) }}</p>
     </td></tr>
     <tr><td>
         <table width="100%" cellpadding="0" cellspacing="0" role="presentation"><tr>
@@ -1061,7 +1061,7 @@ $discRow = function ($disc, string $metaHtml) use ($url, $c, $renderAvatar) {
     {{-- New games --}}
     @if (!empty($rgpNewGames))
     <tr><td style="padding:{{ !empty($rgpMostDiscussed) ? '28px' : '0px' }} 0 16px;">
-        <p style="margin:0; font-size:12px; font-weight:600; letter-spacing:1px; text-transform:uppercase; text-align:center; color:{{ $c['textMuted'] }};">{{ $translator->trans('resofire-digest-mail.email.resofire_gamepedia.newly_added') }}</p>
+        <p style="margin:0; font-size:12px; font-weight:600; letter-spacing:1px; text-transform:uppercase; text-align:center; color:{{ $c['textMuted'] }};">{{ $translator->trans('ernestdefoe-digest-mail.email.resofire_gamepedia.newly_added') }}</p>
     </td></tr>
     <tr><td>
         <table width="100%" cellpadding="0" cellspacing="0" role="presentation"><tr>
@@ -1101,7 +1101,7 @@ $discRow = function ($disc, string $metaHtml) use ($url, $c, $renderAvatar) {
     {{-- Top genres --}}
     @if (!empty($rgpTopGenres))
     <tr><td style="padding:{{ (!empty($rgpMostDiscussed) || !empty($rgpNewGames)) ? '28px' : '0px' }} 0 16px;">
-        <p style="margin:0; font-size:12px; font-weight:600; letter-spacing:1px; text-transform:uppercase; text-align:center; color:{{ $c['textMuted'] }};">{{ $translator->trans('resofire-digest-mail.email.resofire_gamepedia.top_genres', ['{period}' => ucfirst($periodWord)]) }}</p>
+        <p style="margin:0; font-size:12px; font-weight:600; letter-spacing:1px; text-transform:uppercase; text-align:center; color:{{ $c['textMuted'] }};">{{ $translator->trans('ernestdefoe-digest-mail.email.resofire_gamepedia.top_genres', ['{period}' => ucfirst($periodWord)]) }}</p>
     </td></tr>
     <tr><td>
         <table width="100%" cellpadding="0" cellspacing="0" role="presentation">
@@ -1128,7 +1128,7 @@ $discRow = function ($disc, string $metaHtml) use ($url, $c, $renderAvatar) {
 
     {{-- CTA --}}
     <tr><td style="padding-top:24px; text-align:center;">
-        <a href="{{ $rgpForumUrl }}" style="display:inline-block; padding:11px 28px; background-color:{{ $primaryColor }}; color:#fff; font-size:14px; font-weight:500; text-decoration:none; border-radius:6px;">{{ $translator->trans('resofire-digest-mail.email.resofire_gamepedia.cta') }}</a>
+        <a href="{{ $rgpForumUrl }}" style="display:inline-block; padding:11px 28px; background-color:{{ $primaryColor }}; color:#fff; font-size:14px; font-weight:500; text-decoration:none; border-radius:6px;">{{ $translator->trans('ernestdefoe-digest-mail.email.resofire_gamepedia.cta') }}</a>
     </td></tr>
 
 </table>
@@ -1141,7 +1141,7 @@ $discRow = function ($disc, string $metaHtml) use ($url, $c, $renderAvatar) {
 @if (!empty($favEntries))
 {!! $sectionDivider() !!}
 <table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="margin-bottom:36px;">
-    <tr><td>{!! $sectionHeader($translator->trans('resofire-digest-mail.email.sections.favorites')) !!}</td></tr>
+    <tr><td>{!! $sectionHeader($translator->trans('ernestdefoe-digest-mail.email.sections.favorites')) !!}</td></tr>
     <tr><td>
         <table width="100%" cellpadding="0" cellspacing="0" role="presentation"><tr>
         @php $favCol = 0; @endphp
@@ -1267,7 +1267,7 @@ $discRow = function ($disc, string $metaHtml) use ($url, $c, $renderAvatar) {
                 </div>
                 <div style="font-size:13px; color:{{ $c['textMuted'] }}; margin-top:6px;">until voting opens &mdash; {{ $awDeadline }}</div>
                 @else
-                <div style="font-size:16px; font-weight:700; color:{{ $primaryColor }}; line-height:1;">{{ $translator->trans('resofire-digest-mail.email.awards.coming_soon') }}</div>
+                <div style="font-size:16px; font-weight:700; color:{{ $primaryColor }}; line-height:1;">{{ $translator->trans('ernestdefoe-digest-mail.email.awards.coming_soon') }}</div>
                 @endif
                 @if (!empty($awCats))
                 <div style="margin-top:16px; font-size:13px; color:{{ $c['text'] }}; font-weight:600;">
@@ -1315,7 +1315,7 @@ $discRow = function ($disc, string $metaHtml) use ($url, $c, $renderAvatar) {
     {{-- Category list with nominee counts --}}
     @if (!empty($awCats))
     <tr><td style="padding-bottom:16px;">
-        <p style="margin:0 0 12px; font-size:12px; font-weight:600; letter-spacing:1px; text-transform:uppercase; text-align:center; color:{{ $c['textMuted'] }};">{{ $translator->trans('resofire-digest-mail.email.awards.categories') }}</p>
+        <p style="margin:0 0 12px; font-size:12px; font-weight:600; letter-spacing:1px; text-transform:uppercase; text-align:center; color:{{ $c['textMuted'] }};">{{ $translator->trans('ernestdefoe-digest-mail.email.awards.categories') }}</p>
         <table width="100%" cellpadding="0" cellspacing="0" role="presentation">
         @foreach ($awCats as $cat)
         <tr><td style="padding:8px 0; border-bottom:0.5px solid {{ $c['border'] }};">
@@ -1337,7 +1337,7 @@ $discRow = function ($disc, string $metaHtml) use ($url, $c, $renderAvatar) {
     {{-- Front-runners (show_live_votes only) --}}
     @if ($awShowVotes && !empty($awTop))
     <tr><td style="padding-bottom:20px; padding-top:8px;">
-        <p style="margin:0 0 12px; font-size:12px; font-weight:600; letter-spacing:1px; text-transform:uppercase; text-align:center; color:{{ $c['textMuted'] }};">{{ $translator->trans('resofire-digest-mail.email.awards.front_runners') }}</p>
+        <p style="margin:0 0 12px; font-size:12px; font-weight:600; letter-spacing:1px; text-transform:uppercase; text-align:center; color:{{ $c['textMuted'] }};">{{ $translator->trans('ernestdefoe-digest-mail.email.awards.front_runners') }}</p>
         <table width="100%" cellpadding="0" cellspacing="0" role="presentation"><tr>
         @php $awTopCol = 0; @endphp
         @foreach ($awTop as $tn)
@@ -1372,8 +1372,8 @@ $discRow = function ($disc, string $metaHtml) use ($url, $c, $renderAvatar) {
     <tr><td style="padding-bottom:24px;">
         <table width="100%" cellpadding="0" cellspacing="0" role="presentation">
             <tr><td style="background-color:{{ $c['surface2'] }}; border:1px solid {{ $c['border'] }}; border-radius:10px; padding:24px; text-align:center;">
-                <div style="font-size:16px; font-weight:700; color:{{ $c['text'] }}; margin-bottom:6px;">{{ $translator->trans('resofire-digest-mail.email.awards.voting_closed') }}</div>
-                <div style="font-size:13px; color:{{ $c['textMuted'] }}; line-height:1.6;">{{ $translator->trans('resofire-digest-mail.email.awards.tallying') }}</div>
+                <div style="font-size:16px; font-weight:700; color:{{ $c['text'] }}; margin-bottom:6px;">{{ $translator->trans('ernestdefoe-digest-mail.email.awards.voting_closed') }}</div>
+                <div style="font-size:13px; color:{{ $c['textMuted'] }}; line-height:1.6;">{{ $translator->trans('ernestdefoe-digest-mail.email.awards.tallying') }}</div>
             </td></tr>
         </table>
     </td></tr>
@@ -1416,13 +1416,13 @@ $discRow = function ($disc, string $metaHtml) use ($url, $c, $renderAvatar) {
     {{-- CTA button --}}
     <tr><td style="padding-top:20px; text-align:center;">
         @if ($awStatus === 'active')
-            <a href="{{ $awUrl }}" style="display:inline-block; padding:13px 32px; background-color:{{ $primaryColor }}; color:#fff; font-size:15px; font-weight:600; text-decoration:none; border-radius:8px; letter-spacing:.3px;">{{ $translator->trans('resofire-digest-mail.email.awards.cta_vote') }} &rarr;</a>
+            <a href="{{ $awUrl }}" style="display:inline-block; padding:13px 32px; background-color:{{ $primaryColor }}; color:#fff; font-size:15px; font-weight:600; text-decoration:none; border-radius:8px; letter-spacing:.3px;">{{ $translator->trans('ernestdefoe-digest-mail.email.awards.cta_vote') }} &rarr;</a>
         @elseif ($awStatus === 'upcoming')
-            <a href="{{ $awUrl }}" style="display:inline-block; padding:13px 32px; background-color:{{ $primaryColor }}; color:#fff; font-size:15px; font-weight:600; text-decoration:none; border-radius:8px; letter-spacing:.3px;">{{ $translator->trans('resofire-digest-mail.email.awards.cta_nominees') }} &rarr;</a>
+            <a href="{{ $awUrl }}" style="display:inline-block; padding:13px 32px; background-color:{{ $primaryColor }}; color:#fff; font-size:15px; font-weight:600; text-decoration:none; border-radius:8px; letter-spacing:.3px;">{{ $translator->trans('ernestdefoe-digest-mail.email.awards.cta_nominees') }} &rarr;</a>
         @elseif ($awStatus === 'ended')
-            <a href="{{ $awUrl }}" style="display:inline-block; padding:13px 32px; background-color:{{ $primaryColor }}; color:#fff; font-size:15px; font-weight:600; text-decoration:none; border-radius:8px; letter-spacing:.3px;">{{ $translator->trans('resofire-digest-mail.email.awards.cta_view') }} &rarr;</a>
+            <a href="{{ $awUrl }}" style="display:inline-block; padding:13px 32px; background-color:{{ $primaryColor }}; color:#fff; font-size:15px; font-weight:600; text-decoration:none; border-radius:8px; letter-spacing:.3px;">{{ $translator->trans('ernestdefoe-digest-mail.email.awards.cta_view') }} &rarr;</a>
         @elseif ($awStatus === 'published')
-            <a href="{{ $awUrl }}" style="display:inline-block; padding:13px 32px; background-color:{{ $primaryColor }}; color:#fff; font-size:15px; font-weight:600; text-decoration:none; border-radius:8px; letter-spacing:.3px;">{{ $translator->trans('resofire-digest-mail.email.awards.cta_results') }} &rarr;</a>
+            <a href="{{ $awUrl }}" style="display:inline-block; padding:13px 32px; background-color:{{ $primaryColor }}; color:#fff; font-size:15px; font-weight:600; text-decoration:none; border-radius:8px; letter-spacing:.3px;">{{ $translator->trans('ernestdefoe-digest-mail.email.awards.cta_results') }} &rarr;</a>
         @endif
     </td></tr>
 
@@ -1453,7 +1453,7 @@ $discRow = function ($disc, string $metaHtml) use ($url, $c, $renderAvatar) {
             You're receiving this because you're a member of <a href="{{ $forumUrl }}" class="t-muted" style="color:{{ $c['textMuted'] }}; text-decoration:underline;">{{ $forumTitle }}</a>. Your digest is currently set to <strong>{{ $content->frequency }}</strong>.
         </p>
         <p class="t-muted" style="margin:0; font-size:13px; color:{{ $c['textMuted'] }};">
-            <a href="{{ $unsubscribeUrl }}" class="t-muted" style="color:{{ $c['textMuted'] }}; text-decoration:underline;">{{ $translator->trans('resofire-digest-mail.email.footer.unsubscribe') }}</a>
+            <a href="{{ $unsubscribeUrl }}" class="t-muted" style="color:{{ $c['textMuted'] }}; text-decoration:underline;">{{ $translator->trans('ernestdefoe-digest-mail.email.footer.unsubscribe') }}</a>
             &nbsp;&middot;&nbsp;
             <a href="{{ $forumUrl }}" class="t-muted" style="color:{{ $c['textMuted'] }}; text-decoration:underline;">{{ $forumTitle }}</a>
             &nbsp;&middot;&nbsp; &copy; {{ $year }}

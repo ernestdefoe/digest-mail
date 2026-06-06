@@ -34,7 +34,7 @@ class DigestQuery
      */
     public function getFeaturedDiscussion(User $actor): ?Discussion
     {
-        $raw = $this->settings->get('resofire-digest-mail.featured_discussion_id');
+        $raw = $this->settings->get('ernestdefoe-digest-mail.featured_discussion_id');
         if (!$raw) return null;
 
         $id = (int) $raw;
@@ -77,8 +77,8 @@ class DigestQuery
 
     public function getHotDiscussions(User $actor, Carbon $since, int $limit): Collection
     {
-        $replyWeight   = (float) $this->settings->get('resofire-digest-mail.hot_reply_weight',   1.0);
-        $recencyWeight = (float) $this->settings->get('resofire-digest-mail.hot_recency_weight', 0.5);
+        $replyWeight   = (float) $this->settings->get('ernestdefoe-digest-mail.hot_reply_weight',   1.0);
+        $recencyWeight = (float) $this->settings->get('ernestdefoe-digest-mail.hot_recency_weight', 0.5);
 
         return Discussion::whereVisibleTo($actor)
             ->select([
@@ -167,7 +167,7 @@ class DigestQuery
     public function getBadges(Carbon $since, int $limit = 10): array
     {
         $extInstalled = $this->extensions->isEnabled('fof-badges');
-        $raw          = $this->settings->get('resofire-digest-mail.enable_badges');
+        $raw          = $this->settings->get('ernestdefoe-digest-mail.enable_badges');
         $adminEnabled = $raw === null || $raw === '' ? true : (bool) $raw;
 
         if (!$extInstalled || !$adminEnabled) {
@@ -262,7 +262,7 @@ class DigestQuery
     public function getLeaderboard(Carbon $since, int $limit = 10): array
     {
         $extInstalled = $this->extensions->isEnabled('huseyinfiliz-leaderboard');
-        $raw          = $this->settings->get('resofire-digest-mail.enable_leaderboard');
+        $raw          = $this->settings->get('ernestdefoe-digest-mail.enable_leaderboard');
         $adminEnabled = $raw === null || $raw === '' ? true : (bool) $raw;
 
         if (!$extInstalled || !$adminEnabled) {
@@ -423,7 +423,7 @@ class DigestQuery
     public function getPickem(Carbon $since, int $limit = 5): array
     {
         $extInstalled = $this->extensions->isEnabled('huseyinfiliz-pickem');
-        $raw          = $this->settings->get('resofire-digest-mail.enable_pickem');
+        $raw          = $this->settings->get('ernestdefoe-digest-mail.enable_pickem');
         $adminEnabled = $raw === null || $raw === '' ? true : (bool) $raw;
 
         if (!$extInstalled || !$adminEnabled) {
@@ -563,7 +563,7 @@ class DigestQuery
         ];
 
         $extInstalled = $this->extensions->isEnabled('resofire-picks');
-        $raw          = $this->settings->get('resofire-digest-mail.enable_picks');
+        $raw          = $this->settings->get('ernestdefoe-digest-mail.enable_picks');
         $adminEnabled = $raw === null || $raw === '' ? true : (bool) $raw;
 
         if (!$extInstalled || !$adminEnabled) {
@@ -573,7 +573,7 @@ class DigestQuery
         $now            = Carbon::now('UTC');
         $baseUrl        = rtrim($this->settings->get('url', ''), '/');
         $confidenceMode = (bool) $this->settings->get('resofire-picks.confidence_mode', false);
-        $lbScope        = $this->settings->get('resofire-digest-mail.picks_leaderboard_scope', 'alltime');
+        $lbScope        = $this->settings->get('ernestdefoe-digest-mail.picks_leaderboard_scope', 'alltime');
         if (!in_array($lbScope, ['week', 'season', 'alltime'], true)) {
             $lbScope = 'alltime';
         }
@@ -772,7 +772,7 @@ class DigestQuery
     public function getGamepedia(Carbon $since, int $limit = 5): array
     {
         $extInstalled = $this->extensions->isEnabled('huseyinfiliz-gamepedia');
-        $raw          = $this->settings->get('resofire-digest-mail.enable_gamepedia');
+        $raw          = $this->settings->get('ernestdefoe-digest-mail.enable_gamepedia');
         $adminEnabled = $raw === null || $raw === '' ? true : (bool) $raw;
 
         if (!$extInstalled || !$adminEnabled) {
@@ -848,7 +848,7 @@ class DigestQuery
     public function getResofireGamepedia(Carbon $since, int $limit = 5): array
     {
         $extInstalled = $this->extensions->isEnabled('resofire-gamepedia');
-        $raw          = $this->settings->get('resofire-digest-mail.enable_resofire_gamepedia');
+        $raw          = $this->settings->get('ernestdefoe-digest-mail.enable_resofire_gamepedia');
         $adminEnabled = $raw === null || $raw === '' ? true : (bool) $raw;
 
         if (!$extInstalled || !$adminEnabled) {
@@ -1048,7 +1048,7 @@ class DigestQuery
 
         $likesOn     = $this->extensions->isEnabled('flarum-likes');
         $reactionsOn = $this->extensions->isEnabled('fof-reactions') || $this->extensions->isEnabled('resofire-reactions');
-        $rawEnable   = $this->settings->get('resofire-digest-mail.enable_reactions');
+        $rawEnable   = $this->settings->get('ernestdefoe-digest-mail.enable_reactions');
         $reactionsEnabled = $reactionsOn && ($rawEnable === null || $rawEnable === '' || $rawEnable === '1');
 
         // Neither extension active — nothing to show
@@ -1215,7 +1215,7 @@ class DigestQuery
     public function getAwards(): array
     {
         $extInstalled = $this->extensions->isEnabled('huseyinfiliz-awards');
-        $raw          = $this->settings->get('resofire-digest-mail.enable_awards');
+        $raw          = $this->settings->get('ernestdefoe-digest-mail.enable_awards');
         $adminEnabled = $raw === null || $raw === '' ? true : (bool) $raw;
 
         if (!$extInstalled || !$adminEnabled) {
@@ -1327,7 +1327,7 @@ class DigestQuery
     public function getSectionOrder(): array
     {
         $default = ['discussions', 'members', 'stats', 'leaderboard', 'badges', 'pickem', 'picks', 'gamepedia', 'resofireGamepedia', 'favorites', 'awards'];
-        $raw = $this->settings->get('resofire-digest-mail.section_order', '');
+        $raw = $this->settings->get('ernestdefoe-digest-mail.section_order', '');
         if (!$raw) return $default;
         $decoded = json_decode($raw, true);
         if (!is_array($decoded) || empty($decoded)) return $default;
@@ -1398,16 +1398,16 @@ class DigestQuery
     {
         $actor = $this->memberActor();
 
-        $limitNew         = (int) $this->settings->get('resofire-digest-mail.limit_new',         5);
-        $limitHot         = (int) $this->settings->get('resofire-digest-mail.limit_hot',         5);
-        $limitMembers     = (int) $this->settings->get('resofire-digest-mail.limit_members',     5);
-        $limitBadges      = (int) $this->settings->get('resofire-digest-mail.limit_badges',      5) ?: 5;
-        $limitLeaderboard = (int) $this->settings->get('resofire-digest-mail.limit_leaderboard', 10) ?: 10;
-        $limitPickem      = (int) $this->settings->get('resofire-digest-mail.limit_pickem',      5) ?: 5;
-        $limitPicks       = (int) $this->settings->get('resofire-digest-mail.limit_picks',        5) ?: 5;
-        $limitGamepedia          = (int) $this->settings->get('resofire-digest-mail.limit_gamepedia',          5) ?: 5;
-        $limitResofireGamepedia  = (int) $this->settings->get('resofire-digest-mail.limit_resofire_gamepedia', 5) ?: 5;
-        $limitFavorites   = (int) $this->settings->get('resofire-digest-mail.limit_favorites',   6);
+        $limitNew         = (int) $this->settings->get('ernestdefoe-digest-mail.limit_new',         5);
+        $limitHot         = (int) $this->settings->get('ernestdefoe-digest-mail.limit_hot',         5);
+        $limitMembers     = (int) $this->settings->get('ernestdefoe-digest-mail.limit_members',     5);
+        $limitBadges      = (int) $this->settings->get('ernestdefoe-digest-mail.limit_badges',      5) ?: 5;
+        $limitLeaderboard = (int) $this->settings->get('ernestdefoe-digest-mail.limit_leaderboard', 10) ?: 10;
+        $limitPickem      = (int) $this->settings->get('ernestdefoe-digest-mail.limit_pickem',      5) ?: 5;
+        $limitPicks       = (int) $this->settings->get('ernestdefoe-digest-mail.limit_picks',        5) ?: 5;
+        $limitGamepedia          = (int) $this->settings->get('ernestdefoe-digest-mail.limit_gamepedia',          5) ?: 5;
+        $limitResofireGamepedia  = (int) $this->settings->get('ernestdefoe-digest-mail.limit_resofire_gamepedia', 5) ?: 5;
+        $limitFavorites   = (int) $this->settings->get('ernestdefoe-digest-mail.limit_favorites',   6);
 
         return [
             'featuredDiscussion' => $this->getFeaturedDiscussion($actor),
@@ -1448,7 +1448,7 @@ class DigestQuery
         string  $theme = 'auto',
         ?array  $sharedData = null,
     ): DigestContent {
-        $limitUnread = (int) $this->settings->get('resofire-digest-mail.limit_unread', 5);
+        $limitUnread = (int) $this->settings->get('ernestdefoe-digest-mail.limit_unread', 5);
 
         // Use pre-built shared data if provided, otherwise build inline.
         $shared = $sharedData ?? $this->buildSharedData($since);

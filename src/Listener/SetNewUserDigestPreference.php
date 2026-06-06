@@ -14,7 +14,7 @@ class SetNewUserDigestPreference
 
     public function handle(Activated $event): void
     {
-        $mode = $this->settings->get('resofire-digest-mail.onboarding_mode', 'none');
+        $mode = $this->settings->get('ernestdefoe-digest-mail.onboarding_mode', 'none');
 
         if ($mode === 'none') {
             return;
@@ -23,10 +23,10 @@ class SetNewUserDigestPreference
         $user = $event->user;
 
         if ($mode === 'auto_enroll') {
-            $frequency = $this->settings->get('resofire-digest-mail.onboarding_frequency', 'weekly');
+            $frequency = $this->settings->get('ernestdefoe-digest-mail.onboarding_frequency', 'weekly');
 
             // Only apply if the chosen frequency is still enabled.
-            $allowed = $this->settings->get('resofire-digest-mail.allow_' . $frequency, null);
+            $allowed = $this->settings->get('ernestdefoe-digest-mail.allow_' . $frequency, null);
             if ($allowed !== '1') {
                 return;
             }

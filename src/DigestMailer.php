@@ -153,7 +153,7 @@ class DigestMailer
 
             $forumTitle  = $this->settings->get('forum_title', 'Forum');
             $subject     = $this->translator->trans(
-                'resofire-digest-mail.email.subject',
+                'ernestdefoe-digest-mail.email.subject',
                 ['{forum}' => $forumTitle, '{frequency}' => $content->frequencyLabel()]
             );
 
@@ -175,7 +175,7 @@ class DigestMailer
             ];
 
             $this->mailer->send(
-                'resofire-digest-mail::emails.digest',
+                'ernestdefoe-digest-mail::emails.digest',
                 $viewData,
                 function (Message $message) use ($user, $subject, $fromAddress, $fromName) {
                     $message

@@ -71,10 +71,10 @@ var NumberSetting={
 
 var ScheduleSection={
   oninit:function(vnode){
-    var savedTz=getSettingVal("resofire-digest-mail.timezone","America/Chicago");
-    var savedStart=getSettingVal("resofire-digest-mail.send_window_start",
-                   getSettingVal("resofire-digest-mail.send_hour","8"));
-    var savedEnd=getSettingVal("resofire-digest-mail.send_window_end",savedStart);
+    var savedTz=getSettingVal("ernestdefoe-digest-mail.timezone","America/Chicago");
+    var savedStart=getSettingVal("ernestdefoe-digest-mail.send_window_start",
+                   getSettingVal("ernestdefoe-digest-mail.send_hour","8"));
+    var savedEnd=getSettingVal("ernestdefoe-digest-mail.send_window_end",savedStart);
     vnode.state.tz=savedTz;
     vnode.state.windowStart=String(savedStart);
     vnode.state.windowEnd=String(savedEnd);
@@ -82,24 +82,24 @@ var ScheduleSection={
   },
   saveStart:function(vnode,val){
     vnode.state.windowStart=val;
-    saveSetting("resofire-digest-mail.send_window_start",val);
+    saveSetting("ernestdefoe-digest-mail.send_window_start",val);
     // Keep legacy send_hour in sync so existing code paths still work
-    saveSetting("resofire-digest-mail.send_hour",val);
+    saveSetting("ernestdefoe-digest-mail.send_hour",val);
     // If end < start, snap end to start (single-hour mode)
     if(parseInt(vnode.state.windowEnd,10)<parseInt(val,10)){
       vnode.state.windowEnd=val;
-      saveSetting("resofire-digest-mail.send_window_end",val);
+      saveSetting("ernestdefoe-digest-mail.send_window_end",val);
     }
     m.redraw();
   },
   saveEnd:function(vnode,val){
     vnode.state.windowEnd=val;
-    saveSetting("resofire-digest-mail.send_window_end",val);
+    saveSetting("ernestdefoe-digest-mail.send_window_end",val);
     m.redraw();
   },
   saveTz:function(vnode,tz){
     vnode.state.tz=tz;
-    saveSetting("resofire-digest-mail.timezone",tz);
+    saveSetting("ernestdefoe-digest-mail.timezone",tz);
   },
   view:function(vnode){
     var s=vnode.state;
@@ -115,24 +115,24 @@ var ScheduleSection={
     return m("div",null,
       // Timezone
       m("div",{className:"Form-group",style:"margin-bottom:16px;"},
-        m("label",{className:"label",style:"font-weight:600;display:block;margin-bottom:4px;"},tr("resofire-digest-mail.admin.settings.timezone_label")),
-        m("p",{className:"helpText",style:"margin-bottom:6px;"},tr("resofire-digest-mail.admin.settings.timezone_help")),
+        m("label",{className:"label",style:"font-weight:600;display:block;margin-bottom:4px;"},tr("ernestdefoe-digest-mail.admin.settings.timezone_label")),
+        m("p",{className:"helpText",style:"margin-bottom:6px;"},tr("ernestdefoe-digest-mail.admin.settings.timezone_help")),
         m("select",{className:"FormControl Select-input",value:s.tz,style:"max-width:360px;padding-bottom:8px;height:auto;line-height:1.4;",
           onchange:function(e){ScheduleSection.saveTz(vnode,e.target.value);}
         },tzOpts)
       ),
       // Window start
       m("div",{className:"Form-group",style:"margin-bottom:12px;"},
-        m("label",{className:"label",style:"font-weight:600;display:block;margin-bottom:4px;"},tr("resofire-digest-mail.admin.settings.send_window_start_label")),
-        m("p",{className:"helpText",style:"margin-bottom:6px;"},tr("resofire-digest-mail.admin.settings.send_window_start_help")),
+        m("label",{className:"label",style:"font-weight:600;display:block;margin-bottom:4px;"},tr("ernestdefoe-digest-mail.admin.settings.send_window_start_label")),
+        m("p",{className:"helpText",style:"margin-bottom:6px;"},tr("ernestdefoe-digest-mail.admin.settings.send_window_start_help")),
         m("select",{className:"FormControl Select-input",value:s.windowStart,style:"max-width:260px;padding-bottom:8px;height:auto;line-height:1.4;",
           onchange:function(e){ScheduleSection.saveStart(vnode,e.target.value);}
         },Object.keys(hourOpts).map(function(k){return m("option",{value:k,selected:s.windowStart===k},hourOpts[k]);}))
       ),
       // Window end
       m("div",{className:"Form-group",style:"margin-bottom:16px;"},
-        m("label",{className:"label",style:"font-weight:600;display:block;margin-bottom:4px;"},tr("resofire-digest-mail.admin.settings.send_window_end_label")),
-        m("p",{className:"helpText",style:"margin-bottom:6px;"},tr("resofire-digest-mail.admin.settings.send_window_end_help")),
+        m("label",{className:"label",style:"font-weight:600;display:block;margin-bottom:4px;"},tr("ernestdefoe-digest-mail.admin.settings.send_window_end_label")),
+        m("p",{className:"helpText",style:"margin-bottom:6px;"},tr("ernestdefoe-digest-mail.admin.settings.send_window_end_help")),
         m("select",{className:"FormControl Select-input",value:s.windowEnd,style:"max-width:260px;padding-bottom:8px;height:auto;line-height:1.4;",
           onchange:function(e){ScheduleSection.saveEnd(vnode,e.target.value);}
         },Object.keys(hourOpts).map(function(k){return m("option",{value:k,selected:s.windowEnd===k},hourOpts[k]);}))
@@ -155,31 +155,31 @@ var SelectSetting={
 
 var OnboardingSection={
   oninit:function(vnode){
-    vnode.state.mode=getSettingVal("resofire-digest-mail.onboarding_mode","none");
-    vnode.state.frequency=getSettingVal("resofire-digest-mail.onboarding_frequency","weekly");
+    vnode.state.mode=getSettingVal("ernestdefoe-digest-mail.onboarding_mode","none");
+    vnode.state.frequency=getSettingVal("ernestdefoe-digest-mail.onboarding_frequency","weekly");
   },
   saveMode:function(vnode,val){
     vnode.state.mode=val;
-    saveSetting("resofire-digest-mail.onboarding_mode",val);
+    saveSetting("ernestdefoe-digest-mail.onboarding_mode",val);
     m.redraw();
   },
   saveFrequency:function(vnode,val){
     vnode.state.frequency=val;
-    saveSetting("resofire-digest-mail.onboarding_frequency",val);
+    saveSetting("ernestdefoe-digest-mail.onboarding_frequency",val);
   },
   view:function(vnode){
     var s=vnode.state;
     var tr=function(k){return app().translator.trans(k);};
     var modeOptions={
-      "none":        tr("resofire-digest-mail.admin.onboarding.mode_none"),
-      "auto_enroll": tr("resofire-digest-mail.admin.onboarding.mode_auto_enroll"),
-      "opt_in_modal":tr("resofire-digest-mail.admin.onboarding.mode_opt_in_modal"),
+      "none":        tr("ernestdefoe-digest-mail.admin.onboarding.mode_none"),
+      "auto_enroll": tr("ernestdefoe-digest-mail.admin.onboarding.mode_auto_enroll"),
+      "opt_in_modal":tr("ernestdefoe-digest-mail.admin.onboarding.mode_opt_in_modal"),
     };
     // Build frequency options from whichever frequencies are currently enabled.
     var freqOpts={};
     var freqLabels={"daily":"Daily","weekly":"Weekly","monthly":"Monthly"};
     ["daily","weekly","monthly"].forEach(function(f){
-      var enabled=app().data.settings["resofire-digest-mail.allow_"+f];
+      var enabled=app().data.settings["ernestdefoe-digest-mail.allow_"+f];
       if(enabled==="1"||enabled===true||enabled===1)freqOpts[f]=freqLabels[f];
     });
     // If the currently saved frequency has since been disabled, fall back to
@@ -188,16 +188,16 @@ var OnboardingSection={
       var firstAvailable=Object.keys(freqOpts)[0];
       if(firstAvailable&&firstAvailable!==s.frequency){
         s.frequency=firstAvailable;
-        saveSetting("resofire-digest-mail.onboarding_frequency",firstAvailable);
+        saveSetting("ernestdefoe-digest-mail.onboarding_frequency",firstAvailable);
       }
     }
     return m("div",null,
       m("div",{className:"Form-group",style:"margin-bottom:16px;"},
         m("label",{className:"label",style:"font-weight:600;display:block;margin-bottom:4px;"},
-          tr("resofire-digest-mail.admin.onboarding.mode_label")
+          tr("ernestdefoe-digest-mail.admin.onboarding.mode_label")
         ),
         m("p",{className:"helpText",style:"margin-bottom:6px;"},
-          tr("resofire-digest-mail.admin.onboarding.mode_help")
+          tr("ernestdefoe-digest-mail.admin.onboarding.mode_help")
         ),
         m("select",{
           className:"FormControl Select-input",
@@ -210,10 +210,10 @@ var OnboardingSection={
       ),
       s.mode==="auto_enroll"?m("div",{className:"Form-group",style:"margin-bottom:4px;"},
         m("label",{className:"label",style:"font-weight:600;display:block;margin-bottom:4px;"},
-          tr("resofire-digest-mail.admin.onboarding.frequency_label")
+          tr("ernestdefoe-digest-mail.admin.onboarding.frequency_label")
         ),
         m("p",{className:"helpText",style:"margin-bottom:6px;"},
-          tr("resofire-digest-mail.admin.onboarding.frequency_help")
+          tr("ernestdefoe-digest-mail.admin.onboarding.frequency_help")
         ),
         Object.keys(freqOpts).length===0
           ?m("p",{style:"font-size:13px;color:#dc2626;"},"No frequencies are currently enabled. Enable at least one frequency in User Frequency Options above.")
@@ -243,7 +243,7 @@ var TokenCheckerSection={
     state.loading=true;state.result=null;state.error=null;m.redraw();
     app().request({
       method:"GET",
-      url:app().forum.attribute("apiUrl")+"/resofire/digest-mail/check-token?token="+encodeURIComponent(token)
+      url:app().forum.attribute("apiUrl")+"/ernestdefoe/digest-mail/check-token?token="+encodeURIComponent(token)
     }).then(function(d){
       state.loading=false;state.result=d;m.redraw();
     }).catch(function(e){
@@ -300,13 +300,13 @@ var TokenCheckerSection={
 
 var TestSendSection={
   oninit:function(vnode){vnode.state.email="";vnode.state.frequency="weekly";vnode.state.theme="light";vnode.state.loading=false;vnode.state.result=null;vnode.state.error=null;},
-  send:function(state){var email=state.email.trim();if(!email){state.error=app().translator.trans("resofire-digest-mail.admin.test_send.error_empty_email");state.result=null;m.redraw();return;}state.loading=true;state.result=null;state.error=null;m.redraw();app().request({method:"POST",url:app().forum.attribute("apiUrl")+"/resofire/digest-mail/test-send",body:{email:email,frequency:state.frequency,theme:state.theme}}).then(function(data){state.loading=false;state.result=data;m.redraw();}).catch(function(e){state.loading=false;var serverMsg=(e&&e.response&&e.response.error)||(e&&e.message)||null;state.error=serverMsg||app().translator.trans("resofire-digest-mail.admin.test_send.error_generic");m.redraw();});},
+  send:function(state){var email=state.email.trim();if(!email){state.error=app().translator.trans("ernestdefoe-digest-mail.admin.test_send.error_empty_email");state.result=null;m.redraw();return;}state.loading=true;state.result=null;state.error=null;m.redraw();app().request({method:"POST",url:app().forum.attribute("apiUrl")+"/ernestdefoe/digest-mail/test-send",body:{email:email,frequency:state.frequency,theme:state.theme}}).then(function(data){state.loading=false;state.result=data;m.redraw();}).catch(function(e){state.loading=false;var serverMsg=(e&&e.response&&e.response.error)||(e&&e.message)||null;state.error=serverMsg||app().translator.trans("ernestdefoe-digest-mail.admin.test_send.error_generic");m.redraw();});},
   view:function(vnode){
     var state=vnode.state;var themePickerEnabled=true;var tr=function(k,v){return app().translator.trans(k,v);};
     var themeToggle=themePickerEnabled
-      ?m("div",{style:"display:flex;align-items:center;gap:10px;margin-bottom:12px;"},m("label",{style:"font-size:13px;color:var(--muted-color);white-space:nowrap;"},tr("resofire-digest-mail.admin.test_send.theme_label")+":"),m("div",{style:"display:flex;gap:0;border:1px solid var(--control-bg);border-radius:6px;overflow:hidden;"},m("button",{style:"padding:6px 14px;font-size:13px;font-weight:500;border:none;cursor:pointer;"+(state.theme==="light"?"background:var(--body-bg,#fff);color:var(--text-color,#111827);box-shadow:inset 0 0 0 1px var(--control-bg);":"background:var(--control-bg);color:var(--muted-color);"),onclick:function(e){e.preventDefault();state.theme="light";m.redraw();}},m("span",{style:"margin-right:5px;"},"☀️"),tr("resofire-digest-mail.admin.test_send.theme_light")),m("button",{style:"padding:6px 14px;font-size:13px;font-weight:500;border:none;cursor:pointer;border-left:1px solid var(--control-bg);"+(state.theme==="dark"?"background:var(--header-bg,#1f2937);color:var(--header-color,#e5e7eb);":"background:var(--control-bg);color:var(--muted-color);"),onclick:function(e){e.preventDefault();state.theme="dark";m.redraw();}},m("span",{style:"margin-right:5px;"},"🌙"),tr("resofire-digest-mail.admin.test_send.theme_dark"))),m("span",{style:"font-size:12px;color:var(--muted-color);"},state.theme==="light"?tr("resofire-digest-mail.admin.test_send.theme_hint_light"):tr("resofire-digest-mail.admin.test_send.theme_hint_dark")))
-      :m("div",{style:"display:flex;align-items:center;gap:8px;margin-bottom:12px;padding:8px 12px;background:var(--control-bg);border-radius:6px;"},m("span",{style:"font-size:13px;color:var(--muted-color);"},"☀️ "+tr("resofire-digest-mail.admin.test_send.theme_light_only")));
-    return m("div",{className:"ExtensionPage-settings"},m("div",{style:"max-width:600px;margin:0 auto;"},m("h3",{style:"font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--muted-color);margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid var(--control-bg);"},tr("resofire-digest-mail.admin.test_send.heading")),m("p",{className:"helpText"},tr("resofire-digest-mail.admin.test_send.help")),m("div",{className:"Form-group",style:"margin-top:1rem;"},m("input",{className:"FormControl",type:"email",placeholder:tr("resofire-digest-mail.admin.test_send.email_placeholder"),value:state.email,disabled:state.loading,oninput:function(e){state.email=e.target.value;state.result=null;state.error=null;},style:"margin-bottom:8px;"}),m("div",{style:"display:flex;align-items:center;gap:10px;margin-bottom:12px;"},m("label",{style:"font-size:13px;color:var(--muted-color);white-space:nowrap;"},tr("resofire-digest-mail.admin.test_send.frequency_label")+":"),m("select",{className:"FormControl",value:state.frequency,disabled:state.loading,style:"padding-top:6px;padding-bottom:8px;height:auto;line-height:1.5;",onchange:function(e){state.frequency=e.target.value;}},m("option",{value:"daily"},"Daily"),m("option",{value:"weekly"},"Weekly"),m("option",{value:"monthly"},"Monthly"))),themeToggle,m("button",{className:"Button Button--primary",disabled:state.loading,onclick:function(e){e.preventDefault();TestSendSection.send(state);}},state.loading?tr("resofire-digest-mail.admin.test_send.sending_button"):tr("resofire-digest-mail.admin.test_send.send_button"))),state.result?m("div",{className:"Alert Alert--success",style:"margin-top:1rem;"},tr("resofire-digest-mail.admin.test_send.success",{email:state.result.to,frequency:state.result.frequency})):null,state.error?m("div",{className:"Alert Alert--error",style:"margin-top:1rem;"},state.error):null));
+      ?m("div",{style:"display:flex;align-items:center;gap:10px;margin-bottom:12px;"},m("label",{style:"font-size:13px;color:var(--muted-color);white-space:nowrap;"},tr("ernestdefoe-digest-mail.admin.test_send.theme_label")+":"),m("div",{style:"display:flex;gap:0;border:1px solid var(--control-bg);border-radius:6px;overflow:hidden;"},m("button",{style:"padding:6px 14px;font-size:13px;font-weight:500;border:none;cursor:pointer;"+(state.theme==="light"?"background:var(--body-bg,#fff);color:var(--text-color,#111827);box-shadow:inset 0 0 0 1px var(--control-bg);":"background:var(--control-bg);color:var(--muted-color);"),onclick:function(e){e.preventDefault();state.theme="light";m.redraw();}},m("span",{style:"margin-right:5px;"},"☀️"),tr("ernestdefoe-digest-mail.admin.test_send.theme_light")),m("button",{style:"padding:6px 14px;font-size:13px;font-weight:500;border:none;cursor:pointer;border-left:1px solid var(--control-bg);"+(state.theme==="dark"?"background:var(--header-bg,#1f2937);color:var(--header-color,#e5e7eb);":"background:var(--control-bg);color:var(--muted-color);"),onclick:function(e){e.preventDefault();state.theme="dark";m.redraw();}},m("span",{style:"margin-right:5px;"},"🌙"),tr("ernestdefoe-digest-mail.admin.test_send.theme_dark"))),m("span",{style:"font-size:12px;color:var(--muted-color);"},state.theme==="light"?tr("ernestdefoe-digest-mail.admin.test_send.theme_hint_light"):tr("ernestdefoe-digest-mail.admin.test_send.theme_hint_dark")))
+      :m("div",{style:"display:flex;align-items:center;gap:8px;margin-bottom:12px;padding:8px 12px;background:var(--control-bg);border-radius:6px;"},m("span",{style:"font-size:13px;color:var(--muted-color);"},"☀️ "+tr("ernestdefoe-digest-mail.admin.test_send.theme_light_only")));
+    return m("div",{className:"ExtensionPage-settings"},m("div",{style:"max-width:600px;margin:0 auto;"},m("h3",{style:"font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--muted-color);margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid var(--control-bg);"},tr("ernestdefoe-digest-mail.admin.test_send.heading")),m("p",{className:"helpText"},tr("ernestdefoe-digest-mail.admin.test_send.help")),m("div",{className:"Form-group",style:"margin-top:1rem;"},m("input",{className:"FormControl",type:"email",placeholder:tr("ernestdefoe-digest-mail.admin.test_send.email_placeholder"),value:state.email,disabled:state.loading,oninput:function(e){state.email=e.target.value;state.result=null;state.error=null;},style:"margin-bottom:8px;"}),m("div",{style:"display:flex;align-items:center;gap:10px;margin-bottom:12px;"},m("label",{style:"font-size:13px;color:var(--muted-color);white-space:nowrap;"},tr("ernestdefoe-digest-mail.admin.test_send.frequency_label")+":"),m("select",{className:"FormControl",value:state.frequency,disabled:state.loading,style:"padding-top:6px;padding-bottom:8px;height:auto;line-height:1.5;",onchange:function(e){state.frequency=e.target.value;}},m("option",{value:"daily"},"Daily"),m("option",{value:"weekly"},"Weekly"),m("option",{value:"monthly"},"Monthly"))),themeToggle,m("button",{className:"Button Button--primary",disabled:state.loading,onclick:function(e){e.preventDefault();TestSendSection.send(state);}},state.loading?tr("ernestdefoe-digest-mail.admin.test_send.sending_button"):tr("ernestdefoe-digest-mail.admin.test_send.send_button"))),state.result?m("div",{className:"Alert Alert--success",style:"margin-top:1rem;"},tr("ernestdefoe-digest-mail.admin.test_send.success",{email:state.result.to,frequency:state.result.frequency})):null,state.error?m("div",{className:"Alert Alert--error",style:"margin-top:1rem;"},state.error):null));
   }
 };
 
@@ -318,48 +318,48 @@ var SettingsTab={
     return m("div",null,
       m("div",{className:"ExtensionPage-settings"},m("div",{style:"max-width:600px;margin:0 auto;"},
         sh("Content Limits"),
-        m(NumberSetting,{settingKey:"resofire-digest-mail.featured_discussion_id",min:1,label:tr("resofire-digest-mail.admin.settings.featured_discussion_label"),help:tr("resofire-digest-mail.admin.settings.featured_discussion_help")}),
-        m(NumberSetting,{settingKey:"resofire-digest-mail.limit_new",         min:1,max:20,label:tr("resofire-digest-mail.admin.settings.limit_new_label"),         help:tr("resofire-digest-mail.admin.settings.limit_new_help")}),
-        m(NumberSetting,{settingKey:"resofire-digest-mail.limit_hot",         min:1,max:20,label:tr("resofire-digest-mail.admin.settings.limit_hot_label"),         help:tr("resofire-digest-mail.admin.settings.limit_hot_help")}),
-        m(NumberSetting,{settingKey:"resofire-digest-mail.limit_unread",      min:1,max:20,label:tr("resofire-digest-mail.admin.settings.limit_unread_label"),      help:tr("resofire-digest-mail.admin.settings.limit_unread_help")}),
-        m(NumberSetting,{settingKey:"resofire-digest-mail.limit_members",     min:1,max:20,label:tr("resofire-digest-mail.admin.settings.limit_members_label"),     help:tr("resofire-digest-mail.admin.settings.limit_members_help")}),
-        m(NumberSetting,{settingKey:"resofire-digest-mail.limit_leaderboard", min:3,max:20,label:tr("resofire-digest-mail.admin.settings.limit_leaderboard_label"), help:tr("resofire-digest-mail.admin.settings.limit_leaderboard_help")}),
-        m(NumberSetting,{settingKey:"resofire-digest-mail.limit_badges",      min:3,max:20,label:tr("resofire-digest-mail.admin.settings.limit_badges_label"),      help:tr("resofire-digest-mail.admin.settings.limit_badges_help")}),
-        m(NumberSetting,{settingKey:"resofire-digest-mail.limit_pickem",      min:3,max:20,label:tr("resofire-digest-mail.admin.settings.limit_pickem_label"),      help:tr("resofire-digest-mail.admin.settings.limit_pickem_help")}),
-        m(NumberSetting,{settingKey:"resofire-digest-mail.limit_gamepedia",   min:3,max:20,label:tr("resofire-digest-mail.admin.settings.limit_gamepedia_label"),   help:tr("resofire-digest-mail.admin.settings.limit_gamepedia_help")}),
-        !!(exts.resofireGamepedia||{}).enabled?m(NumberSetting,{settingKey:"resofire-digest-mail.limit_resofire_gamepedia",min:3,max:20,label:tr("resofire-digest-mail.admin.settings.limit_resofire_gamepedia_label"),help:tr("resofire-digest-mail.admin.settings.limit_resofire_gamepedia_help")}):null,
-        (!!(exts.likes||{}).enabled||!!(exts.reactions||{}).enabled)?m(NumberSetting,{settingKey:"resofire-digest-mail.limit_favorites",min:0,max:20,label:tr("resofire-digest-mail.admin.settings.limit_favorites_label"),help:tr("resofire-digest-mail.admin.settings.limit_favorites_help")}):null,
-        m(NumberSetting,{settingKey:"resofire-digest-mail.hot_reply_weight",  min:0,max:10,step:0.1,label:tr("resofire-digest-mail.admin.settings.hot_reply_weight_label"),  help:tr("resofire-digest-mail.admin.settings.hot_reply_weight_help")}),
-        m(NumberSetting,{settingKey:"resofire-digest-mail.hot_recency_weight",min:0,max:10,step:0.1,label:tr("resofire-digest-mail.admin.settings.hot_recency_weight_label"),help:tr("resofire-digest-mail.admin.settings.hot_recency_weight_help")})
+        m(NumberSetting,{settingKey:"ernestdefoe-digest-mail.featured_discussion_id",min:1,label:tr("ernestdefoe-digest-mail.admin.settings.featured_discussion_label"),help:tr("ernestdefoe-digest-mail.admin.settings.featured_discussion_help")}),
+        m(NumberSetting,{settingKey:"ernestdefoe-digest-mail.limit_new",         min:1,max:20,label:tr("ernestdefoe-digest-mail.admin.settings.limit_new_label"),         help:tr("ernestdefoe-digest-mail.admin.settings.limit_new_help")}),
+        m(NumberSetting,{settingKey:"ernestdefoe-digest-mail.limit_hot",         min:1,max:20,label:tr("ernestdefoe-digest-mail.admin.settings.limit_hot_label"),         help:tr("ernestdefoe-digest-mail.admin.settings.limit_hot_help")}),
+        m(NumberSetting,{settingKey:"ernestdefoe-digest-mail.limit_unread",      min:1,max:20,label:tr("ernestdefoe-digest-mail.admin.settings.limit_unread_label"),      help:tr("ernestdefoe-digest-mail.admin.settings.limit_unread_help")}),
+        m(NumberSetting,{settingKey:"ernestdefoe-digest-mail.limit_members",     min:1,max:20,label:tr("ernestdefoe-digest-mail.admin.settings.limit_members_label"),     help:tr("ernestdefoe-digest-mail.admin.settings.limit_members_help")}),
+        m(NumberSetting,{settingKey:"ernestdefoe-digest-mail.limit_leaderboard", min:3,max:20,label:tr("ernestdefoe-digest-mail.admin.settings.limit_leaderboard_label"), help:tr("ernestdefoe-digest-mail.admin.settings.limit_leaderboard_help")}),
+        m(NumberSetting,{settingKey:"ernestdefoe-digest-mail.limit_badges",      min:3,max:20,label:tr("ernestdefoe-digest-mail.admin.settings.limit_badges_label"),      help:tr("ernestdefoe-digest-mail.admin.settings.limit_badges_help")}),
+        m(NumberSetting,{settingKey:"ernestdefoe-digest-mail.limit_pickem",      min:3,max:20,label:tr("ernestdefoe-digest-mail.admin.settings.limit_pickem_label"),      help:tr("ernestdefoe-digest-mail.admin.settings.limit_pickem_help")}),
+        m(NumberSetting,{settingKey:"ernestdefoe-digest-mail.limit_gamepedia",   min:3,max:20,label:tr("ernestdefoe-digest-mail.admin.settings.limit_gamepedia_label"),   help:tr("ernestdefoe-digest-mail.admin.settings.limit_gamepedia_help")}),
+        !!(exts.resofireGamepedia||{}).enabled?m(NumberSetting,{settingKey:"ernestdefoe-digest-mail.limit_resofire_gamepedia",min:3,max:20,label:tr("ernestdefoe-digest-mail.admin.settings.limit_resofire_gamepedia_label"),help:tr("ernestdefoe-digest-mail.admin.settings.limit_resofire_gamepedia_help")}):null,
+        (!!(exts.likes||{}).enabled||!!(exts.reactions||{}).enabled)?m(NumberSetting,{settingKey:"ernestdefoe-digest-mail.limit_favorites",min:0,max:20,label:tr("ernestdefoe-digest-mail.admin.settings.limit_favorites_label"),help:tr("ernestdefoe-digest-mail.admin.settings.limit_favorites_help")}):null,
+        m(NumberSetting,{settingKey:"ernestdefoe-digest-mail.hot_reply_weight",  min:0,max:10,step:0.1,label:tr("ernestdefoe-digest-mail.admin.settings.hot_reply_weight_label"),  help:tr("ernestdefoe-digest-mail.admin.settings.hot_reply_weight_help")}),
+        m(NumberSetting,{settingKey:"ernestdefoe-digest-mail.hot_recency_weight",min:0,max:10,step:0.1,label:tr("ernestdefoe-digest-mail.admin.settings.hot_recency_weight_label"),help:tr("ernestdefoe-digest-mail.admin.settings.hot_recency_weight_help")})
       )),
       m("div",{className:"ExtensionPage-settings"},m("div",{style:"max-width:600px;margin:0 auto;"},
         sh("Schedule"),
         m(ScheduleSection),
-        m(SelectSetting,{settingKey:"resofire-digest-mail.weekly_day",  options:weekDayOptions,  label:tr("resofire-digest-mail.admin.settings.weekly_day_label"),  help:tr("resofire-digest-mail.admin.settings.weekly_day_help")}),
-        m(SelectSetting,{settingKey:"resofire-digest-mail.monthly_day", options:monthDayOptions, label:tr("resofire-digest-mail.admin.settings.monthly_day_label"), help:tr("resofire-digest-mail.admin.settings.monthly_day_help")})
+        m(SelectSetting,{settingKey:"ernestdefoe-digest-mail.weekly_day",  options:weekDayOptions,  label:tr("ernestdefoe-digest-mail.admin.settings.weekly_day_label"),  help:tr("ernestdefoe-digest-mail.admin.settings.weekly_day_help")}),
+        m(SelectSetting,{settingKey:"ernestdefoe-digest-mail.monthly_day", options:monthDayOptions, label:tr("ernestdefoe-digest-mail.admin.settings.monthly_day_label"), help:tr("ernestdefoe-digest-mail.admin.settings.monthly_day_help")})
       )),
 
       m("div",{className:"ExtensionPage-settings"},m("div",{style:"max-width:600px;margin:0 auto;"},
         sh("User Frequency Options"),
         m("p",{className:"helpText",style:"margin-bottom:12px;"},"Choose which digest frequency options are available to users on their settings page. Disabled options are hidden from the frequency selector."),
-        m(FrequencyToggle,{settingKey:"resofire-digest-mail.allow_daily",  defaultOn:false,emoji:"📅",iconBg:"#fef3c7",label:"Daily",  description:"Users can opt in to receive a digest every day. Best for high-traffic forums. Off by default."}),
-        m(FrequencyToggle,{settingKey:"resofire-digest-mail.allow_weekly", defaultOn:true, emoji:"📆",iconBg:"#ede9fe",label:"Weekly", description:"Users can opt in to receive a weekly digest. Recommended for most forums."}),
-        m(FrequencyToggle,{settingKey:"resofire-digest-mail.allow_monthly",defaultOn:true, emoji:"🗓️",iconBg:"#dbeafe",label:"Monthly",description:"Users can opt in to receive a monthly digest. Good for low-traffic or announcement-focused forums."})
+        m(FrequencyToggle,{settingKey:"ernestdefoe-digest-mail.allow_daily",  defaultOn:false,emoji:"📅",iconBg:"#fef3c7",label:"Daily",  description:"Users can opt in to receive a digest every day. Best for high-traffic forums. Off by default."}),
+        m(FrequencyToggle,{settingKey:"ernestdefoe-digest-mail.allow_weekly", defaultOn:true, emoji:"📆",iconBg:"#ede9fe",label:"Weekly", description:"Users can opt in to receive a weekly digest. Recommended for most forums."}),
+        m(FrequencyToggle,{settingKey:"ernestdefoe-digest-mail.allow_monthly",defaultOn:true, emoji:"🗓️",iconBg:"#dbeafe",label:"Monthly",description:"Users can opt in to receive a monthly digest. Good for low-traffic or announcement-focused forums."})
       )),
       m("div",{className:"ExtensionPage-settings"},m("div",{style:"max-width:600px;margin:0 auto;"},
-        sh(app().translator.trans("resofire-digest-mail.admin.onboarding.section_heading")),
+        sh(app().translator.trans("ernestdefoe-digest-mail.admin.onboarding.section_heading")),
         m(OnboardingSection)
       )),
       m("div",{className:"ExtensionPage-settings"},m("div",{style:"max-width:600px;margin:0 auto;"},
         sh("Extension Integrations"),
         m("p",{className:"helpText",style:"margin-bottom:12px;"},"Control which optional extension integrations are included in digest emails. A toggle is only activatable when the required extension is installed and enabled. Enabled integrations appear in the Digest Order tab."),
-        m(IntegrationToggle,{settingKey:"resofire-digest-mail.enable_leaderboard",extData:exts.leaderboard||{},description:"Show the top members leaderboard in each digest, including rank changes, points earned during the period, and a biggest-mover callout.",installedNote:"huseyinfiliz/leaderboard is installed and active",notInstalledNote:"huseyinfiliz/leaderboard is not installed or is disabled"}),
-        m(IntegrationToggle,{settingKey:"resofire-digest-mail.enable_badges",     extData:exts.badges||{},     description:"Show badges earned during the period, the most-awarded badge, and the rarest badge awarded.",                                          installedNote:"fof/badges is installed and active",              notInstalledNote:"fof/badges is not installed or is disabled"}),
-        m(IntegrationToggle,{settingKey:"resofire-digest-mail.enable_pickem",     extData:exts.pickem||{},     description:"Show upcoming pick'em matches, recent results, and the pick'em leaderboard.",                                                          installedNote:"huseyinfiliz/pickem is installed and active",     notInstalledNote:"huseyinfiliz/pickem is not installed or is disabled"}),
-        m(IntegrationToggle,{settingKey:"resofire-digest-mail.enable_gamepedia",  extData:exts.gamepedia||{},         description:"Show the most discussed game pages and newly added games from Gamepedia.",                                                              installedNote:"huseyinfiliz/gamepedia is installed and active",        notInstalledNote:"huseyinfiliz/gamepedia is not installed or is disabled"}),
-        m(IntegrationToggle,{settingKey:"resofire-digest-mail.enable_resofire_gamepedia",extData:exts.resofireGamepedia||{},description:"Show the most discussed games, newly added games, and top genres from Resofire Gamepedia.",                                 installedNote:"resofire/gamepedia is installed and active",            notInstalledNote:"resofire/gamepedia is not installed or is disabled"}),
-        m(IntegrationToggle,{settingKey:"resofire-digest-mail.enable_reactions",  extData:exts.reactions||{},  description:"Use fof/reactions data for the Favorite Discussions section. When enabled, shows a per-reaction emoji breakdown instead of a plain like count. Thumbsdown and Confused reactions are excluded from scoring.",installedNote:"fof/reactions is installed and active",notInstalledNote:"fof/reactions is not installed or is disabled"}),
-        m(IntegrationToggle,{settingKey:"resofire-digest-mail.enable_awards",     extData:exts.awards||{},     description:"Show active and upcoming awards in the digest — including banner image, voting deadline countdown, category list, vote totals, and current front-runners when live votes are enabled.",installedNote:"huseyinfiliz/awards is installed and active",notInstalledNote:"huseyinfiliz/awards is not installed or is disabled"}),
+        m(IntegrationToggle,{settingKey:"ernestdefoe-digest-mail.enable_leaderboard",extData:exts.leaderboard||{},description:"Show the top members leaderboard in each digest, including rank changes, points earned during the period, and a biggest-mover callout.",installedNote:"huseyinfiliz/leaderboard is installed and active",notInstalledNote:"huseyinfiliz/leaderboard is not installed or is disabled"}),
+        m(IntegrationToggle,{settingKey:"ernestdefoe-digest-mail.enable_badges",     extData:exts.badges||{},     description:"Show badges earned during the period, the most-awarded badge, and the rarest badge awarded.",                                          installedNote:"fof/badges is installed and active",              notInstalledNote:"fof/badges is not installed or is disabled"}),
+        m(IntegrationToggle,{settingKey:"ernestdefoe-digest-mail.enable_pickem",     extData:exts.pickem||{},     description:"Show upcoming pick'em matches, recent results, and the pick'em leaderboard.",                                                          installedNote:"huseyinfiliz/pickem is installed and active",     notInstalledNote:"huseyinfiliz/pickem is not installed or is disabled"}),
+        m(IntegrationToggle,{settingKey:"ernestdefoe-digest-mail.enable_gamepedia",  extData:exts.gamepedia||{},         description:"Show the most discussed game pages and newly added games from Gamepedia.",                                                              installedNote:"huseyinfiliz/gamepedia is installed and active",        notInstalledNote:"huseyinfiliz/gamepedia is not installed or is disabled"}),
+        m(IntegrationToggle,{settingKey:"ernestdefoe-digest-mail.enable_resofire_gamepedia",extData:exts.resofireGamepedia||{},description:"Show the most discussed games, newly added games, and top genres from Resofire Gamepedia.",                                 installedNote:"resofire/gamepedia is installed and active",            notInstalledNote:"resofire/gamepedia is not installed or is disabled"}),
+        m(IntegrationToggle,{settingKey:"ernestdefoe-digest-mail.enable_reactions",  extData:exts.reactions||{},  description:"Use fof/reactions data for the Favorite Discussions section. When enabled, shows a per-reaction emoji breakdown instead of a plain like count. Thumbsdown and Confused reactions are excluded from scoring.",installedNote:"fof/reactions is installed and active",notInstalledNote:"fof/reactions is not installed or is disabled"}),
+        m(IntegrationToggle,{settingKey:"ernestdefoe-digest-mail.enable_awards",     extData:exts.awards||{},     description:"Show active and upcoming awards in the digest — including banner image, voting deadline countdown, category list, vote totals, and current front-runners when live votes are enabled.",installedNote:"huseyinfiliz/awards is installed and active",notInstalledNote:"huseyinfiliz/awards is not installed or is disabled"}),
         m("div",{style:"margin-top:24px;padding-top:20px;border-top:1px solid var(--control-bg);margin-bottom:8px;"},
           m("p",{style:"font-size:12px;color:var(--muted-color);margin:0;"},
             "The following section is enabled automatically based on your active extensions and cannot be toggled here. To disable it, turn off ",
@@ -386,7 +386,7 @@ var SettingsTab={
 
 var DigestOrderTab={
   oninit:function(vnode){
-    var saved=getSettingVal("resofire-digest-mail.section_order","");
+    var saved=getSettingVal("ernestdefoe-digest-mail.section_order","");
     var order=[];try{order=saved?JSON.parse(saved):[];}catch(e){order=[];}
     if(!order.length)order=DEFAULT_ORDER.slice();
     vnode.state.order=order;vnode.state.saving=false;vnode.state.saved=false;
@@ -394,13 +394,13 @@ var DigestOrderTab={
   activeSections:function(order){
     var exts=(app().forum.attribute("digestExtensions"))||{};
     var integrationEnabled={
-      leaderboard:       getSettingVal("resofire-digest-mail.enable_leaderboard","1")==="1"&&!!(exts.leaderboard||{}).enabled,
-      badges:            getSettingVal("resofire-digest-mail.enable_badges","1")==="1"     &&!!(exts.badges||{}).enabled,
-      pickem:            getSettingVal("resofire-digest-mail.enable_pickem","1")==="1"     &&!!(exts.pickem||{}).enabled,
-      gamepedia:         getSettingVal("resofire-digest-mail.enable_gamepedia","1")==="1"  &&!!(exts.gamepedia||{}).enabled,
-      resofireGamepedia: getSettingVal("resofire-digest-mail.enable_resofire_gamepedia","1")==="1"&&!!(exts.resofireGamepedia||{}).enabled,
-      favorites:         (parseInt(getSettingVal("resofire-digest-mail.limit_favorites","6"),10)>0)&&(!!(exts.likes||{}).enabled||!!(exts.reactions||{}).enabled),
-      awards:            getSettingVal("resofire-digest-mail.enable_awards","1")==="1"     &&!!(exts.awards||{}).enabled,
+      leaderboard:       getSettingVal("ernestdefoe-digest-mail.enable_leaderboard","1")==="1"&&!!(exts.leaderboard||{}).enabled,
+      badges:            getSettingVal("ernestdefoe-digest-mail.enable_badges","1")==="1"     &&!!(exts.badges||{}).enabled,
+      pickem:            getSettingVal("ernestdefoe-digest-mail.enable_pickem","1")==="1"     &&!!(exts.pickem||{}).enabled,
+      gamepedia:         getSettingVal("ernestdefoe-digest-mail.enable_gamepedia","1")==="1"  &&!!(exts.gamepedia||{}).enabled,
+      resofireGamepedia: getSettingVal("ernestdefoe-digest-mail.enable_resofire_gamepedia","1")==="1"&&!!(exts.resofireGamepedia||{}).enabled,
+      favorites:         (parseInt(getSettingVal("ernestdefoe-digest-mail.limit_favorites","6"),10)>0)&&(!!(exts.likes||{}).enabled||!!(exts.reactions||{}).enabled),
+      awards:            getSettingVal("ernestdefoe-digest-mail.enable_awards","1")==="1"     &&!!(exts.awards||{}).enabled,
     };
     var allSections={};
     FIXED_SECTIONS.forEach(function(s){allSections[s.key]=s;});
@@ -426,7 +426,7 @@ var DigestOrderTab={
     if(iB===-1){order.push(keyB);iB=order.length-1;}
     var tmp=order[iA];order[iA]=order[iB];order[iB]=tmp;
     vnode.state.order=order;vnode.state.saved=false;vnode.state.saving=true;
-    saveSetting("resofire-digest-mail.section_order",JSON.stringify(order)).then(function(){
+    saveSetting("ernestdefoe-digest-mail.section_order",JSON.stringify(order)).then(function(){
       vnode.state.saving=false;vnode.state.saved=true;
       setTimeout(function(){vnode.state.saved=false;m.redraw();},5000);
       m.redraw();
@@ -481,7 +481,7 @@ var SubscriberList={
     m.redraw();
     app().request({
       method:"GET",
-      url:app().forum.attribute("apiUrl")+"/resofire/digest-mail/subscribers?frequency="+freq+"&page="+page+"&per_page=15"
+      url:app().forum.attribute("apiUrl")+"/ernestdefoe/digest-mail/subscribers?frequency="+freq+"&page="+page+"&per_page=15"
     }).then(function(d){
       vnode.state.loading=false;
       vnode.state.data=d;
@@ -562,7 +562,7 @@ var StatsTab={
     vnode.state.loading=true;
     vnode.state.error=null;
     vnode.state.data=null;
-    app().request({method:"GET",url:app().forum.attribute("apiUrl")+"/resofire/digest-mail/stats"})
+    app().request({method:"GET",url:app().forum.attribute("apiUrl")+"/ernestdefoe/digest-mail/stats"})
       .then(function(d){vnode.state.loading=false;vnode.state.data=d;m.redraw();})
       .catch(function(e){vnode.state.loading=false;vnode.state.error=(e&&e.message)||"Failed to load statistics.";m.redraw();});
   },
@@ -707,12 +707,12 @@ var StatsTab={
 
 var ServerTab={
   oninit:function(vnode){
-    vnode.state.queueName=getSettingVal("resofire-digest-mail.queue_name","digest");
+    vnode.state.queueName=getSettingVal("ernestdefoe-digest-mail.queue_name","digest");
     vnode.state.basePath=null;
     vnode.state.basePathLoaded=false;
     vnode.state.queueType="database";
     vnode.state.redisSubMode="horizon";
-    app().request({method:"GET",url:app().forum.attribute("apiUrl")+"/resofire/digest-mail/stats"})
+    app().request({method:"GET",url:app().forum.attribute("apiUrl")+"/ernestdefoe/digest-mail/stats"})
       .then(function(d){
         vnode.state.basePath=(d&&d.base_path&&d.base_path.length)?d.base_path:null;
         vnode.state.basePathLoaded=true;
@@ -724,8 +724,8 @@ var ServerTab={
     var s=vnode.state;
     var tr=function(k){return app().translator.trans(k);};
     var sh=function(t){return m("h3",{style:"font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--muted-color);margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid var(--control-bg);"},t);};
-    var qn=getSettingVal("resofire-digest-mail.queue_name","digest");
-    var tries=getSettingVal("resofire-digest-mail.queue_tries","3");
+    var qn=getSettingVal("ernestdefoe-digest-mail.queue_name","digest");
+    var tries=getSettingVal("ernestdefoe-digest-mail.queue_tries","3");
     var bp=s.basePath||"/path/to/flarum";
     var notice=function(icon,title,body,color){
       return m("div",{style:"display:flex;gap:14px;padding:16px 18px;border-radius:8px;background:var(--control-bg);border-left:4px solid "+(color||"var(--primary-color,#4f46e5)")+";margin-bottom:14px;"},
@@ -805,13 +805,13 @@ var ServerTab={
             m("div",{style:"display:flex;align-items:center;gap:8px;"},
               m("input",{className:"FormControl",type:"text",value:s.queueName,style:"width:200px;",
                 oninput:function(e){s.queueName=e.target.value;},
-                onblur:function(e){saveSetting("resofire-digest-mail.queue_name",e.target.value.trim()||"digest");}
+                onblur:function(e){saveSetting("ernestdefoe-digest-mail.queue_name",e.target.value.trim()||"digest");}
               })
             )
           ),
-          m(NumberSetting,{settingKey:"resofire-digest-mail.queue_chunk_size",min:50,max:10000,label:tr("resofire-digest-mail.admin.settings.queue_chunk_size_label"),help:tr("resofire-digest-mail.admin.settings.queue_chunk_size_help")}),
-          m(NumberSetting,{settingKey:"resofire-digest-mail.queue_delay",min:0,max:3600,label:tr("resofire-digest-mail.admin.settings.queue_delay_label"),help:tr("resofire-digest-mail.admin.settings.queue_delay_help")}),
-          m(NumberSetting,{settingKey:"resofire-digest-mail.queue_tries",min:1,max:10,label:tr("resofire-digest-mail.admin.settings.queue_tries_label"),help:tr("resofire-digest-mail.admin.settings.queue_tries_help")})
+          m(NumberSetting,{settingKey:"ernestdefoe-digest-mail.queue_chunk_size",min:50,max:10000,label:tr("ernestdefoe-digest-mail.admin.settings.queue_chunk_size_label"),help:tr("ernestdefoe-digest-mail.admin.settings.queue_chunk_size_help")}),
+          m(NumberSetting,{settingKey:"ernestdefoe-digest-mail.queue_delay",min:0,max:3600,label:tr("ernestdefoe-digest-mail.admin.settings.queue_delay_label"),help:tr("ernestdefoe-digest-mail.admin.settings.queue_delay_help")}),
+          m(NumberSetting,{settingKey:"ernestdefoe-digest-mail.queue_tries",min:1,max:10,label:tr("ernestdefoe-digest-mail.admin.settings.queue_tries_label"),help:tr("ernestdefoe-digest-mail.admin.settings.queue_tries_help")})
         )
       ),
       // ---- Cron Setup ------------------------------------------------------
@@ -1085,11 +1085,11 @@ var DigestAdminPage={
   }
 };
 
-app().initializers.add("resofire-digest-mail",function(){
+app().initializers.add("ernestdefoe-digest-mail",function(){
   var style=document.createElement("style");
   style.textContent=".Select-input.FormControl{line-height:1.4 !important;padding-bottom:8px !important;height:auto !important;}";
   document.head.appendChild(style);
-  app().registry.for("resofire-digest-mail").registerSetting(function(){return m(DigestAdminPage);},100);
+  app().registry.for("ernestdefoe-digest-mail").registerSetting(function(){return m(DigestAdminPage);},100);
 });
 
 })(),module.exports=o})();

@@ -1,4 +1,4 @@
-# Resofire Digest Mail
+# Digest Email
 
 A [Flarum](https://flarum.org) extension that sends beautifully formatted digest emails to your forum members on a schedule they choose. Each email summarises what happened on your forum since the last digest — new discussions, active conversations, new members, leaderboard standings, badges earned, pick'em results, awards, and more — all in a clean, branded email that works in every major email client.
 
@@ -200,7 +200,7 @@ For larger forums, Redis or Valkey with Laravel Horizon and Supervisor is the mo
 ## Installation
 
 ```bash
-composer require resofire/digest-mail
+composer require ernestdefoe/digest-mail
 php flarum migrate
 ```
 
@@ -316,6 +316,12 @@ The extension is built for efficiency at any subscriber count.
 For 50,000+ member forums, consider switching from the database queue driver to Redis or Valkey with Horizon and Supervisor for significantly higher throughput and real-time queue monitoring. The Server Settings page in the admin panel includes full step-by-step setup instructions for this configuration.
 
 ---
+
+## Credits
+
+Originally created by [Resofire](https://github.com/resofire). Rebranded and
+maintained by [ernestdefoe](https://github.com/ernestdefoe), with full credit and
+thanks to the original author.
 
 ## License
 
