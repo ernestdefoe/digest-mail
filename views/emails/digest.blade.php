@@ -86,6 +86,12 @@
     $pksLeaderboardLabel = $pksEnabled ? ($pks['leaderboardLabel'] ?? '')    : '';
     $pksForumUrl         = $pksEnabled ? ($pks['picksForumUrl']    ?? '')    : '';
 
+    $gv              = $content->giveaways ?? [];
+    $gvEnabled       = !empty($gv) && ($gv['enabled'] ?? false);
+    $gvEndingSoon    = $gvEnabled ? ($gv['endingSoon']    ?? []) : [];
+    $gvRecentWinners = $gvEnabled ? ($gv['recentWinners'] ?? []) : [];
+    $gvForumUrl      = $gvEnabled ? ($gv['forumUrl']      ?? (rtrim($forumUrl, '/') . '/giveaways')) : '';
+
     $gp              = $content->gamepedia ?? [];
     $gpEnabled       = !empty($gp) && ($gp['enabled'] ?? false);
     $gpMostDiscussed = $gpEnabled ? ($gp['mostDiscussed'] ?? []) : [];
@@ -297,7 +303,7 @@ $discRow = function ($disc, string $metaHtml) use ($url, $c, $renderAvatar) {
 </table>
 @endif
 
-@php $sectionOrder = $content->sectionOrder ?: ['discussions','members','stats','leaderboard','badges','pickem','picks','gamepedia','favorites','awards']; @endphp
+@php $sectionOrder = $content->sectionOrder ?: ['discussions','members','stats','leaderboard','badges','pickem','picks','giveaways','gamepedia','favorites','awards']; @endphp
 @foreach ($sectionOrder as $__section)
 @switch($__section)
 
@@ -920,6 +926,63 @@ $discRow = function ($disc, string $metaHtml) use ($url, $c, $renderAvatar) {
 </table>
 @endif
 {{-- /CFB PICKS --}}
+@break
+
+@case('giveaways')
+{{-- ── GIVEAWAYS (ernestdefoe/giveaways) ─────────────────────────────────── --}}
+@if ($gvEnabled && (!empty($gvEndingSoon) || !empty($gvRecentWinners)))
+<table width="100%" cellpadding="0" cellspacing="0" role="presentation">
+    <tr><td>{!! $sectionHeader($translator->trans('ernestdefoe-digest-mail.email.sections.giveaways')) !!}</td></tr>
+
+    @if (!empty($gvEndingSoon))
+    <tr><td style="padding:0 0 6px;">
+        <p style="margin:0; font-size:13px; font-weight:600; letter-spacing:1px; text-transform:uppercase; color:{{ $c['textMuted'] }};">{{ $translator->trans('ernestdefoe-digest-mail.email.giveaways.ending_heading') }}</p>
+    </td></tr>
+    @foreach ($gvEndingSoon as $g)
+    <tr><td style="padding:0 0 10px;">
+        <table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="background-color:{{ $c['surface2'] ?? $c['bg'] }}; border-radius:8px;">
+            <tr>
+                <td style="padding:12px 14px;">
+                    <a href="{{ $g['url'] }}" style="font-size:15px; font-weight:600; color:{{ $c['text'] }}; text-decoration:none;">&#127873; {{ e($g['prize']) }}</a>
+                    <div class="t-muted" style="font-size:13px; color:{{ $c['textMuted'] }}; margin-top:3px;">{{ e($g['title']) }}</div>
+                    <div class="t-muted" style="font-size:12px; color:{{ $c['textMuted'] }}; margin-top:6px;">
+                        &#9203; {{ $translator->trans('ernestdefoe-digest-mail.email.giveaways.ends', ['{when}' => $g['endsAt']->diffForHumans()]) }}
+                        &nbsp;&middot;&nbsp; {{ $translator->trans('ernestdefoe-digest-mail.email.giveaways.entrants', ['{count}' => $g['entrantCount']]) }}
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </td></tr>
+    @endforeach
+    @endif
+
+    @if (!empty($gvRecentWinners))
+    <tr><td style="padding:8px 0 6px;">
+        <p style="margin:0; font-size:13px; font-weight:600; letter-spacing:1px; text-transform:uppercase; color:{{ $c['textMuted'] }};">{{ $translator->trans('ernestdefoe-digest-mail.email.giveaways.winners_heading') }}</p>
+    </td></tr>
+    @foreach ($gvRecentWinners as $g)
+    <tr><td style="padding:0 0 10px;">
+        <table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="background-color:{{ $c['surface2'] ?? $c['bg'] }}; border-radius:8px;">
+            <tr>
+                <td style="padding:12px 14px;">
+                    <a href="{{ $g['url'] }}" style="font-size:15px; font-weight:600; color:{{ $c['text'] }}; text-decoration:none;">&#127942; {{ e($g['prize']) }}</a>
+                    <div class="t-muted" style="font-size:13px; color:{{ $c['textMuted'] }}; margin-top:3px;">{{ e($g['title']) }}</div>
+                    @if (!empty($g['winners']))
+                    <div style="font-size:13px; color:{{ $c['text'] }}; margin-top:6px;">{{ $translator->trans('ernestdefoe-digest-mail.email.giveaways.won_by', ['{winners}' => e(implode(', ', $g['winners']))]) }}</div>
+                    @endif
+                </td>
+            </tr>
+        </table>
+    </td></tr>
+    @endforeach
+    @endif
+
+    <tr><td align="center" style="padding:6px 0 4px;">
+        <a href="{{ $gvForumUrl }}" style="display:inline-block; padding:11px 28px; background-color:{{ $primaryColor }}; color:#fff; font-size:14px; font-weight:500; text-decoration:none; border-radius:6px;">{{ $translator->trans('ernestdefoe-digest-mail.email.giveaways.cta') }}</a>
+    </td></tr>
+</table>
+@endif
+{{-- /GIVEAWAYS --}}
 @break
 
 @case('gamepedia')

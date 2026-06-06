@@ -201,6 +201,13 @@ return [
                                 'iconColor'       => '#ffffff',
                                 'iconBg'          => '#69c6b9',
                             ],
+                            'giveaways' => [
+                                'enabled'         => $manager->isEnabled('ernestdefoe-giveaways'),
+                                'title'           => 'Giveaways',
+                                'iconName'        => 'fas fa-gift',
+                                'iconColor'       => '#ffffff',
+                                'iconBg'          => '#69c6b9',
+                            ],
                             'nightmode' => [
                                 'enabled' => false,
                             ],
@@ -259,6 +266,8 @@ return [
         ->default('ernestdefoe-digest-mail.enable_picks',       '1')
         ->default('ernestdefoe-digest-mail.limit_picks',        '5')
         ->default('ernestdefoe-digest-mail.picks_leaderboard_scope', 'alltime')
+        ->default('ernestdefoe-digest-mail.enable_giveaways',   '1')
+        ->default('ernestdefoe-digest-mail.limit_giveaways',    '5')
         ->default('ernestdefoe-digest-mail.enable_gamepedia',              '1')
         ->default('ernestdefoe-digest-mail.enable_resofire_gamepedia',     '1')
         ->default('ernestdefoe-digest-mail.limit_resofire_gamepedia',      '5')

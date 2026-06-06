@@ -76,6 +76,15 @@ class DigestContent
         public readonly array $picks = [],
 
         /**
+         * Giveaways section data (ernestdefoe/giveaways).
+         *   enabled        bool
+         *   endingSoon     array of [ title, prize, url, endsAt(Carbon), entrantCount, winnerCount ]
+         *   recentWinners  array of [ title, prize, url, drawnAt(Carbon), winners(string[]) ]
+         *   forumUrl       string
+         */
+        public readonly array $giveaways = [],
+
+        /**
          * Gamepedia section data (huseyinfiliz/gamepedia).
          *   enabled        bool
          *   mostDiscussed  array of [ game, postCount, discussionCount ]
@@ -150,6 +159,10 @@ class DigestContent
         // Picks (ernestdefoe/picks): upcoming matches or recent results worth surfacing
         if (!empty($this->picks['upcomingEvents'])
             || !empty($this->picks['recentResults'])) return false;
+
+        // Giveaways: ending-soon or freshly-drawn winners are time-sensitive
+        if (!empty($this->giveaways['endingSoon'])
+            || !empty($this->giveaways['recentWinners'])) return false;
 
         return true;
     }
