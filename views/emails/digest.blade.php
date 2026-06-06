@@ -718,7 +718,7 @@ $discRow = function ($disc, string $metaHtml) use ($url, $c, $renderAvatar) {
 @break
 
 @case('picks')
-{{-- ── CFB PICKS (resofire/picks) ────────────────────────────────────────── --}}
+{{-- ── CFB PICKS (ernestdefoe/picks) ────────────────────────────────────────── --}}
 @if ($pksEnabled && (!empty($pksUpcoming) || !empty($pksResults) || !empty($pksLeaderboard)))
 {!! $sectionDivider() !!}
 <table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="margin-bottom:36px;">

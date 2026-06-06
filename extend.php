@@ -195,7 +195,7 @@ return [
                                 'iconBg'          => '#16a34a',
                             ],
                             'picks' => [
-                                'enabled'         => $manager->isEnabled('resofire-picks'),
+                                'enabled'         => $manager->isEnabled('ernestdefoe-picks'),
                                 'title'           => 'CFB Picks',
                                 'iconName'        => 'fas fa-football',
                                 'iconColor'       => '#ffffff',

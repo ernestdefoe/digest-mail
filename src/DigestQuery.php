@@ -531,11 +531,11 @@ class DigestQuery
 
 
     // -------------------------------------------------------------------------
-    // Section 7b — Picks (resofire/picks)
+    // Section 7b — Picks (ernestdefoe/picks)
     // -------------------------------------------------------------------------
 
     /**
-     * Build the Picks section data for resofire/picks.
+     * Build the Picks section data for ernestdefoe/picks.
      *
      * Returns an array with:
      *   enabled            bool
@@ -562,7 +562,7 @@ class DigestQuery
             'picksForumUrl'    => '',
         ];
 
-        $extInstalled = $this->extensions->isEnabled('resofire-picks');
+        $extInstalled = $this->extensions->isEnabled('ernestdefoe-picks');
         $raw          = $this->settings->get('ernestdefoe-digest-mail.enable_picks');
         $adminEnabled = $raw === null || $raw === '' ? true : (bool) $raw;
 
@@ -572,7 +572,7 @@ class DigestQuery
 
         $now            = Carbon::now('UTC');
         $baseUrl        = rtrim($this->settings->get('url', ''), '/');
-        $confidenceMode = (bool) $this->settings->get('resofire-picks.confidence_mode', false);
+        $confidenceMode = (bool) $this->settings->get('ernestdefoe-picks.confidence_mode', false);
         $lbScope        = $this->settings->get('ernestdefoe-digest-mail.picks_leaderboard_scope', 'alltime');
         if (!in_array($lbScope, ['week', 'season', 'alltime'], true)) {
             $lbScope = 'alltime';

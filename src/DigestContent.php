@@ -62,7 +62,7 @@ class DigestContent
         public readonly array $pickem = [],
 
         /**
-         * Picks (resofire/picks) section data.
+         * Picks (ernestdefoe/picks) section data.
          *   enabled            bool
          *   confidenceMode     bool — whether confidence ratings are active
          *   leaderboardScope   string — 'week' | 'season' | 'alltime'
@@ -147,7 +147,7 @@ class DigestContent
         if (!empty($this->pickem['upcomingEvents'])
             || !empty($this->pickem['recentResults'])) return false;
 
-        // Picks (resofire/picks): upcoming matches or recent results worth surfacing
+        // Picks (ernestdefoe/picks): upcoming matches or recent results worth surfacing
         if (!empty($this->picks['upcomingEvents'])
             || !empty($this->picks['recentResults'])) return false;
 
