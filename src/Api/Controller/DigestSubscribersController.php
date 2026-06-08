@@ -4,8 +4,8 @@ namespace Resofire\DigestMail\Api\Controller;
 
 use Flarum\Http\RequestUtil;
 use Flarum\User\Exception\PermissionDeniedException;
+use Flarum\User\User;
 use Illuminate\Contracts\Filesystem\Factory;
-use Illuminate\Database\ConnectionInterface;
 use Laminas\Diactoros\Response\JsonResponse;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -41,8 +41,7 @@ class DigestSubscribersController implements RequestHandlerInterface
     private const MAX_PER_PAGE      = 50;
 
     public function __construct(
-        private ConnectionInterface $db,
-        private Factory             $filesystem,
+        private Factory $filesystem,
     ) {}
 
     public function handle(ServerRequestInterface $request): ResponseInterface
@@ -61,7 +60,7 @@ class DigestSubscribersController implements RequestHandlerInterface
             return new JsonResponse(['error' => 'Invalid frequency.'], 400);
         }
 
-        $base = $this->db->table('users')
+        $base = User::query()
             ->where('digest_frequency', $frequency)
             ->where('is_email_confirmed', true);
 

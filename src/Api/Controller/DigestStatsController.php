@@ -5,6 +5,7 @@ namespace Resofire\DigestMail\Api\Controller;
 use Flarum\Foundation\Paths;
 use Flarum\Http\RequestUtil;
 use Flarum\User\Exception\PermissionDeniedException;
+use Flarum\User\User;
 use Illuminate\Database\ConnectionInterface;
 use Laminas\Diactoros\Response\JsonResponse;
 use Psr\Http\Message\ResponseInterface;
@@ -26,11 +27,11 @@ class DigestStatsController implements RequestHandlerInterface
         }
 
         // Subscription counts
-        $totalMembers = $this->db->table('users')
+        $totalMembers = User::query()
             ->where('is_email_confirmed', true)
             ->count();
 
-        $freqRows = $this->db->table('users')
+        $freqRows = User::query()
             ->select('digest_frequency', $this->db->raw('COUNT(*) as cnt'))
             ->where('is_email_confirmed', true)
             ->whereIn('digest_frequency', ['daily', 'weekly', 'monthly'])
@@ -48,7 +49,7 @@ class DigestStatsController implements RequestHandlerInterface
             : 0;
 
         // Last sent per frequency
-        $lastSentRows = $this->db->table('users')
+        $lastSentRows = User::query()
             ->select('digest_frequency', $this->db->raw('MAX(digest_last_sent_at) as last_sent'))
             ->whereIn('digest_frequency', ['daily', 'weekly', 'monthly'])
             ->whereNotNull('digest_last_sent_at')
