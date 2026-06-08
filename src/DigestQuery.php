@@ -80,7 +80,12 @@ class DigestQuery
         $replyWeight   = (float) $this->settings->get('ernestdefoe-digest-mail.hot_reply_weight',   1.0);
         $recencyWeight = (float) $this->settings->get('ernestdefoe-digest-mail.hot_recency_weight', 0.5);
 
-        return Discussion::whereVisibleTo($actor)
+        // The hot score blends reply volume with recency. The recency term needs
+        // "hours since last post", which has no portable SQL spelling
+        // (TIMESTAMPDIFF is MySQL-only; PG/SQLite differ), so we pull a bounded
+        // candidate set for the digest window and rank in PHP. The window itself
+        // (last_posted_at >= since) keeps the candidate set small.
+        $candidates = Discussion::whereVisibleTo($actor)
             ->select([
                 'discussions.id',
                 'discussions.title',
@@ -91,16 +96,26 @@ class DigestQuery
                 'discussions.user_id',
                 'discussions.last_posted_user_id',
             ])
-            ->selectRaw(
-                '(comment_count * ?) + (1.0 / (1.0 + TIMESTAMPDIFF(HOUR, last_posted_at, NOW()) * ?)) AS hot_score',
-                [$replyWeight, $recencyWeight]
-            )
             ->where('discussions.last_posted_at', '>=', $since)
             ->whereNull('discussions.hidden_at')
             ->with(['user', 'lastPostedUser'])
-            ->orderByDesc('hot_score')
-            ->limit($limit)
+            ->orderByDesc('comment_count')
+            ->orderByDesc('last_posted_at')
+            ->limit(max($limit * 5, 100))
             ->get();
+
+        $now = Carbon::now();
+
+        return $candidates
+            ->map(function (Discussion $d) use ($replyWeight, $recencyWeight, $now) {
+                $hours = $d->last_posted_at ? max(0, $now->diffInHours($d->last_posted_at)) : PHP_INT_MAX;
+                $d->hot_score = ((int) $d->comment_count * $replyWeight)
+                    + (1.0 / (1.0 + $hours * $recencyWeight));
+                return $d;
+            })
+            ->sortByDesc('hot_score')
+            ->take($limit)
+            ->values();
     }
 
     // -------------------------------------------------------------------------
@@ -174,19 +189,33 @@ class DigestQuery
             return ['enabled' => false, 'recentEarners' => [], 'mostEarned' => null, 'rarest' => null];
         }
 
-        // fof_badge_user rows earned this period
-        $rows = $this->db->table('fof_badge_user')
+        // Recent earners: a bounded, most-recent slice (over-fetch a little so
+        // filtering out invisible badges / deleted users below still fills $limit).
+        // Never load the full period's badge_user table into memory.
+        $recentRows = $this->db->table('fof_badge_user')
             ->where('earned_at', '>=', $since)
             ->orderByDesc('earned_at')
+            ->limit(max($limit * 4, 50))
             ->get(['user_id', 'badge_id', 'earned_at']);
 
-        if ($rows->isEmpty()) {
+        // Most-earned this period: aggregate in SQL, so the result set is bounded
+        // by the number of distinct badges (small) rather than by earner volume.
+        $periodCounts = $this->db->table('fof_badge_user')
+            ->where('earned_at', '>=', $since)
+            ->groupBy('badge_id')
+            ->select('badge_id')
+            ->selectRaw('COUNT(DISTINCT user_id) AS earners')
+            ->orderByDesc('earners')
+            ->get();
+
+        if ($recentRows->isEmpty() && $periodCounts->isEmpty()) {
             return ['enabled' => true, 'recentEarners' => [], 'mostEarned' => null, 'rarest' => null];
         }
 
         // Collect unique IDs for batch loading
-        $badgeIds = $rows->pluck('badge_id')->unique()->values()->all();
-        $userIds  = $rows->pluck('user_id')->unique()->values()->all();
+        $badgeIds = $recentRows->pluck('badge_id')
+            ->merge($periodCounts->pluck('badge_id'))->unique()->values()->all();
+        $userIds  = $recentRows->pluck('user_id')->unique()->values()->all();
 
         $badges = $this->db->table('fof_badges')
             ->whereIn('id', $badgeIds)
@@ -198,7 +227,7 @@ class DigestQuery
 
         // --- Recent earners (up to $limit) ---
         $recentEarners = [];
-        foreach ($rows as $row) {
+        foreach ($recentRows as $row) {
             if (count($recentEarners) >= $limit) break;
             $badge = $badges->get($row->badge_id);
             $user  = $users->get($row->user_id);
@@ -210,15 +239,16 @@ class DigestQuery
             ];
         }
 
-        // --- Most earned this period ---
+        // --- Most earned this period (first visible badge by earner count) ---
         $mostEarned = null;
-        $periodCounts = $rows->groupBy('badge_id')->map(fn($g) => $g->pluck('user_id')->unique()->count());
-        $topBadgeId   = $periodCounts->sortDesc()->keys()->first();
-        if ($topBadgeId && $badges->has($topBadgeId)) {
-            $mostEarned = [
-                'badge' => $badges->get($topBadgeId),
-                'count' => $periodCounts[$topBadgeId],
-            ];
+        foreach ($periodCounts as $pc) {
+            if ($badges->has($pc->badge_id)) {
+                $mostEarned = [
+                    'badge' => $badges->get($pc->badge_id),
+                    'count' => (int) $pc->earners,
+                ];
+                break;
+            }
         }
 
         // --- Rarest this period (lowest all-time earned_count) ---
@@ -1235,81 +1265,105 @@ class DigestQuery
             return ['enabled' => true, 'awards' => []];
         }
 
-        $awards = [];
-
+        // Resolve effective status for every award up front (pure PHP, no queries).
+        $statuses = [];
         foreach ($awardRows as $award) {
-            // Resolve effective status
             if ($award->status === 'published') {
-                $effectiveStatus = 'published';
+                $statuses[$award->id] = 'published';
             } elseif ($award->status === 'ended') {
-                $effectiveStatus = 'ended';
+                $statuses[$award->id] = 'ended';
             } elseif ($award->status === 'active' && $award->ends_at && $award->ends_at < $now) {
-                $effectiveStatus = 'ended';
+                $statuses[$award->id] = 'ended';
             } elseif ($award->status === 'active' && $award->starts_at && $award->starts_at > $now) {
-                $effectiveStatus = 'upcoming';
+                $statuses[$award->id] = 'upcoming';
             } else {
-                $effectiveStatus = 'active';
+                $statuses[$award->id] = 'active';
             }
+        }
 
-            // Load categories with per-category vote and nominee counts
-            $prefix = $this->db->getTablePrefix();
-            $categoryRows = $this->db->select("
+        $awardIds = array_map(fn ($a) => (int) $a->id, $awardRows);
+        $prefix   = $this->db->getTablePrefix();
+        $in       = implode(',', array_fill(0, count($awardIds), '?'));
+
+        // Category vote/nominee counts for ALL awards in ONE query (was one query
+        // per award — an N+1), grouped by award_id below.
+        $categoryRows = $this->db->select("
+            SELECT
+                ac.award_id,
+                ac.id,
+                ac.name,
+                ac.slug,
+                ac.description,
+                ac.sort_order,
+                COUNT(DISTINCT an.id)  AS nominee_count,
+                COUNT(DISTINCT av.id)  AS vote_count
+            FROM {$prefix}award_categories AS ac
+            LEFT JOIN {$prefix}award_nominees   AS an ON an.category_id = ac.id
+            LEFT JOIN {$prefix}award_votes       AS av ON av.category_id = ac.id
+            WHERE ac.award_id IN ($in)
+            GROUP BY ac.award_id, ac.id, ac.name, ac.slug, ac.description, ac.sort_order
+            ORDER BY ac.sort_order ASC
+        ", $awardIds);
+
+        $categoriesByAward = [];
+        foreach ($categoryRows as $row) {
+            $categoriesByAward[(int) $row->award_id][] = $row;
+        }
+
+        // Which awards should show live top-nominees?
+        $liveIds = [];
+        foreach ($awardRows as $award) {
+            if ((bool) $award->show_live_votes && in_array($statuses[$award->id], ['active', 'published'], true)) {
+                $liveIds[] = (int) $award->id;
+            }
+        }
+
+        // Top nominees for ALL live awards in ONE query (also was an N+1).
+        $topByAward = [];
+        if ($liveIds) {
+            $inLive = implode(',', array_fill(0, count($liveIds), '?'));
+            $topRows = $this->db->select("
                 SELECT
-                    ac.id,
-                    ac.name,
-                    ac.slug,
-                    ac.description,
-                    ac.sort_order,
-                    COUNT(DISTINCT an.id)  AS nominee_count,
-                    COUNT(DISTINCT av.id)  AS vote_count
+                    ac.award_id,
+                    ac.name  AS category_name,
+                    an.name  AS nominee_name,
+                    an.image_url AS nominee_image,
+                    COUNT(av.id) + COALESCE(an.vote_adjustment, 0) AS vote_count
                 FROM {$prefix}award_categories AS ac
-                LEFT JOIN {$prefix}award_nominees   AS an ON an.category_id = ac.id
-                LEFT JOIN {$prefix}award_votes       AS av ON av.category_id = ac.id
-                WHERE ac.award_id = ?
-                GROUP BY ac.id, ac.name, ac.slug, ac.description, ac.sort_order
-                ORDER BY ac.sort_order ASC
-            ", [(int) $award->id]);
+                INNER JOIN {$prefix}award_nominees AS an ON an.category_id = ac.id
+                LEFT JOIN  {$prefix}award_votes    AS av ON av.nominee_id  = an.id
+                WHERE ac.award_id IN ($inLive)
+                GROUP BY ac.award_id, ac.id, ac.name, an.id, an.name, an.image_url, an.vote_adjustment
+                ORDER BY ac.sort_order ASC, vote_count DESC
+            ", $liveIds);
 
-            $totalVotes = (int) array_sum(array_map(fn($row) => $row->vote_count, $categoryRows));
-
-            // Top nominee per category (only when show_live_votes is on and voting is active or results published)
-            $topNominees = [];
-            if ((bool) $award->show_live_votes && in_array($effectiveStatus, ['active', 'published'])) {
-                $topRows = $this->db->select("
-                    SELECT
-                        ac.name  AS category_name,
-                        an.name  AS nominee_name,
-                        an.image_url AS nominee_image,
-                        COUNT(av.id) + COALESCE(an.vote_adjustment, 0) AS vote_count
-                    FROM {$prefix}award_categories AS ac
-                    INNER JOIN {$prefix}award_nominees AS an ON an.category_id = ac.id
-                    LEFT JOIN  {$prefix}award_votes    AS av ON av.nominee_id  = an.id
-                    WHERE ac.award_id = ?
-                    GROUP BY ac.id, ac.name, an.id, an.name, an.image_url, an.vote_adjustment
-                    ORDER BY ac.sort_order ASC, vote_count DESC
-                ", [(int) $award->id]);
-
-                // Keep only the top nominee per category
-                $seen = [];
-                foreach ($topRows as $row) {
-                    if (!isset($seen[$row->category_name])) {
-                        $seen[$row->category_name] = true;
-                        $topNominees[] = [
-                            'categoryName'  => $row->category_name,
-                            'nomineeName'   => $row->nominee_name,
-                            'nomineeImage'  => $row->nominee_image,
-                            'voteCount'     => (int) $row->vote_count,
-                        ];
-                    }
+            // Keep only the top nominee per (award, category).
+            $seen = [];
+            foreach ($topRows as $row) {
+                $aid = (int) $row->award_id;
+                $key = $aid . "\0" . $row->category_name;
+                if (isset($seen[$key])) {
+                    continue;
                 }
+                $seen[$key] = true;
+                $topByAward[$aid][] = [
+                    'categoryName'  => $row->category_name,
+                    'nomineeName'   => $row->nominee_name,
+                    'nomineeImage'  => $row->nominee_image,
+                    'voteCount'     => (int) $row->vote_count,
+                ];
             }
+        }
 
+        $awards = [];
+        foreach ($awardRows as $award) {
+            $cats = $categoriesByAward[(int) $award->id] ?? [];
             $awards[] = [
                 'award'          => $award,
-                'effectiveStatus'=> $effectiveStatus,
-                'categories'     => $categoryRows,
-                'totalVotes'     => (int) $totalVotes,
-                'topNominees'    => $topNominees,
+                'effectiveStatus'=> $statuses[$award->id],
+                'categories'     => $cats,
+                'totalVotes'     => (int) array_sum(array_map(fn ($row) => $row->vote_count, $cats)),
+                'topNominees'    => $topByAward[(int) $award->id] ?? [],
             ];
         }
 

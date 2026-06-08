@@ -37,6 +37,8 @@ use Illuminate\Database\ConnectionInterface;
  */
 class SendDigestCommand extends Command
 {
+    use DigestPeriods;
+
     protected $signature = 'digest:send
         {--frequency=  : Run only this frequency (daily|weekly|monthly)}
         {--dry-run     : Print eligible recipients without dispatching}
@@ -373,24 +375,6 @@ class SendDigestCommand extends Command
     // -------------------------------------------------------------------------
     // Helpers
     // -------------------------------------------------------------------------
-
-    private function periodStart(string $frequency): Carbon
-    {
-        return match ($frequency) {
-            'daily'   => Carbon::now('UTC')->subDay(),
-            'weekly'  => Carbon::now('UTC')->subWeek(),
-            'monthly' => Carbon::now('UTC')->subMonth(),
-        };
-    }
-
-    private function lastSentCutoff(string $frequency): Carbon
-    {
-        return match ($frequency) {
-            'daily'   => Carbon::now('UTC')->subHours(23),
-            'weekly'  => Carbon::now('UTC')->subDays(6),
-            'monthly' => Carbon::now('UTC')->subDays(28),
-        };
-    }
 
     private function jobTries(): int
     {

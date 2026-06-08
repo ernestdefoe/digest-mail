@@ -144,8 +144,7 @@ return [
     // (digestFrequency → digest_frequency) and calls $user->save().
     //
     // Permission: users may only write their own preference; admins may write
-    // any user's preference. This mirrors the logic previously in
-    // SaveDigestFrequency.
+    // any user's preference.
     // -------------------------------------------------------------------------
     (new Extend\ApiResource(Resource\UserResource::class))
         ->fields(fn () => [

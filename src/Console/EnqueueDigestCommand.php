@@ -39,6 +39,8 @@ use Illuminate\Database\Eloquent\Collection;
  */
 class EnqueueDigestCommand extends Command
 {
+    use DigestPeriods;
+
     protected $signature = 'digest:enqueue
         {--frequency=  : Frequency to enqueue (daily|weekly|monthly). Required.}
         {--delay=      : Seconds until jobs become available to workers (default: 0)}
@@ -170,21 +172,4 @@ class EnqueueDigestCommand extends Command
         return self::SUCCESS;
     }
 
-    private function periodStart(string $frequency): Carbon
-    {
-        return match ($frequency) {
-            'daily'   => Carbon::now('UTC')->subDay(),
-            'weekly'  => Carbon::now('UTC')->subWeek(),
-            'monthly' => Carbon::now('UTC')->subMonth(),
-        };
-    }
-
-    private function lastSentCutoff(string $frequency): Carbon
-    {
-        return match ($frequency) {
-            'daily'   => Carbon::now('UTC')->subHours(23),
-            'weekly'  => Carbon::now('UTC')->subDays(6),
-            'monthly' => Carbon::now('UTC')->subDays(28),
-        };
-    }
 }

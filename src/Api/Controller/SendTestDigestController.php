@@ -16,6 +16,7 @@ use Laminas\Diactoros\Response\JsonResponse;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
+use Psr\Log\LoggerInterface;
 
 /**
  * POST /api/ernestdefoe/digest-mail/test-send
@@ -37,7 +38,7 @@ use Psr\Http\Server\RequestHandlerInterface;
  * Error responses:
  *   400  missing/invalid fields
  *   403  actor is not an admin
- *   500  mail sending failed (message included)
+ *   500  mail sending failed (generic message; cause is logged server-side)
  */
 class SendTestDigestController implements RequestHandlerInterface
 {
@@ -48,6 +49,7 @@ class SendTestDigestController implements RequestHandlerInterface
         private DigestMailer                $mailer,
         private UnsubscribeTokenGenerator   $tokenGenerator,
         private SettingsRepositoryInterface $settings,
+        private LoggerInterface             $log,
     ) {}
 
     public function handle(ServerRequestInterface $request): ResponseInterface
@@ -115,8 +117,13 @@ class SendTestDigestController implements RequestHandlerInterface
         try {
             $this->mailer->sendToUser($testUser, $content, $token);
         } catch (\Throwable $e) {
+            // Log the real cause for the admin's server logs; don't leak the raw
+            // exception message (which can include mail credentials / host detail)
+            // back to the API caller.
+            $this->log->error('[digest-mail] test send failed: ' . $e->getMessage(), ['exception' => $e]);
+
             return new JsonResponse(
-                ['error' => 'Mail sending failed: ' . $e->getMessage()],
+                ['error' => 'Mail sending failed. Check the server logs for details.'],
                 500
             );
         }
