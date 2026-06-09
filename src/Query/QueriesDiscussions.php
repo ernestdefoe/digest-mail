@@ -4,12 +4,8 @@ namespace Resofire\DigestMail\Query;
 
 use Carbon\Carbon;
 use Flarum\Discussion\Discussion;
-use Flarum\Extension\ExtensionManager;
-use Flarum\Group\Group;
-use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\User;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Database\ConnectionInterface;
 
 /**
  * QueriesDiscussions: extracted from DigestQuery to keep each integration's digest queries

@@ -10,6 +10,7 @@ use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\User;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\ConnectionInterface;
+use Psr\Log\LoggerInterface;
 
 /**
  * All database queries for digest content live here.
@@ -30,6 +31,7 @@ class DigestQuery
         private SettingsRepositoryInterface $settings,
         private ConnectionInterface         $db,
         private ExtensionManager            $extensions,
+        private LoggerInterface             $log,
     ) {}
 
     // -------------------------------------------------------------------------

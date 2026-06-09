@@ -5,6 +5,7 @@ namespace Resofire\DigestMail\Console;
 use Resofire\DigestMail\DigestContent;
 use Resofire\DigestMail\DigestQuery;
 use Resofire\DigestMail\DigestMailer;
+use Resofire\DigestMail\DigestSendLog;
 use Resofire\DigestMail\Job\SendDigestJob;
 use Carbon\Carbon;
 use Flarum\Settings\SettingsRepositoryInterface;
@@ -12,7 +13,6 @@ use Flarum\User\User;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Cache\Repository as Cache;
 use Illuminate\Contracts\Queue\Queue;
-use Illuminate\Database\ConnectionInterface;
 
 /**
  * Console command that drives the entire digest send cycle.
@@ -57,7 +57,6 @@ class SendDigestCommand extends Command
         private DigestQuery                 $query,
         private DigestMailer                $mailer,
         private Queue                       $queue,
-        private ConnectionInterface         $db,
         private Cache                       $cache,
     ) {
         parent::__construct();
@@ -294,26 +293,22 @@ class SendDigestCommand extends Command
         // With window mode dispatching one chunk per minute, we update today's
         // row rather than inserting a new one for each chunk.
         if (!$isDryRun && $dispatched > 0) {
-            $timezone = $this->settings->get('ernestdefoe-digest-mail.timezone', 'UTC');
-            $today    = Carbon::now($timezone)->toDateString();
-            $nowUtc   = Carbon::now('UTC')->toDateTimeString();
+            $nowUtc     = Carbon::now('UTC');
+            $startOfDay = $nowUtc->copy()->startOfDay();
 
-            $existing = $this->db->table('digest_send_log')
+            $existing = DigestSendLog::query()
                 ->where('frequency', $frequency)
-                ->where('sent_at', '>=', Carbon::now('UTC')->startOfDay()->toDateTimeString())
-                ->where('sent_at', '<',  Carbon::now('UTC')->startOfDay()->addDay()->toDateTimeString())
+                ->where('sent_at', '>=', $startOfDay)
+                ->where('sent_at', '<',  $startOfDay->copy()->addDay())
                 ->first();
 
             if ($existing) {
-                $this->db->table('digest_send_log')
-                    ->where('id', $existing->id)
-                    ->update([
-                        'sent_count'    => $existing->sent_count + $dispatched,
-                        'skipped_count' => $existing->skipped_count + $skipped,
-                        'sent_at'       => $nowUtc,
-                    ]);
+                $existing->sent_count    += $dispatched;
+                $existing->skipped_count += $skipped;
+                $existing->sent_at        = $nowUtc;
+                $existing->save();
             } else {
-                $this->db->table('digest_send_log')->insert([
+                DigestSendLog::create([
                     'frequency'     => $frequency,
                     'sent_count'    => $dispatched,
                     'skipped_count' => $skipped,
@@ -330,14 +325,14 @@ class SendDigestCommand extends Command
                 default   => 30,
             };
 
-            $keepIds = $this->db->table('digest_send_log')
+            $keepIds = DigestSendLog::query()
                 ->where('frequency', $frequency)
-                ->orderBy('sent_at', 'desc')
+                ->orderByDesc('sent_at')
                 ->limit($retention)
                 ->pluck('id');
 
             if ($keepIds->isNotEmpty()) {
-                $this->db->table('digest_send_log')
+                DigestSendLog::query()
                     ->where('frequency', $frequency)
                     ->whereNotIn('id', $keepIds)
                     ->delete();

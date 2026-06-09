@@ -1,10 +1,10 @@
 import app from 'flarum/admin/app';
 
-function ordinal(n){var s=["th","st","nd","rd"];var v=n%100;return n+(s[(v-20)%10]||s[v]||s[0]);}
+function ordinal(n){let s=["th","st","nd","rd"];let v=n%100;return n+(s[(v-20)%10]||s[v]||s[0]);}
 function saveSetting(key,val){return app.request({method:"POST",url:app.forum.attribute("apiUrl")+"/settings",body:{[key]:val}}).then(function(){app.data.settings[key]=val;});}
-function getSettingVal(key,fallback){var v=app.data.settings[key];return(v===undefined||v===null)?fallback:v;}
+function getSettingVal(key,fallback){let v=app.data.settings[key];return(v===undefined||v===null)?fallback:v;}
 
-var TIMEZONES=[
+let TIMEZONES=[
   {tz:"Pacific/Honolulu",    label:"Hawaii"},
   {tz:"America/Anchorage",   label:"Alaska"},
   {tz:"America/Los_Angeles", label:"Pacific Time (US & Canada)"},
@@ -27,17 +27,17 @@ var TIMEZONES=[
   {tz:"Australia/Sydney",    label:"Sydney"},
   {tz:"Pacific/Auckland",    label:"Auckland"},
 ];
-function tzOffsetLabel(tz){try{var fmt=new Intl.DateTimeFormat("en-US",{timeZone:tz,timeZoneName:"shortOffset"});var parts=fmt.formatToParts(new Date());var p=parts.find(function(x){return x.type==="timeZoneName";});return p?p.value.replace("GMT","UTC"):"UTC";}catch(e){return "UTC";}}
-function buildHourOptions(tz){var opts={};var label=tzOffsetLabel(tz);for(var h=0;h<24;h++){var padded=h<10?"0"+h:""+h;var lbl=padded+":00 "+label;if(h===0)lbl+=" (midnight)";if(h===12)lbl+=" (noon)";opts[String(h)]=lbl;}return opts;}
-var weekDayOptions={"0":"Sunday","1":"Monday","2":"Tuesday","3":"Wednesday","4":"Thursday","5":"Friday","6":"Saturday"};
-var monthDayOptions={};for(var d=1;d<=28;d++){monthDayOptions[String(d)]=ordinal(d);}
+function tzOffsetLabel(tz){try{let fmt=new Intl.DateTimeFormat("en-US",{timeZone:tz,timeZoneName:"shortOffset"});let parts=fmt.formatToParts(new Date());let p=parts.find(function(x){return x.type==="timeZoneName";});return p?p.value.replace("GMT","UTC"):"UTC";}catch(e){return "UTC";}}
+function buildHourOptions(tz){let opts={};let label=tzOffsetLabel(tz);for(let h=0;h<24;h++){let padded=h<10?"0"+h:""+h;let lbl=padded+":00 "+label;if(h===0)lbl+=" (midnight)";if(h===12)lbl+=" (noon)";opts[String(h)]=lbl;}return opts;}
+let weekDayOptions={"0":"Sunday","1":"Monday","2":"Tuesday","3":"Wednesday","4":"Thursday","5":"Friday","6":"Saturday"};
+let monthDayOptions={};for(let d=1;d<=28;d++){monthDayOptions[String(d)]=ordinal(d);}
 
-var FIXED_SECTIONS=[
+let FIXED_SECTIONS=[
   {key:"discussions",label:"Discussions",    icon:"fas fa-comments",  iconBg:"#3b82f6",iconColor:"#fff"},
   {key:"members",    label:"New Members",    icon:"fas fa-user-plus", iconBg:"#10b981",iconColor:"#fff"},
   {key:"stats",      label:"Community Stats",icon:"fas fa-chart-bar", iconBg:"#6366f1",iconColor:"#fff"},
 ];
-var INTEGRATION_SECTIONS={
+let INTEGRATION_SECTIONS={
   leaderboard:{key:"leaderboard",label:"Leaderboard",icon:"fas fa-trophy",      iconBg:"#3498db",iconColor:"#fff"},
   badges:     {key:"badges",     label:"Badges",     icon:"fas fa-award",       iconBg:"#8b5cf6",iconColor:"#fff"},
   pickem:     {key:"pickem",     label:"Pick'em",    icon:"fas fa-football-ball",iconBg:"#16a34a",iconColor:"#fff"},
@@ -47,34 +47,34 @@ var INTEGRATION_SECTIONS={
   favorites:          {key:"favorites",         label:"Favorites",          icon:"fas fa-heart",       iconBg:"#e11d48",iconColor:"#fff"},
   awards:     {key:"awards",     label:"Awards",     icon:"fas fa-star",        iconBg:"#f59e0b",iconColor:"#fff"},
 };
-var DEFAULT_ORDER=["discussions","members","stats","leaderboard","badges","pickem","picks","gamepedia","resofireGamepedia","favorites","awards"];
+let DEFAULT_ORDER=["discussions","members","stats","leaderboard","badges","pickem","picks","gamepedia","resofireGamepedia","favorites","awards"];
 
-var ExtIcon={view:function(vnode){var a=vnode.attrs;var sz=a.size||40;var fz=Math.round(sz*0.44);return m("div",{style:"width:"+sz+"px;height:"+sz+"px;border-radius:8px;background-color:"+(a.iconBg||"#6b7280")+";display:flex;align-items:center;justify-content:center;flex-shrink:0;"},m("i",{className:a.iconName||"fas fa-puzzle-piece",style:"color:"+(a.iconColor||"#fff")+";font-size:"+fz+"px;"}));}};
+let ExtIcon={view:function(vnode){let a=vnode.attrs;let sz=a.size||40;let fz=Math.round(sz*0.44);return m("div",{style:"width:"+sz+"px;height:"+sz+"px;border-radius:8px;background-color:"+(a.iconBg||"#6b7280")+";display:flex;align-items:center;justify-content:center;flex-shrink:0;"},m("i",{className:a.iconName||"fas fa-puzzle-piece",style:"color:"+(a.iconColor||"#fff")+";font-size:"+fz+"px;"}));}};
 
-var IntegrationToggle={
-  oninit:function(vnode){var key=vnode.attrs.settingKey;var ext=vnode.attrs.extData||{};var saved=app.data.settings[key];if(saved===undefined||saved===null){saved=ext.enabled?"1":"0";}vnode.state.on=saved==="1"||saved===true||saved===1;vnode.state.saving=false;},
-  toggle:function(vnode){var ext=vnode.attrs.extData||{};if(!ext.enabled||vnode.state.saving)return;vnode.state.on=!vnode.state.on;vnode.state.saving=true;var newVal=vnode.state.on?"1":"0";saveSetting(vnode.attrs.settingKey,newVal).then(function(){vnode.state.saving=false;m.redraw();}).catch(function(){vnode.state.on=!vnode.state.on;vnode.state.saving=false;m.redraw();});},
-  view:function(vnode){var a=vnode.attrs;var s=vnode.state;var ext=a.extData||{};var installed=!!ext.enabled;var on=installed&&s.on;var trackBg=!installed?"var(--control-bg)":on?"var(--primary-color,#4f46e5)":"var(--control-color,#d1d5db)";var thumbLeft=on?"22px":"2px";var cardOpacity=installed?"1":"0.55";var cursor=installed?"pointer":"not-allowed";var statusText=installed?(a.installedNote||"Extension active"):(a.notInstalledNote||"Not installed or disabled");var statusColor=installed?"#16a34a":"var(--muted-color)";return m("div",{style:"display:flex;align-items:center;gap:16px;padding:16px 20px;border-radius:8px;background:var(--control-bg);border:1px solid var(--control-bg);opacity:"+cardOpacity+";margin-bottom:10px;transition:opacity .2s;"},m(ExtIcon,{iconName:ext.iconName,iconColor:ext.iconColor,iconBg:ext.iconBg,size:44}),m("div",{style:"flex:1;min-width:0;"},m("div",{style:"display:flex;align-items:center;gap:8px;margin-bottom:3px;"},m("span",{style:"font-size:16px;font-weight:700;color:var(--heading-color,var(--text-color));"},ext.title||a.settingKey),m("span",{style:"font-size:11px;font-weight:600;padding:2px 7px;border-radius:20px;background:"+(installed?"rgba(34,197,94,.15)":"var(--control-bg)")+";color:"+(installed?"#16a34a":"var(--muted-color)")+";"},installed?"Active":"Inactive")),m("div",{style:"font-size:13px;color:var(--muted-color);line-height:1.45;margin-bottom:4px;"},a.description),m("div",{style:"font-size:12px;color:"+statusColor+";"},statusText)),m("div",{style:"flex-shrink:0;cursor:"+cursor+";user-select:none;",title:installed?(on?"Disable in digest":"Enable in digest"):"Install and enable the extension first",onclick:function(){IntegrationToggle.toggle(vnode);}},m("div",{style:"position:relative;width:46px;height:26px;border-radius:13px;background-color:"+trackBg+";transition:background-color .2s;"},m("div",{style:"position:absolute;top:3px;left:"+thumbLeft+";width:20px;height:20px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.3);transition:left .15s;"}))));} 
+let IntegrationToggle={
+  oninit:function(vnode){let key=vnode.attrs.settingKey;let ext=vnode.attrs.extData||{};let saved=app.data.settings[key];if(saved===undefined||saved===null){saved=ext.enabled?"1":"0";}vnode.state.on=saved==="1"||saved===true||saved===1;vnode.state.saving=false;},
+  toggle:function(vnode){let ext=vnode.attrs.extData||{};if(!ext.enabled||vnode.state.saving)return;vnode.state.on=!vnode.state.on;vnode.state.saving=true;let newVal=vnode.state.on?"1":"0";saveSetting(vnode.attrs.settingKey,newVal).then(function(){vnode.state.saving=false;m.redraw();}).catch(function(){vnode.state.on=!vnode.state.on;vnode.state.saving=false;m.redraw();});},
+  view:function(vnode){let a=vnode.attrs;let s=vnode.state;let ext=a.extData||{};let installed=!!ext.enabled;let on=installed&&s.on;let trackBg=!installed?"var(--control-bg)":on?"var(--primary-color,#4f46e5)":"var(--control-color,#d1d5db)";let thumbLeft=on?"22px":"2px";let cardOpacity=installed?"1":"0.55";let cursor=installed?"pointer":"not-allowed";let statusText=installed?(a.installedNote||"Extension active"):(a.notInstalledNote||"Not installed or disabled");let statusColor=installed?"#16a34a":"var(--muted-color)";return m("div",{style:"display:flex;align-items:center;gap:16px;padding:16px 20px;border-radius:8px;background:var(--control-bg);border:1px solid var(--control-bg);opacity:"+cardOpacity+";margin-bottom:10px;transition:opacity .2s;"},m(ExtIcon,{iconName:ext.iconName,iconColor:ext.iconColor,iconBg:ext.iconBg,size:44}),m("div",{style:"flex:1;min-width:0;"},m("div",{style:"display:flex;align-items:center;gap:8px;margin-bottom:3px;"},m("span",{style:"font-size:16px;font-weight:700;color:var(--heading-color,var(--text-color));"},ext.title||a.settingKey),m("span",{style:"font-size:11px;font-weight:600;padding:2px 7px;border-radius:20px;background:"+(installed?"rgba(34,197,94,.15)":"var(--control-bg)")+";color:"+(installed?"#16a34a":"var(--muted-color)")+";"},installed?"Active":"Inactive")),m("div",{style:"font-size:13px;color:var(--muted-color);line-height:1.45;margin-bottom:4px;"},a.description),m("div",{style:"font-size:12px;color:"+statusColor+";"},statusText)),m("div",{style:"flex-shrink:0;cursor:"+cursor+";user-select:none;",title:installed?(on?"Disable in digest":"Enable in digest"):"Install and enable the extension first",onclick:function(){IntegrationToggle.toggle(vnode);}},m("div",{style:"position:relative;width:46px;height:26px;border-radius:13px;background-color:"+trackBg+";transition:background-color .2s;"},m("div",{style:"position:absolute;top:3px;left:"+thumbLeft+";width:20px;height:20px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.3);transition:left .15s;"}))));} 
 };
 
-var FrequencyToggle={
-  oninit:function(vnode){var saved=app.data.settings[vnode.attrs.settingKey];if(saved===undefined||saved===null)saved=vnode.attrs.defaultOn?"1":"0";vnode.state.on=saved==="1"||saved===true||saved===1;vnode.state.saving=false;},
-  toggle:function(vnode){if(vnode.state.saving)return;vnode.state.on=!vnode.state.on;vnode.state.saving=true;var newVal=vnode.state.on?"1":"0";saveSetting(vnode.attrs.settingKey,newVal).then(function(){vnode.state.saving=false;m.redraw();}).catch(function(){vnode.state.on=!vnode.state.on;vnode.state.saving=false;m.redraw();});},
-  view:function(vnode){var a=vnode.attrs;var s=vnode.state;var on=s.on;var trackBg=on?"var(--primary-color,#4f46e5)":"var(--control-color,#d1d5db)";var thumbLeft=on?"22px":"2px";return m("div",{style:"display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-radius:8px;background:var(--control-bg);border:1px solid var(--control-bg);margin-bottom:10px;"},m("div",{style:"display:flex;align-items:center;gap:14px;flex:1;"},m("div",{style:"width:44px;height:44px;border-radius:8px;flex-shrink:0;background:"+a.iconBg+";display:flex;align-items:center;justify-content:center;font-size:20px;"},a.emoji),m("div",null,m("div",{style:"font-size:15px;font-weight:700;color:var(--heading-color,var(--text-color));margin-bottom:2px;"},a.label),m("div",{style:"font-size:13px;color:var(--muted-color);line-height:1.4;"},a.description))),m("div",{style:"flex-shrink:0;cursor:pointer;margin-left:20px;",title:on?"Disable this frequency option":"Enable this frequency option",onclick:function(){FrequencyToggle.toggle(vnode);}},m("div",{style:"position:relative;width:46px;height:26px;border-radius:13px;background-color:"+trackBg+";transition:background-color .2s;"},m("div",{style:"position:absolute;top:3px;left:"+thumbLeft+";width:20px;height:20px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.3);transition:left .15s;"}))));}
+let FrequencyToggle={
+  oninit:function(vnode){let saved=app.data.settings[vnode.attrs.settingKey];if(saved===undefined||saved===null)saved=vnode.attrs.defaultOn?"1":"0";vnode.state.on=saved==="1"||saved===true||saved===1;vnode.state.saving=false;},
+  toggle:function(vnode){if(vnode.state.saving)return;vnode.state.on=!vnode.state.on;vnode.state.saving=true;let newVal=vnode.state.on?"1":"0";saveSetting(vnode.attrs.settingKey,newVal).then(function(){vnode.state.saving=false;m.redraw();}).catch(function(){vnode.state.on=!vnode.state.on;vnode.state.saving=false;m.redraw();});},
+  view:function(vnode){let a=vnode.attrs;let s=vnode.state;let on=s.on;let trackBg=on?"var(--primary-color,#4f46e5)":"var(--control-color,#d1d5db)";let thumbLeft=on?"22px":"2px";return m("div",{style:"display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-radius:8px;background:var(--control-bg);border:1px solid var(--control-bg);margin-bottom:10px;"},m("div",{style:"display:flex;align-items:center;gap:14px;flex:1;"},m("div",{style:"width:44px;height:44px;border-radius:8px;flex-shrink:0;background:"+a.iconBg+";display:flex;align-items:center;justify-content:center;font-size:20px;"},a.emoji),m("div",null,m("div",{style:"font-size:15px;font-weight:700;color:var(--heading-color,var(--text-color));margin-bottom:2px;"},a.label),m("div",{style:"font-size:13px;color:var(--muted-color);line-height:1.4;"},a.description))),m("div",{style:"flex-shrink:0;cursor:pointer;margin-left:20px;",title:on?"Disable this frequency option":"Enable this frequency option",onclick:function(){FrequencyToggle.toggle(vnode);}},m("div",{style:"position:relative;width:46px;height:26px;border-radius:13px;background-color:"+trackBg+";transition:background-color .2s;"},m("div",{style:"position:absolute;top:3px;left:"+thumbLeft+";width:20px;height:20px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.3);transition:left .15s;"}))));}
 };
 
-var NumberSetting={
+let NumberSetting={
   oninit:function(vnode){vnode.state.value=getSettingVal(vnode.attrs.settingKey,"");vnode.state.saving=false;vnode.state.saved=false;},
   save:function(vnode){if(vnode.state.saving)return;vnode.state.saving=true;saveSetting(vnode.attrs.settingKey,String(vnode.state.value)).then(function(){vnode.state.saving=false;vnode.state.saved=true;setTimeout(function(){vnode.state.saved=false;m.redraw();},5000);m.redraw();}).catch(function(){vnode.state.saving=false;m.redraw();});},
-  view:function(vnode){var a=vnode.attrs;var s=vnode.state;return m("div",{className:"Form-group",style:"margin-bottom:20px;"},m("label",{className:"label",style:"font-weight:600;display:block;margin-bottom:4px;"},a.label),a.help?m("p",{className:"helpText",style:"margin-bottom:6px;"},a.help):null,m("div",{style:"display:flex;align-items:center;gap:8px;"},m("input",{className:"FormControl",type:"number",min:a.min,max:a.max,step:a.step||1,value:s.value,style:"width:100px;",oninput:function(e){s.value=e.target.value;s.saved=false;},onblur:function(){NumberSetting.save(vnode);}}),s.saved?m("span",{style:"font-size:12px;color:#16a34a;"},"\u2713 Saved"):null));}
+  view:function(vnode){let a=vnode.attrs;let s=vnode.state;return m("div",{className:"Form-group",style:"margin-bottom:20px;"},m("label",{className:"label",style:"font-weight:600;display:block;margin-bottom:4px;"},a.label),a.help?m("p",{className:"helpText",style:"margin-bottom:6px;"},a.help):null,m("div",{style:"display:flex;align-items:center;gap:8px;"},m("input",{className:"FormControl",type:"number",min:a.min,max:a.max,step:a.step||1,value:s.value,style:"width:100px;",oninput:function(e){s.value=e.target.value;s.saved=false;},onblur:function(){NumberSetting.save(vnode);}}),s.saved?m("span",{style:"font-size:12px;color:#16a34a;"},"\u2713 Saved"):null));}
 };
 
-var ScheduleSection={
+let ScheduleSection={
   oninit:function(vnode){
-    var savedTz=getSettingVal("ernestdefoe-digest-mail.timezone","America/Chicago");
-    var savedStart=getSettingVal("ernestdefoe-digest-mail.send_window_start",
+    let savedTz=getSettingVal("ernestdefoe-digest-mail.timezone","America/Chicago");
+    let savedStart=getSettingVal("ernestdefoe-digest-mail.send_window_start",
                    getSettingVal("ernestdefoe-digest-mail.send_hour","8"));
-    var savedEnd=getSettingVal("ernestdefoe-digest-mail.send_window_end",savedStart);
+    let savedEnd=getSettingVal("ernestdefoe-digest-mail.send_window_end",savedStart);
     vnode.state.tz=savedTz;
     vnode.state.windowStart=String(savedStart);
     vnode.state.windowEnd=String(savedEnd);
@@ -102,14 +102,14 @@ var ScheduleSection={
     saveSetting("ernestdefoe-digest-mail.timezone",tz);
   },
   view:function(vnode){
-    var s=vnode.state;
-    var tr=function(k){return app.translator.trans(k);};
-    var hourOpts=buildHourOptions(s.tz);
-    var tzOpts=TIMEZONES.map(function(z){
+    let s=vnode.state;
+    let tr=function(k){return app.translator.trans(k);};
+    let hourOpts=buildHourOptions(s.tz);
+    let tzOpts=TIMEZONES.map(function(z){
       return m("option",{value:z.tz,selected:s.tz===z.tz},tzOffsetLabel(z.tz)+" — "+z.label);
     });
-    var isWindow=parseInt(s.windowEnd,10)>parseInt(s.windowStart,10);
-    var windowSummary=isWindow
+    let isWindow=parseInt(s.windowEnd,10)>parseInt(s.windowStart,10);
+    let windowSummary=isWindow
       ?"Digest emails will go out gradually from "+hourOpts[s.windowStart]+" to "+hourOpts[s.windowEnd]+". Subscribers are emailed in batches — your server stays responsive and no single minute carries the full load."
       :"All digest emails will begin sending at "+hourOpts[s.windowStart]+". Best for smaller forums with under 2,000 subscribers.";
     return m("div",null,
@@ -148,12 +148,12 @@ var ScheduleSection={
   }
 };
 
-var SelectSetting={
+let SelectSetting={
   oninit:function(vnode){vnode.state.value=getSettingVal(vnode.attrs.settingKey,"");vnode.state.saving=false;},
-  view:function(vnode){var a=vnode.attrs;var s=vnode.state;return m("div",{className:"Form-group",style:"margin-bottom:20px;"},m("label",{className:"label",style:"font-weight:600;display:block;margin-bottom:4px;"},a.label),a.help?m("p",{className:"helpText",style:"margin-bottom:6px;"},a.help):null,m("select",{className:"FormControl Select-input",value:s.value,style:"max-width:260px;padding-bottom:8px;height:auto;line-height:1.4;",onchange:function(e){s.value=e.target.value;saveSetting(a.settingKey,e.target.value);}},Object.keys(a.options).map(function(k){return m("option",{value:k,selected:s.value===k},a.options[k]);})));}
+  view:function(vnode){let a=vnode.attrs;let s=vnode.state;return m("div",{className:"Form-group",style:"margin-bottom:20px;"},m("label",{className:"label",style:"font-weight:600;display:block;margin-bottom:4px;"},a.label),a.help?m("p",{className:"helpText",style:"margin-bottom:6px;"},a.help):null,m("select",{className:"FormControl Select-input",value:s.value,style:"max-width:260px;padding-bottom:8px;height:auto;line-height:1.4;",onchange:function(e){s.value=e.target.value;saveSetting(a.settingKey,e.target.value);}},Object.keys(a.options).map(function(k){return m("option",{value:k,selected:s.value===k},a.options[k]);})));}
 };
 
-var OnboardingSection={
+let OnboardingSection={
   oninit:function(vnode){
     vnode.state.mode=getSettingVal("ernestdefoe-digest-mail.onboarding_mode","none");
     vnode.state.frequency=getSettingVal("ernestdefoe-digest-mail.onboarding_frequency","weekly");
@@ -168,21 +168,21 @@ var OnboardingSection={
     saveSetting("ernestdefoe-digest-mail.onboarding_frequency",val);
   },
   view:function(vnode){
-    var s=vnode.state;
-    var tr=function(k){return app.translator.trans(k);};
-    var modeOptions={
+    let s=vnode.state;
+    let tr=function(k){return app.translator.trans(k);};
+    let modeOptions={
       "none":        tr("ernestdefoe-digest-mail.admin.onboarding.mode_none"),
       "auto_enroll": tr("ernestdefoe-digest-mail.admin.onboarding.mode_auto_enroll"),
       "opt_in_modal":tr("ernestdefoe-digest-mail.admin.onboarding.mode_opt_in_modal"),
     };
-    var freqOpts={};
-    var freqLabels={"daily":"Daily","weekly":"Weekly","monthly":"Monthly"};
+    let freqOpts={};
+    let freqLabels={"daily":"Daily","weekly":"Weekly","monthly":"Monthly"};
     ["daily","weekly","monthly"].forEach(function(f){
-      var enabled=app.data.settings["ernestdefoe-digest-mail.allow_"+f];
+      let enabled=app.data.settings["ernestdefoe-digest-mail.allow_"+f];
       if(enabled==="1"||enabled===true||enabled===1)freqOpts[f]=freqLabels[f];
     });
     if(s.mode==="auto_enroll"&&freqOpts[s.frequency]===undefined){
-      var firstAvailable=Object.keys(freqOpts)[0];
+      let firstAvailable=Object.keys(freqOpts)[0];
       if(firstAvailable&&firstAvailable!==s.frequency){
         s.frequency=firstAvailable;
         saveSetting("ernestdefoe-digest-mail.onboarding_frequency",firstAvailable);
@@ -227,7 +227,7 @@ var OnboardingSection={
   }
 };
 
-var TokenCheckerSection={
+let TokenCheckerSection={
   oninit:function(vnode){
     vnode.state.token="";
     vnode.state.result=null;
@@ -235,7 +235,7 @@ var TokenCheckerSection={
     vnode.state.loading=false;
   },
   check:function(state){
-    var token=state.token.trim();
+    let token=state.token.trim();
     if(!token){state.error="Please enter a token.";state.result=null;m.redraw();return;}
     state.loading=true;state.result=null;state.error=null;m.redraw();
     app.request({
@@ -250,10 +250,10 @@ var TokenCheckerSection={
     });
   },
   view:function(vnode){
-    var s=vnode.state;
-    var formatDate=function(str){
+    let s=vnode.state;
+    let formatDate=function(str){
       if(!str)return "—";
-      var d=new Date(str.replace(" ","T")+"Z");
+      let d=new Date(str.replace(" ","T")+"Z");
       return d.toLocaleDateString(undefined,{month:"short",day:"numeric",year:"numeric"})+" at "+d.toLocaleTimeString(undefined,{hour:"2-digit",minute:"2-digit"});
     };
     return m("div",{className:"ExtensionPage-settings"},
@@ -295,23 +295,23 @@ var TokenCheckerSection={
   }
 };
 
-var TestSendSection={
+let TestSendSection={
   oninit:function(vnode){vnode.state.email="";vnode.state.frequency="weekly";vnode.state.theme="light";vnode.state.loading=false;vnode.state.result=null;vnode.state.error=null;},
-  send:function(state){var email=state.email.trim();if(!email){state.error=app.translator.trans("ernestdefoe-digest-mail.admin.test_send.error_empty_email");state.result=null;m.redraw();return;}state.loading=true;state.result=null;state.error=null;m.redraw();app.request({method:"POST",url:app.forum.attribute("apiUrl")+"/ernestdefoe/digest-mail/test-send",body:{email:email,frequency:state.frequency,theme:state.theme}}).then(function(data){state.loading=false;state.result=data;m.redraw();}).catch(function(e){state.loading=false;var serverMsg=(e&&e.response&&e.response.error)||(e&&e.message)||null;state.error=serverMsg||app.translator.trans("ernestdefoe-digest-mail.admin.test_send.error_generic");m.redraw();});},
+  send:function(state){let email=state.email.trim();if(!email){state.error=app.translator.trans("ernestdefoe-digest-mail.admin.test_send.error_empty_email");state.result=null;m.redraw();return;}state.loading=true;state.result=null;state.error=null;m.redraw();app.request({method:"POST",url:app.forum.attribute("apiUrl")+"/ernestdefoe/digest-mail/test-send",body:{email:email,frequency:state.frequency,theme:state.theme}}).then(function(data){state.loading=false;state.result=data;m.redraw();}).catch(function(e){state.loading=false;let serverMsg=(e&&e.response&&e.response.error)||(e&&e.message)||null;state.error=serverMsg||app.translator.trans("ernestdefoe-digest-mail.admin.test_send.error_generic");m.redraw();});},
   view:function(vnode){
-    var state=vnode.state;var themePickerEnabled=true;var tr=function(k,v){return app.translator.trans(k,v);};
-    var themeToggle=themePickerEnabled
+    let state=vnode.state;let themePickerEnabled=true;let tr=function(k,v){return app.translator.trans(k,v);};
+    let themeToggle=themePickerEnabled
       ?m("div",{style:"display:flex;align-items:center;gap:10px;margin-bottom:12px;"},m("label",{style:"font-size:13px;color:var(--muted-color);white-space:nowrap;"},tr("ernestdefoe-digest-mail.admin.test_send.theme_label")+":"),m("div",{style:"display:flex;gap:0;border:1px solid var(--control-bg);border-radius:6px;overflow:hidden;"},m("button",{style:"padding:6px 14px;font-size:13px;font-weight:500;border:none;cursor:pointer;"+(state.theme==="light"?"background:var(--body-bg,#fff);color:var(--text-color,#111827);box-shadow:inset 0 0 0 1px var(--control-bg);":"background:var(--control-bg);color:var(--muted-color);"),onclick:function(e){e.preventDefault();state.theme="light";m.redraw();}},m("span",{style:"margin-right:5px;"},"☀️"),tr("ernestdefoe-digest-mail.admin.test_send.theme_light")),m("button",{style:"padding:6px 14px;font-size:13px;font-weight:500;border:none;cursor:pointer;border-left:1px solid var(--control-bg);"+(state.theme==="dark"?"background:var(--header-bg,#1f2937);color:var(--header-color,#e5e7eb);":"background:var(--control-bg);color:var(--muted-color);"),onclick:function(e){e.preventDefault();state.theme="dark";m.redraw();}},m("span",{style:"margin-right:5px;"},"🌙"),tr("ernestdefoe-digest-mail.admin.test_send.theme_dark"))),m("span",{style:"font-size:12px;color:var(--muted-color);"},state.theme==="light"?tr("ernestdefoe-digest-mail.admin.test_send.theme_hint_light"):tr("ernestdefoe-digest-mail.admin.test_send.theme_hint_dark")))
       :m("div",{style:"display:flex;align-items:center;gap:8px;margin-bottom:12px;padding:8px 12px;background:var(--control-bg);border-radius:6px;"},m("span",{style:"font-size:13px;color:var(--muted-color);"},"☀️ "+tr("ernestdefoe-digest-mail.admin.test_send.theme_light_only")));
     return m("div",{className:"ExtensionPage-settings"},m("div",{style:"max-width:600px;margin:0 auto;"},m("h3",{style:"font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--muted-color);margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid var(--control-bg);"},tr("ernestdefoe-digest-mail.admin.test_send.heading")),m("p",{className:"helpText"},tr("ernestdefoe-digest-mail.admin.test_send.help")),m("div",{className:"Form-group",style:"margin-top:1rem;"},m("input",{className:"FormControl",type:"email",placeholder:tr("ernestdefoe-digest-mail.admin.test_send.email_placeholder"),value:state.email,disabled:state.loading,oninput:function(e){state.email=e.target.value;state.result=null;state.error=null;},style:"margin-bottom:8px;"}),m("div",{style:"display:flex;align-items:center;gap:10px;margin-bottom:12px;"},m("label",{style:"font-size:13px;color:var(--muted-color);white-space:nowrap;"},tr("ernestdefoe-digest-mail.admin.test_send.frequency_label")+":"),m("select",{className:"FormControl",value:state.frequency,disabled:state.loading,style:"padding-top:6px;padding-bottom:8px;height:auto;line-height:1.5;",onchange:function(e){state.frequency=e.target.value;}},m("option",{value:"daily"},"Daily"),m("option",{value:"weekly"},"Weekly"),m("option",{value:"monthly"},"Monthly"))),themeToggle,m("button",{className:"Button Button--primary",disabled:state.loading,onclick:function(e){e.preventDefault();TestSendSection.send(state);}},state.loading?tr("ernestdefoe-digest-mail.admin.test_send.sending_button"):tr("ernestdefoe-digest-mail.admin.test_send.send_button"))),state.result?m("div",{className:"Alert Alert--success",style:"margin-top:1rem;"},tr("ernestdefoe-digest-mail.admin.test_send.success",{email:state.result.to,frequency:state.result.frequency})):null,state.error?m("div",{className:"Alert Alert--error",style:"margin-top:1rem;"},state.error):null));
   }
 };
 
-var SettingsTab={
+let SettingsTab={
   view:function(){
-    var exts=(app.forum.attribute("digestExtensions"))||{};
-    var tr=function(k){return app.translator.trans(k);};
-    var sh=function(t){return m("h3",{style:"font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--muted-color);margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid var(--control-bg);"},t);};
+    let exts=(app.forum.attribute("digestExtensions"))||{};
+    let tr=function(k){return app.translator.trans(k);};
+    let sh=function(t){return m("h3",{style:"font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--muted-color);margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid var(--control-bg);"},t);};
     return m("div",null,
       m("div",{className:"ExtensionPage-settings"},m("div",{style:"max-width:600px;margin:0 auto;"},
         sh("Content Limits"),
@@ -384,16 +384,16 @@ var SettingsTab={
   }
 };
 
-var DigestOrderTab={
+let DigestOrderTab={
   oninit:function(vnode){
-    var saved=getSettingVal("ernestdefoe-digest-mail.section_order","");
-    var order=[];try{order=saved?JSON.parse(saved):[];}catch(e){order=[];}
+    let saved=getSettingVal("ernestdefoe-digest-mail.section_order","");
+    let order=[];try{order=saved?JSON.parse(saved):[];}catch(e){order=[];}
     if(!order.length)order=DEFAULT_ORDER.slice();
     vnode.state.order=order;vnode.state.saving=false;vnode.state.saved=false;
   },
   activeSections:function(order){
-    var exts=(app.forum.attribute("digestExtensions"))||{};
-    var integrationEnabled={
+    let exts=(app.forum.attribute("digestExtensions"))||{};
+    let integrationEnabled={
       leaderboard:       getSettingVal("ernestdefoe-digest-mail.enable_leaderboard","1")==="1"&&!!(exts.leaderboard||{}).enabled,
       badges:            getSettingVal("ernestdefoe-digest-mail.enable_badges","1")==="1"     &&!!(exts.badges||{}).enabled,
       pickem:            getSettingVal("ernestdefoe-digest-mail.enable_pickem","1")==="1"     &&!!(exts.pickem||{}).enabled,
@@ -403,10 +403,10 @@ var DigestOrderTab={
       favorites:         (parseInt(getSettingVal("ernestdefoe-digest-mail.limit_favorites","6"),10)>0)&&(!!(exts.likes||{}).enabled||!!(exts.reactions||{}).enabled),
       awards:            getSettingVal("ernestdefoe-digest-mail.enable_awards","1")==="1"     &&!!(exts.awards||{}).enabled,
     };
-    var allSections={};
+    let allSections={};
     FIXED_SECTIONS.forEach(function(s){allSections[s.key]=s;});
     Object.keys(INTEGRATION_SECTIONS).forEach(function(k){allSections[k]=INTEGRATION_SECTIONS[k];});
-    var active=order.filter(function(key){
+    let active=order.filter(function(key){
       if(!allSections[key])return false;
       if(INTEGRATION_SECTIONS[key])return integrationEnabled[key]||false;
       return true;
@@ -417,15 +417,15 @@ var DigestOrderTab={
     return active.map(function(key){return allSections[key];});
   },
   move:function(vnode,index,direction){
-    var order=vnode.state.order.slice();
-    var sections=DigestOrderTab.activeSections(order);
-    var newIdx=index+direction;
+    let order=vnode.state.order.slice();
+    let sections=DigestOrderTab.activeSections(order);
+    let newIdx=index+direction;
     if(newIdx<0||newIdx>=sections.length)return;
-    var keyA=sections[index].key;var keyB=sections[newIdx].key;
-    var iA=order.indexOf(keyA);var iB=order.indexOf(keyB);
+    let keyA=sections[index].key;let keyB=sections[newIdx].key;
+    let iA=order.indexOf(keyA);let iB=order.indexOf(keyB);
     if(iA===-1){order.push(keyA);iA=order.length-1;}
     if(iB===-1){order.push(keyB);iB=order.length-1;}
-    var tmp=order[iA];order[iA]=order[iB];order[iB]=tmp;
+    let tmp=order[iA];order[iA]=order[iB];order[iB]=tmp;
     vnode.state.order=order;vnode.state.saved=false;vnode.state.saving=true;
     saveSetting("ernestdefoe-digest-mail.section_order",JSON.stringify(order)).then(function(){
       vnode.state.saving=false;vnode.state.saved=true;
@@ -434,18 +434,18 @@ var DigestOrderTab={
     });
   },
   view:function(vnode){
-    var s=vnode.state;
-    var sections=DigestOrderTab.activeSections(s.order);
-    var isFixed=function(key){return FIXED_SECTIONS.some(function(f){return f.key===key;});};
+    let s=vnode.state;
+    let sections=DigestOrderTab.activeSections(s.order);
+    let isFixed=function(key){return FIXED_SECTIONS.some(function(f){return f.key===key;});};
     return m("div",{className:"ExtensionPage-settings"},m("div",{style:"max-width:600px;margin:0 auto;"},
       m("h3",{style:"font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--muted-color);margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid var(--control-bg);"},"Digest Section Order"),
       m("p",{className:"helpText",style:"margin-bottom:16px;"},"Use the arrows to set the order sections appear in the digest email. Only enabled integration sections appear here — enable them in the Settings tab first."),
       sections.length===0
         ?m("p",{style:"color:var(--muted-color);font-size:14px;"},"No sections active. Enable integrations in the Settings tab.")
         :sections.map(function(section,index){
-          var fixed=isFixed(section.key);
-          var isFirst=index===0;var isLast=index===sections.length-1;
-          var btnBase="width:30px;height:28px;border:1px solid var(--control-bg);border-radius:5px;background:var(--body-bg);font-size:14px;display:flex;align-items:center;justify-content:center;";
+          let fixed=isFixed(section.key);
+          let isFirst=index===0;let isLast=index===sections.length-1;
+          let btnBase="width:30px;height:28px;border:1px solid var(--control-bg);border-radius:5px;background:var(--body-bg);font-size:14px;display:flex;align-items:center;justify-content:center;";
           return m("div",{key:section.key,style:"display:flex;align-items:center;gap:14px;padding:14px 16px;border-radius:8px;margin-bottom:8px;background:var(--control-bg);border:1px solid var(--control-bg);"},
             m("div",{style:"font-size:18px;font-weight:700;color:var(--muted-color);width:24px;text-align:center;flex-shrink:0;"},index+1),
             m(ExtIcon,{iconName:section.icon,iconColor:section.iconColor,iconBg:section.iconBg,size:40}),
@@ -467,7 +467,7 @@ var DigestOrderTab={
   }
 };
 
-var SubscriberList={
+let SubscriberList={
   oninit:function(vnode){
     vnode.state.loading=false;
     vnode.state.error=null;
@@ -475,7 +475,7 @@ var SubscriberList={
     vnode.state.page=1;
   },
   load:function(vnode,page){
-    var freq=vnode.attrs.frequency;
+    let freq=vnode.attrs.frequency;
     vnode.state.loading=true;
     vnode.state.error=null;
     vnode.state.page=page;
@@ -494,18 +494,18 @@ var SubscriberList={
     });
   },
   view:function(vnode){
-    var s=vnode.state;
-    var color=vnode.attrs.color||"#f59e0b";
-    var formatDate=function(str){
+    let s=vnode.state;
+    let color=vnode.attrs.color||"#f59e0b";
+    let formatDate=function(str){
       if(!str)return "Never";
-      var d=new Date(str.replace(" ","T")+"Z");
+      let d=new Date(str.replace(" ","T")+"Z");
       return d.toLocaleDateString(undefined,{month:"short",day:"numeric",year:"numeric"});
     };
-    var renderAvatar=function(user){
+    let renderAvatar=function(user){
       if(user.avatar_url){
         return m("img",{src:user.avatar_url,style:"width:28px;height:28px;border-radius:50%;object-fit:cover;flex-shrink:0;"});
       }
-      var initials=(user.username||"?").charAt(0).toUpperCase();
+      let initials=(user.username||"?").charAt(0).toUpperCase();
       return m("div",{style:"width:28px;height:28px;border-radius:50%;background:"+color+";display:flex;align-items:center;justify-content:center;flex-shrink:0;"},
         m("span",{style:"font-size:12px;font-weight:700;color:#fff;"},initials)
       );
@@ -521,9 +521,9 @@ var SubscriberList={
       return m("div",{style:"padding:16px;text-align:center;color:var(--muted-color);font-size:13px;"},"No data loaded.");
     }
 
-    var d=s.data;
-    var hasPrev=d.page>1;
-    var hasNext=d.page<d.total_pages;
+    let d=s.data;
+    let hasPrev=d.page>1;
+    let hasNext=d.page<d.total_pages;
 
     return m("div",{style:"padding:12px 0 4px;"},
       d.data.length===0
@@ -558,7 +558,7 @@ var SubscriberList={
   }
 };
 
-var StatsTab={
+let StatsTab={
   oninit:function(vnode){
     vnode.state.loading=true;
     vnode.state.error=null;
@@ -568,22 +568,22 @@ var StatsTab={
       .catch(function(e){vnode.state.loading=false;vnode.state.error=(e&&e.message)||"Failed to load statistics.";m.redraw();});
   },
   view:function(vnode){
-    var s=vnode.state;
-    var sh=function(t){return m("h3",{style:"font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--muted-color);margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid var(--control-bg);"},t);};
-    var card=function(label,value,sub){return m("div",{style:"background:var(--control-bg);border-radius:10px;padding:20px 24px;text-align:center;"},m("div",{style:"font-size:28px;font-weight:800;color:var(--heading-color,var(--text-color));line-height:1;margin-bottom:6px;"},value),m("div",{style:"font-size:13px;font-weight:600;color:var(--muted-color);margin-bottom:sub?4px:0;"},label),sub?m("div",{style:"font-size:12px;color:var(--muted-color);"},sub):null);};
-    var freqColor={"daily":"#f59e0b","weekly":"#3b82f6","monthly":"#8b5cf6"};
-    var freqLabel={"daily":"Daily","weekly":"Weekly","monthly":"Monthly"};
+    let s=vnode.state;
+    let sh=function(t){return m("h3",{style:"font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--muted-color);margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid var(--control-bg);"},t);};
+    let card=function(label,value,sub){return m("div",{style:"background:var(--control-bg);border-radius:10px;padding:20px 24px;text-align:center;"},m("div",{style:"font-size:28px;font-weight:800;color:var(--heading-color,var(--text-color));line-height:1;margin-bottom:6px;"},value),m("div",{style:"font-size:13px;font-weight:600;color:var(--muted-color);margin-bottom:sub?4px:0;"},label),sub?m("div",{style:"font-size:12px;color:var(--muted-color);"},sub):null);};
+    let freqColor={"daily":"#f59e0b","weekly":"#3b82f6","monthly":"#8b5cf6"};
+    let freqLabel={"daily":"Daily","weekly":"Weekly","monthly":"Monthly"};
 
     if(s.loading) return m("div",{className:"ExtensionPage-settings"},m("div",{style:"max-width:600px;margin:0 auto;padding:40px 0;text-align:center;color:var(--muted-color);"},"Loading statistics…"));
     if(s.error)   return m("div",{className:"ExtensionPage-settings"},m("div",{className:"Alert Alert--error",style:"max-width:600px;margin:0 auto;"},s.error));
 
-    var sub=s.data.subscriptions;
-    var lastSent=s.data.last_sent;
-    var log=s.data.send_log||[];
+    let sub=s.data.subscriptions;
+    let lastSent=s.data.last_sent;
+    let log=s.data.send_log||[];
 
-    var formatDate=function(str){
+    let formatDate=function(str){
       if(!str)return "—";
-      var d=new Date(str.replace(" ","T")+"Z");
+      let d=new Date(str.replace(" ","T")+"Z");
       return d.toLocaleDateString(undefined,{month:"short",day:"numeric",year:"numeric"})+" at "+d.toLocaleTimeString(undefined,{hour:"2-digit",minute:"2-digit"});
     };
 
@@ -603,12 +603,12 @@ var StatsTab={
         sh("Subscribers by Frequency"),
         m("div",{style:"display:flex;flex-direction:column;gap:10px;"},
           ["daily","weekly","monthly"].map(function(freq){
-            var count=sub.by_frequency[freq]||0;
-            var pct=sub.total_subscribed>0?Math.round(count/sub.total_subscribed*100):0;
-            var color=freqColor[freq];
-            var panelKey="panel_"+freq;
-            var open=s[panelKey]||false;
-            var listKey="list_"+freq;
+            let count=sub.by_frequency[freq]||0;
+            let pct=sub.total_subscribed>0?Math.round(count/sub.total_subscribed*100):0;
+            let color=freqColor[freq];
+            let panelKey="panel_"+freq;
+            let open=s[panelKey]||false;
+            let listKey="list_"+freq;
             return m("div",{key:freq,style:"background:var(--control-bg);border-radius:8px;overflow:hidden;"},
               m("div",{style:"padding:14px 18px;"},
                 m("div",{style:"display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;"},
@@ -652,9 +652,9 @@ var StatsTab={
         sh("Last Sent"),
         m("div",{style:"display:flex;flex-direction:column;gap:8px;"},
           ["daily","weekly","monthly"].map(function(freq){
-            var color=freqColor[freq];
-            var val=formatDate(lastSent[freq]);
-            var hasValue=!!lastSent[freq];
+            let color=freqColor[freq];
+            let val=formatDate(lastSent[freq]);
+            let hasValue=!!lastSent[freq];
             return m("div",{key:freq,style:"display:flex;align-items:center;justify-content:space-between;padding:12px 18px;background:var(--control-bg);border-radius:8px;"},
               m("div",{style:"display:flex;align-items:center;gap:10px;"},
                 m("div",{style:"width:10px;height:10px;border-radius:50%;background:"+color+";flex-shrink:0;"}),
@@ -683,8 +683,8 @@ var StatsTab={
                 ),
                 m("tbody",null,
                   log.map(function(row,i){
-                    var color=freqColor[row.frequency]||"var(--muted-color)";
-                    var bg=i%2===0?"var(--body-bg)":"var(--control-bg)";
+                    let color=freqColor[row.frequency]||"var(--muted-color)";
+                    let bg=i%2===0?"var(--body-bg)":"var(--control-bg)";
                     return m("tr",{key:i,style:"background:"+bg+";"},
                       m("td",{style:"padding:10px 14px;"},
                         m("span",{style:"display:inline-flex;align-items:center;gap:6px;"},
@@ -706,29 +706,33 @@ var StatsTab={
 };
 
 
-var ServerTab={
+let ServerTab={
   oninit:function(vnode){
     vnode.state.queueName=getSettingVal("ernestdefoe-digest-mail.queue_name","digest");
-    vnode.state.basePath=null;
-    vnode.state.basePathLoaded=false;
+    vnode.state.cron=null;
+    vnode.state.cronLoaded=false;
     vnode.state.queueType="database";
     vnode.state.redisSubMode="horizon";
     app.request({method:"GET",url:app.forum.attribute("apiUrl")+"/ernestdefoe/digest-mail/stats"})
       .then(function(d){
-        vnode.state.basePath=(d&&d.base_path&&d.base_path.length)?d.base_path:null;
-        vnode.state.basePathLoaded=true;
+        vnode.state.cron=(d&&d.cron)?d.cron:null;
+        vnode.state.cronLoaded=true;
         m.redraw();
       })
-      .catch(function(){vnode.state.basePathLoaded=true;m.redraw();});
+      .catch(function(){vnode.state.cronLoaded=true;m.redraw();});
   },
   view:function(vnode){
-    var s=vnode.state;
-    var tr=function(k){return app.translator.trans(k);};
-    var sh=function(t){return m("h3",{style:"font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--muted-color);margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid var(--control-bg);"},t);};
-    var qn=getSettingVal("ernestdefoe-digest-mail.queue_name","digest");
-    var tries=getSettingVal("ernestdefoe-digest-mail.queue_tries","3");
-    var bp=s.basePath||"/path/to/flarum";
-    var notice=function(icon,title,body,color){
+    let s=vnode.state;
+    let tr=function(k){return app.translator.trans(k);};
+    let sh=function(t){return m("h3",{style:"font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--muted-color);margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid var(--control-bg);"},t);};
+    let qn=getSettingVal("ernestdefoe-digest-mail.queue_name","digest");
+    let tries=getSettingVal("ernestdefoe-digest-mail.queue_tries","3");
+    // Cron / process-manager lines are assembled server-side (admin-only) so the
+    // raw filesystem path is never returned as a bare value; `ph` is only the
+    // placeholder shown before the stats request resolves.
+    let c=s.cron||{};
+    let ph="/path/to/flarum";
+    let notice=function(icon,title,body,color){
       return m("div",{style:"display:flex;gap:14px;padding:16px 18px;border-radius:8px;background:var(--control-bg);border-left:4px solid "+(color||"var(--primary-color,#4f46e5)")+";margin-bottom:14px;"},
         m("div",{style:"font-size:22px;flex-shrink:0;line-height:1.3;"},icon),
         m("div",{style:"flex:1;min-width:0;"},
@@ -737,8 +741,8 @@ var ServerTab={
         )
       );
     };
-    var code=function(t){return m("code",{style:"background:var(--body-bg);padding:2px 6px;border-radius:4px;font-size:12px;font-family:monospace;word-break:break-all;"},t);};
-    var cronBlock=function(label,text){
+    let code=function(t){return m("code",{style:"background:var(--body-bg);padding:2px 6px;border-radius:4px;font-size:12px;font-family:monospace;word-break:break-all;"},t);};
+    let cronBlock=function(label,text){
       return m("div",{style:"margin-bottom:16px;"},
         m("div",{style:"font-size:13px;font-weight:600;color:var(--heading-color,var(--text-color));margin-bottom:6px;"},label),
         m("div",{style:"position:relative;"},
@@ -748,8 +752,8 @@ var ServerTab={
             style:"position:absolute;top:8px;right:8px;background:var(--control-bg);border:1px solid var(--control-bg);border-radius:4px;cursor:pointer;padding:4px 6px;font-size:13px;color:var(--muted-color);line-height:1;",
             onclick:function(e){
               navigator.clipboard&&navigator.clipboard.writeText(text).then(function(){
-                var btn=e.target.closest("button")||e.target;
-                var prev=btn.textContent;
+                let btn=e.target.closest("button")||e.target;
+                let prev=btn.textContent;
                 btn.textContent="\u2713";
                 btn.style.color="var(--success-color,#10b981)";
                 setTimeout(function(){btn.textContent=prev;btn.style.color="var(--muted-color)";},1500);
@@ -759,8 +763,8 @@ var ServerTab={
         )
       );
     };
-    var tbl_head=["Forum Size","Chunk Size","Workers","Tries","Send Mode","Cron Strategy"];
-    var tbl_rows=[
+    let tbl_head=["Forum Size","Chunk Size","Workers","Tries","Send Mode","Cron Strategy"];
+    let tbl_rows=[
       ["100\u2013500 members",   "200",   "1", "2", "Single hour",   "One worker, single-hour mode \u2014 all subscribers dispatched in one run"],
       ["500\u20132,000",         "500",   "1", "3", "Single hour",   "One worker, single-hour or short window"],
       ["2,000\u20135,000",       "1000",  "2", "3", "1\u20132 hr window", "Two workers, 1\u20132 hour window, ~1,000 users/min"],
@@ -771,16 +775,16 @@ var ServerTab={
     ];
 
     // ---- cron line strings (live values) ------------------------------------
-    var lineScheduler = "* * * * * cd "+bp+" && php flarum schedule:run >> /dev/null 2>&1";
-    var lineWorker    = "* * * * * cd "+bp+" && php flarum queue:work --queue="+qn+",default --max-time=55 --tries="+tries+" --backoff=30 >> /dev/null 2>&1";
-    var lineWorkers3  = "# Add one line per worker \u2014 e.g. 3 workers:\n"+lineWorker+"\n"+lineWorker+"\n"+lineWorker;
-    var lineEnqueue   = "# Optional: pre-build jobs before the window opens (large forums only):\n50 12 * * * cd "+bp+" && php flarum digest:enqueue --frequency=daily --delay=600 >> /dev/null 2>&1";
-    var supervisorConf= "[program:flarum-worker]\ncommand=php "+bp+"/flarum queue:work --queue="+qn+",default --tries="+tries+" --backoff=30\ndirectory="+bp+"\nautostart=true\nautorestart=true\nnumprocs=2\nstopwaitsecs=60\nuser=www-data\nredirect_stderr=true\nstdout_logfile="+bp+"/storage/logs/worker.log";
-    var horizonConf= "[program:horizon]\nprocess_name=%(program_name)s\ncommand=php "+bp+"/flarum horizon\nautostart=true\nautorestart=true\nuser=www-data\nredirect_stderr=true\nstdout_logfile="+bp+"/storage/logs/horizon.log\nstopwaitsecs=3600";
+    let lineScheduler = c.scheduler || ("* * * * * cd "+ph+" && php flarum schedule:run >> /dev/null 2>&1");
+    let lineWorker    = c.worker || ("* * * * * cd "+ph+" && php flarum queue:work --queue="+qn+",default --max-time=55 --tries="+tries+" --backoff=30 >> /dev/null 2>&1");
+    let lineWorkers3  = "# Add one line per worker \u2014 e.g. 3 workers:\n"+lineWorker+"\n"+lineWorker+"\n"+lineWorker;
+    let lineEnqueue   = "# Optional: pre-build jobs before the window opens (large forums only):\n"+(c.enqueue || ("50 12 * * * cd "+ph+" && php flarum digest:enqueue --frequency=daily --delay=600 >> /dev/null 2>&1"));
+    let supervisorConf= c.supervisor || ("[program:flarum-worker]\ncommand=php "+ph+"/flarum queue:work --queue="+qn+",default --tries="+tries+" --backoff=30\ndirectory="+ph+"\nautostart=true\nautorestart=true\nnumprocs=2\nstopwaitsecs=60\nuser=www-data\nredirect_stderr=true\nstdout_logfile="+ph+"/storage/logs/worker.log");
+    let horizonConf= c.horizon || ("[program:horizon]\nprocess_name=%(program_name)s\ncommand=php "+ph+"/flarum horizon\nautostart=true\nautorestart=true\nuser=www-data\nredirect_stderr=true\nstdout_logfile="+ph+"/storage/logs/horizon.log\nstopwaitsecs=3600");
 
     // ---- queue type toggle --------------------------------------------------
-    var toggleBtn=function(label,val){
-      var active=s.queueType===val;
+    let toggleBtn=function(label,val){
+      let active=s.queueType===val;
       return m("button",{
         style:"padding:6px 18px;font-size:12px;font-weight:600;border:1px solid var(--primary-color,#4f46e5);border-radius:4px;cursor:pointer;"
               +(active?"background:var(--primary-color,#4f46e5);color:#fff;":"background:transparent;color:var(--primary-color,#4f46e5);"),
@@ -789,9 +793,9 @@ var ServerTab={
     };
 
     // ---- path status badge --------------------------------------------------
-    var pathBadge=!s.basePathLoaded
+    let pathBadge=!s.cronLoaded
       ? m("span",{style:"font-size:11px;color:var(--muted-color);margin-left:8px;"},"loading\u2026")
-      : s.basePath
+      : s.cron
         ? m("span",{style:"font-size:11px;color:var(--success-color,#10b981);margin-left:8px;"},"\u2713 path detected")
         : m("span",{style:"font-size:11px;color:#f59e0b;margin-left:8px;"},"\u26a0\ufe0f path unavailable \u2014 replace /path/to/flarum manually");
 
@@ -826,7 +830,7 @@ var ServerTab={
                 m("li",{style:"margin-bottom:4px;line-height:1.5;"},m("strong",null,"Ubuntu/Debian")," (Nginx or Apache) \u2014 typically ",code("www-data")),
                 m("li",{style:"margin-bottom:4px;line-height:1.5;"},m("strong",null,"CentOS/RHEL")," with Apache \u2014 typically ",code("apache")),
                 m("li",{style:"margin-bottom:4px;line-height:1.5;"},m("strong",null,"CentOS/RHEL")," with Nginx \u2014 typically ",code("nginx")),
-                m("li",{style:"margin-bottom:0;line-height:1.5;"},m("strong",null,"Unsure?")," Run ",code("ls -la "+bp)," and check the owner column.")
+                m("li",{style:"margin-bottom:0;line-height:1.5;"},m("strong",null,"Unsure?")," Run ",code("ls -la")," in your Flarum directory and check the owner column.")
               )
             ),
             "#f59e0b"
@@ -925,14 +929,14 @@ var ServerTab={
             m("div",{style:"display:flex;align-items:center;gap:8px;margin-bottom:20px;"},
               m("span",{style:"font-size:12px;font-weight:600;color:var(--muted-color);margin-right:4px;"},"Worker approach:"),
               (function(){
-                var subActive=s.redisSubMode==="cron";
+                let subActive=s.redisSubMode==="cron";
                 return m("button",{
                   style:"padding:6px 18px;font-size:12px;font-weight:600;border:1px solid var(--primary-color,#4f46e5);border-radius:4px;cursor:pointer;"+(subActive?"background:var(--primary-color,#4f46e5);color:#fff;":"background:transparent;color:var(--primary-color,#4f46e5);"),
                   onclick:function(){s.redisSubMode="cron";m.redraw();}
                 },"Cron-based");
               })(),
               (function(){
-                var subActive=s.redisSubMode==="horizon";
+                let subActive=s.redisSubMode==="horizon";
                 return m("button",{
                   style:"padding:6px 18px;font-size:12px;font-weight:600;border:1px solid var(--primary-color,#4f46e5);border-radius:4px;cursor:pointer;"+(subActive?"background:var(--primary-color,#4f46e5);color:#fff;":"background:transparent;color:var(--primary-color,#4f46e5);"),
                   onclick:function(){s.redisSubMode="horizon";m.redraw();}
@@ -1048,7 +1052,7 @@ var ServerTab={
               ),
               m("tbody",null,
                 tbl_rows.map(function(row,i){
-                  var bg=i%2===0?"var(--body-bg)":"var(--control-bg)";
+                  let bg=i%2===0?"var(--body-bg)":"var(--control-bg)";
                   return m("tr",{style:"background:"+bg+";"},
                     row.map(function(cell,ci){
                       return m("td",{style:"padding:10px 12px;color:"+(ci===0?"var(--heading-color,var(--text-color))":"var(--muted-color))")+";font-weight:"+(ci===0?"600":"400")+";vertical-align:top;line-height:1.5;"},
@@ -1072,11 +1076,11 @@ var ServerTab={
 };
 
 
-var DigestAdminPage={
+let DigestAdminPage={
   oninit:function(vnode){vnode.state.tab="settings";},
   view:function(vnode){
-    var s=vnode.state;
-    var tabStyle=function(active){
+    let s=vnode.state;
+    let tabStyle=function(active){
       return "padding:10px 24px;font-size:14px;font-weight:600;border:none;cursor:pointer;"
             +"border-bottom:3px solid "+(active?"var(--primary-color,#4f46e5)":"transparent")+";"
             +"color:"+(active?"var(--primary-color,#4f46e5)":"var(--muted-color)")+";"
@@ -1095,7 +1099,7 @@ var DigestAdminPage={
 };
 
 app.initializers.add("ernestdefoe-digest-mail",function(){
-  var style=document.createElement("style");
+  let style=document.createElement("style");
   style.textContent=".Select-input.FormControl{line-height:1.4 !important;padding-bottom:8px !important;height:auto !important;}";
   document.head.appendChild(style);
   app.registry.for("ernestdefoe-digest-mail").registerSetting(function(){return m(DigestAdminPage);},100);

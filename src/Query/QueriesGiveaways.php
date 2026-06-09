@@ -3,13 +3,6 @@
 namespace Resofire\DigestMail\Query;
 
 use Carbon\Carbon;
-use Flarum\Discussion\Discussion;
-use Flarum\Extension\ExtensionManager;
-use Flarum\Group\Group;
-use Flarum\Settings\SettingsRepositoryInterface;
-use Flarum\User\User;
-use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Database\ConnectionInterface;
 
 /**
  * QueriesGiveaways: extracted from DigestQuery to keep each integration's digest queries
@@ -130,6 +123,12 @@ trait QueriesGiveaways
                 'forumUrl'      => $forumUrl,
             ];
         } catch (\Throwable $e) {
+            // The giveaways tables belong to a third-party extension and may be
+            // absent/renamed across versions. Don't let that break the whole
+            // digest — but surface the failure so operators can see the section
+            // was dropped (instead of swallowing it without a trace).
+            $this->log->error('[digest-mail] giveaways section query failed; section omitted', ['exception' => $e]);
+
             return $empty;
         }
     }

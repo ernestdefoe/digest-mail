@@ -161,6 +161,11 @@ return [
     // can be grayed out when an integration extension is not installed.
     (new Extend\ApiResource(Resource\ForumResource::class))
         ->fields(function () {
+            // NOTE: ApiResource->fields() callbacks are invoked by core with no
+            // arguments (Flarum\Foundation\ContainerUtil::wrapCallback does not
+            // inject typed closure parameters for this extender — unlike many
+            // others), so dependencies must be pulled from the container here
+            // rather than via typed closure params.
             /** @var ExtensionManager $manager */
             $manager = resolve(ExtensionManager::class);
 
@@ -169,7 +174,11 @@ return [
             $raw = fn(string $key, string $fallback) => ($v = $settings->get($key)) === null || $v === '' ? $fallback : $v;
 
             return [
+                // Admin-only: reveals which optional integrations are installed.
+                // Consumed solely by the admin panel, so it is hidden from the
+                // public forum payload (guests + regular members).
                 Schema\Arr::make('digestExtensions')
+                    ->visible(fn ($model, Context $context) => $context->getActor()->isAdmin())
                     ->get(function () use ($manager) {
                         return [
                             'leaderboard' => [

@@ -4,7 +4,6 @@ namespace Resofire\DigestMail\Token;
 
 use Carbon\Carbon;
 use Flarum\User\User;
-use Illuminate\Database\ConnectionInterface;
 
 /**
  * Generates and persists one-per-user unsubscribe tokens.
@@ -23,10 +22,6 @@ use Illuminate\Database\ConnectionInterface;
  */
 class UnsubscribeTokenGenerator
 {
-    public function __construct(
-        private ConnectionInterface $db,
-    ) {}
-
     /**
      * Return the existing token for $user if one exists and has not expired.
      * Otherwise generate a new token, persist it, and return it.
@@ -34,26 +29,19 @@ class UnsubscribeTokenGenerator
     public function getOrCreate(User $user): string
     {
         // Check for an existing valid token first.
-        $existing = $this->db->table('digest_unsubscribe_tokens')
-            ->where('user_id', $user->id)
-            ->first();
+        $existing = UnsubscribeToken::where('user_id', $user->id)->first();
 
-        if ($existing !== null) {
-            $createdAt = Carbon::parse($existing->created_at);
-            $notExpired = $createdAt->diffInDays(Carbon::now()) < UnsubscribeToken::EXPIRES_AFTER_DAYS;
-
-            if ($notExpired) {
-                return $existing->token;
-            }
+        if ($existing !== null
+            && $existing->created_at->diffInDays(Carbon::now()) < UnsubscribeToken::EXPIRES_AFTER_DAYS) {
+            return $existing->token;
         }
 
-        // No token or expired — generate a fresh one.
+        // No token or expired — generate a fresh one and upsert by user_id.
         $token = bin2hex(random_bytes(32)); // 64 hex chars
-        $now   = Carbon::now()->toDateTimeString();
 
-        $this->db->table('digest_unsubscribe_tokens')->updateOrInsert(
+        UnsubscribeToken::updateOrCreate(
             ['user_id' => $user->id],
-            ['token' => $token, 'created_at' => $now],
+            ['token' => $token, 'created_at' => Carbon::now()],
         );
 
         return $token;
