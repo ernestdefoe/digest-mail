@@ -43,6 +43,7 @@ trait QueriesBadges
         // Recent earners: a bounded, most-recent slice (over-fetch a little so
         // filtering out invisible badges / deleted users below still fills $limit).
         // Never load the full period's badge_user table into memory.
+        // third-party table — no Eloquent model available.
         $recentRows = $this->db->table('fof_badge_user')
             ->where('earned_at', '>=', $since)
             ->orderByDesc('earned_at')
@@ -51,6 +52,7 @@ trait QueriesBadges
 
         // Most-earned this period: aggregate in SQL, so the result set is bounded
         // by the number of distinct badges (small) rather than by earner volume.
+        // third-party table — no Eloquent model available.
         $periodCounts = $this->db->table('fof_badge_user')
             ->where('earned_at', '>=', $since)
             ->groupBy('badge_id')
@@ -68,6 +70,7 @@ trait QueriesBadges
             ->merge($periodCounts->pluck('badge_id'))->unique()->values()->all();
         $userIds  = $recentRows->pluck('user_id')->unique()->values()->all();
 
+        // third-party table — no Eloquent model available.
         $badges = $this->db->table('fof_badges')
             ->whereIn('id', $badgeIds)
             ->where('is_visible', true)

@@ -47,6 +47,7 @@ trait QueriesLeaderboard
         $pointsTable  = 'leaderboard_points';
 
         // --- All-time totals (current ranking) ---
+        // third-party table — no Eloquent model available.
         $totals = $this->db->table($totalsTable)
             ->where('points_total', '>', 0)
             ->orderByDesc('points_total')
@@ -64,6 +65,7 @@ trait QueriesLeaderboard
         }
 
         // --- Period points per user ---
+        // third-party table — no Eloquent model available.
         $periodRows = $this->db->table($pointsTable)
             ->where('created_at', '>=', $since)
             ->selectRaw('user_id, COUNT(*) as period_count')
@@ -88,16 +90,9 @@ trait QueriesLeaderboard
             'downvote_received'  => (int) $this->settings->get('huseyinfiliz-leaderboard.points_downvote_received', -1),
         ];
 
-        // Build CASE SQL for period point values
-        $case = 'CASE reason';
-        $bindings = [];
-        foreach ($pointValues as $reason => $pts) {
-            $case .= ' WHEN ? THEN ?';
-            $bindings[] = $reason;
-            $bindings[] = $pts;
-        }
-        $case .= ' ELSE 0 END';
+        [$case, $bindings] = $this->buildCaseExpression($pointValues);
 
+        // third-party table — no Eloquent model available.
         $periodPointsRows = $this->db->table($pointsTable)
             ->where('created_at', '>=', $since)
             ->selectRaw("user_id, SUM({$case}) as period_points", $bindings)
@@ -105,24 +100,12 @@ trait QueriesLeaderboard
             ->get()
             ->keyBy('user_id');
 
-        // Build pre-period totals map and re-rank
-        $prePeriodTotals = [];
-        foreach ($totals as $row) {
-            $periodPts = isset($periodPointsRows[$row->user_id])
-                ? (int) $periodPointsRows[$row->user_id]->period_points
-                : 0;
-            $prePeriodTotals[$row->user_id] = $row->points_total - $periodPts;
-        }
-        arsort($prePeriodTotals);
-        $previousRanks = [];
-        $r = 1;
-        foreach ($prePeriodTotals as $uid => $pts) {
-            $previousRanks[$uid] = $r++;
-        }
+        $previousRanks = $this->reconstructPreviousRanks($totals, $periodPointsRows);
 
         // --- Detect first-ever point within period (NEW badge) ---
         // A user is "new" if their earliest point entry is >= $since
         $allUserIds = $totals->pluck('user_id')->all();
+        // third-party table — no Eloquent model available.
         $firstPointDates = $this->db->table($pointsTable)
             ->whereIn('user_id', $allUserIds)
             ->selectRaw('user_id, MIN(created_at) as first_point_at')
@@ -178,5 +161,53 @@ trait QueriesLeaderboard
             'entries'      => $entries,
             'biggestMover' => $biggestMover,
         ];
+    }
+
+    /**
+     * Parameterised CASE expression mapping point reasons to their weights.
+     *
+     * @param  array<string, int> $pointValues
+     * @return array{0: string, 1: array} [$sql, $bindings]
+     */
+    private function buildCaseExpression(array $pointValues): array
+    {
+        $case = 'CASE reason';
+        $bindings = [];
+        foreach ($pointValues as $reason => $pts) {
+            $case .= ' WHEN ? THEN ?';
+            $bindings[] = $reason;
+            $bindings[] = $pts;
+        }
+        $case .= ' ELSE 0 END';
+
+        return [$case, $bindings];
+    }
+
+    /**
+     * Reconstruct each user's rank at the START of the period: subtract their
+     * weighted period points from the all-time total, then re-rank.
+     *
+     * @param  \Illuminate\Support\Collection $totals            rows with user_id + points_total
+     * @param  \Illuminate\Support\Collection $periodPointsRows  keyed by user_id, with period_points
+     * @return array<int|string, int> user_id → previous rank (1-based)
+     */
+    private function reconstructPreviousRanks($totals, $periodPointsRows): array
+    {
+        $prePeriodTotals = [];
+        foreach ($totals as $row) {
+            $periodPts = isset($periodPointsRows[$row->user_id])
+                ? (int) $periodPointsRows[$row->user_id]->period_points
+                : 0;
+            $prePeriodTotals[$row->user_id] = $row->points_total - $periodPts;
+        }
+        arsort($prePeriodTotals);
+
+        $previousRanks = [];
+        $r = 1;
+        foreach ($prePeriodTotals as $uid => $pts) {
+            $previousRanks[$uid] = $r++;
+        }
+
+        return $previousRanks;
     }
 }

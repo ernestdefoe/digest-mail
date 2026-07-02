@@ -63,6 +63,7 @@ trait QueriesPicks
 
         // --- Find the current open week (if any) ---
         $currentWeek = null;
+        // third-party table — no Eloquent model available.
         $openWeekRow = $this->db->table('picks_weeks')
             ->where('is_open', true)
             ->orderByDesc('id')
@@ -77,7 +78,32 @@ trait QueriesPicks
             ];
         }
 
+        $events      = $this->buildPicksEvents($since, $now, $limit);
+        $leaderboard = $this->buildPicksLeaderboard($lbScope, $limit);
+
+        return [
+            'enabled'          => true,
+            'confidenceMode'   => $confidenceMode,
+            'leaderboardScope' => $leaderboard['scope'],
+            'currentWeek'      => $currentWeek,
+            'upcomingEvents'   => $events['upcoming'],
+            'recentResults'    => $events['results'],
+            'leaderboard'      => $leaderboard['rows'],
+            'leaderboardLabel' => $leaderboard['label'],
+            'picksForumUrl'    => $baseUrl . '/picks',
+        ];
+    }
+
+    /**
+     * Upcoming scheduled events + finished results for the digest period,
+     * with teams and week names batch-loaded across both sets.
+     *
+     * @return array{upcoming: array, results: array}
+     */
+    private function buildPicksEvents(Carbon $since, Carbon $now, int $limit): array
+    {
         // --- Upcoming events: scheduled, cutoff in the future ---
+        // third-party table — no Eloquent model available.
         $upcomingRows = $this->db->table('picks_events')
             ->where('status', 'scheduled')
             ->where('cutoff_date', '>', $now)
@@ -86,6 +112,7 @@ trait QueriesPicks
             ->get(['id', 'week_id', 'home_team_id', 'away_team_id', 'match_date', 'cutoff_date', 'neutral_site']);
 
         // --- Recent results: finished events within the digest period ---
+        // third-party table — no Eloquent model available.
         $recentRows = $this->db->table('picks_events')
             ->where('status', 'finished')
             ->where('match_date', '>=', $since)
@@ -100,6 +127,7 @@ trait QueriesPicks
             ->merge(collect($recentRows)->pluck('away_team_id'))
             ->unique()->filter()->values()->all();
 
+        // third-party table — no Eloquent model available.
         $teams = $this->db->table('picks_teams')
             ->whereIn('id', $teamIds)
             ->get(['id', 'name', 'abbreviation', 'logo_path', 'logo_dark_path'])
@@ -108,6 +136,7 @@ trait QueriesPicks
         // Batch-load week names for upcoming events
         $weekIds = collect($upcomingRows)->pluck('week_id')->unique()->filter()->values()->all();
         $weeks   = count($weekIds)
+            // third-party table — no Eloquent model available.
             ? $this->db->table('picks_weeks')->whereIn('id', $weekIds)->get(['id', 'name'])->keyBy('id')
             : collect();
 
@@ -145,8 +174,19 @@ trait QueriesPicks
             ];
         }
 
-        // --- Build leaderboard based on configured scope ---
+        return ['upcoming' => $upcoming, 'results' => $results];
+    }
+
+    /**
+     * Top-N picks leaderboard for the configured scope. Week/season scopes
+     * fall back to alltime when no scored rows exist yet.
+     *
+     * @return array{scope: string, label: string, rows: array}
+     */
+    private function buildPicksLeaderboard(string $lbScope, int $limit): array
+    {
         $lbLabel = '';
+        // third-party table — no Eloquent model available.
         $lbQuery = $this->db->table('picks_user_scores')
             ->where('total_picks', '>', 0)
             ->orderByDesc('total_points')
@@ -155,6 +195,7 @@ trait QueriesPicks
 
         if ($lbScope === 'week') {
             // Use the most recently completed week that has scored picks
+            // third-party table — no Eloquent model available.
             $lastScoredWeekRow = $this->db->table('picks_user_scores')
                 ->whereNotNull('week_id')
                 ->orderByDesc('week_id')
@@ -163,6 +204,7 @@ trait QueriesPicks
             if ($lastScoredWeekRow) {
                 $lbQuery->where('week_id', $lastScoredWeekRow->week_id)
                         ->where('season_id', $lastScoredWeekRow->season_id);
+                // third-party table — no Eloquent model available.
                 $weekRow = $this->db->table('picks_weeks')
                     ->where('id', $lastScoredWeekRow->week_id)
                     ->first(['name']);
@@ -175,6 +217,7 @@ trait QueriesPicks
 
         if ($lbScope === 'season') {
             // Use the most recent season that has scored picks
+            // third-party table — no Eloquent model available.
             $lastScoredSeasonRow = $this->db->table('picks_user_scores')
                 ->whereNotNull('season_id')
                 ->whereNull('week_id')
@@ -184,6 +227,7 @@ trait QueriesPicks
             if ($lastScoredSeasonRow) {
                 $lbQuery->whereNull('week_id')
                         ->where('season_id', $lastScoredSeasonRow->season_id);
+                // third-party table — no Eloquent model available.
                 $seasonRow = $this->db->table('picks_seasons')
                     ->where('id', $lastScoredSeasonRow->season_id)
                     ->first(['name']);
@@ -225,16 +269,6 @@ trait QueriesPicks
             ];
         }
 
-        return [
-            'enabled'          => true,
-            'confidenceMode'   => $confidenceMode,
-            'leaderboardScope' => $lbScope,
-            'currentWeek'      => $currentWeek,
-            'upcomingEvents'   => $upcoming,
-            'recentResults'    => $results,
-            'leaderboard'      => $leaderboard,
-            'leaderboardLabel' => $lbLabel,
-            'picksForumUrl'    => $baseUrl . '/picks',
-        ];
+        return ['scope' => $lbScope, 'label' => $lbLabel, 'rows' => $leaderboard];
     }
 }

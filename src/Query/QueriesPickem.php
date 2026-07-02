@@ -38,6 +38,7 @@ trait QueriesPickem
         $now = Carbon::now('UTC');
 
         // --- Upcoming events: scheduled, cutoff in the future ---
+        // third-party table — no Eloquent model available.
         $upcomingRows = $this->db->table('pickem_events')
             ->where('status', 'scheduled')
             ->where('cutoff_date', '>', $now)
@@ -46,6 +47,7 @@ trait QueriesPickem
             ->get(['id', 'week_id', 'home_team_id', 'away_team_id', 'match_date', 'cutoff_date', 'allow_draw']);
 
         // --- Recent results: finished events within the digest period ---
+        // third-party table — no Eloquent model available.
         $recentRows = $this->db->table('pickem_events')
             ->where('status', 'finished')
             ->where('match_date', '>=', $since)
@@ -60,12 +62,14 @@ trait QueriesPickem
             ->merge(collect($recentRows)->pluck('away_team_id'))
             ->unique()->filter()->values()->all();
 
+        // third-party table — no Eloquent model available.
         $teams = $this->db->table('pickem_teams')
             ->whereIn('id', $teamIds)
             ->get(['id', 'name', 'slug', 'logo_path'])
             ->keyBy('id');
 
         // --- Pick'em leaderboard: top N by total_points ---
+        // third-party table — no Eloquent model available.
         $lbRows = $this->db->table('pickem_user_scores')
             ->whereNull('season_id')
             ->where('total_picks', '>', 0)

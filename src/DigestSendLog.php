@@ -36,7 +36,12 @@ class DigestSendLog extends AbstractModel
 
     protected $table = 'digest_send_log';
 
-    protected $guarded = [];
+    /**
+     * Explicit whitelist — only the batch counters this extension writes.
+     * (A blanket $guarded = [] would let any future call path mass-assign
+     * arbitrary columns.)
+     */
+    protected $fillable = ['frequency', 'sent_count', 'skipped_count', 'sent_at'];
 
     protected $casts = ['sent_at' => 'datetime'];
 }

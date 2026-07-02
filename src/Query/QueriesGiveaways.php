@@ -52,6 +52,7 @@ trait QueriesGiveaways
             $forumUrl = $baseUrl . '/giveaways';
 
             // Ending soon: active, already started, ending in the future, soonest first.
+            // third-party table — no Eloquent model available.
             $endingRows = $this->db->table('giveaways')
                 ->where('status', 'active')
                 ->where('ends_at', '>', $now)
@@ -64,6 +65,7 @@ trait QueriesGiveaways
 
             $endingIds   = collect($endingRows)->pluck('id')->all();
             $entryCounts = count($endingIds)
+                // third-party table — no Eloquent model available.
                 ? $this->db->table('giveaway_entries')->whereIn('giveaway_id', $endingIds)
                     ->selectRaw('giveaway_id, COUNT(*) as c')->groupBy('giveaway_id')->pluck('c', 'giveaway_id')
                 : collect();
@@ -81,6 +83,7 @@ trait QueriesGiveaways
             }
 
             // Recent winners: giveaways drawn within the digest period.
+            // third-party table — no Eloquent model available.
             $drawnRows = $this->db->table('giveaways')
                 ->where('status', 'drawn')
                 ->where('drawn_at', '>=', $since)
@@ -91,6 +94,7 @@ trait QueriesGiveaways
             $drawnIds          = collect($drawnRows)->pluck('id')->all();
             $winnersByGiveaway = [];
             if (count($drawnIds)) {
+                // third-party table — no Eloquent model available.
                 $wRows = $this->db->table('giveaway_winners')
                     ->join('users', 'users.id', '=', 'giveaway_winners.user_id')
                     ->whereIn('giveaway_winners.giveaway_id', $drawnIds)

@@ -37,9 +37,13 @@ trait QueriesAwards
         // Note: db->table() auto-applies the connection prefix.
         $now = \Carbon\Carbon::now()->toDateTimeString();
 
+        // third-party table (huseyinfiliz/awards) — no Eloquent model available.
+        // Bounded to the newest 50 non-draft awards: a digest surfaces only a
+        // handful, but an unbounded fetch would grow with years of history.
         $awardRows = $this->db->table('awards')
             ->whereNotIn('status', ['draft'])
             ->orderByDesc('starts_at')
+            ->limit(50)
             ->get()
             ->all();
 
@@ -69,6 +73,7 @@ trait QueriesAwards
 
         // Category vote/nominee counts for ALL awards in ONE query (was one query
         // per award — an N+1), grouped by award_id below.
+        // third-party table — no Eloquent model available.
         $categoryRows = $this->db->select("
             SELECT
                 ac.award_id,
@@ -104,6 +109,7 @@ trait QueriesAwards
         $topByAward = [];
         if ($liveIds) {
             $inLive = implode(',', array_fill(0, count($liveIds), '?'));
+            // third-party table — no Eloquent model available.
             $topRows = $this->db->select("
                 SELECT
                     ac.award_id,

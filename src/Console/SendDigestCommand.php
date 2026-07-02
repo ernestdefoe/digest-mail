@@ -279,92 +279,119 @@ class SendDigestCommand extends Command
 
             $this->queue->push($job);
 
-            // Stamp last sent so the user isn't double-dispatched if
-            // the command re-runs within the same window.
-            User::where('id', $user->id)->update([
-                'digest_last_sent_at' => Carbon::now()->toDateTimeString(),
-            ]);
+            $this->stampLastSent($user);
 
             $this->line("  [queued]   {$user->username} (#{$user->id})");
             $dispatched++;
         }
 
-                // Log the batch — aggregate into one row per frequency per day.
-        // With window mode dispatching one chunk per minute, we update today's
-        // row rather than inserting a new one for each chunk.
         if (!$isDryRun && $dispatched > 0) {
-            $nowUtc     = Carbon::now('UTC');
-            $startOfDay = $nowUtc->copy()->startOfDay();
-
-            $existing = DigestSendLog::query()
-                ->where('frequency', $frequency)
-                ->where('sent_at', '>=', $startOfDay)
-                ->where('sent_at', '<',  $startOfDay->copy()->addDay())
-                ->first();
-
-            if ($existing) {
-                $existing->sent_count    += $dispatched;
-                $existing->skipped_count += $skipped;
-                $existing->sent_at        = $nowUtc;
-                $existing->save();
-            } else {
-                DigestSendLog::create([
-                    'frequency'     => $frequency,
-                    'sent_count'    => $dispatched,
-                    'skipped_count' => $skipped,
-                    'sent_at'       => $nowUtc,
-                ]);
-            }
-
-            // Purge old log entries beyond the retention limits.
-            // Daily: 30 rows, Weekly: 52 rows, Monthly: 24 rows.
-            $retention = match ($frequency) {
-                'daily'   => 30,
-                'weekly'  => 52,
-                'monthly' => 24,
-                default   => 30,
-            };
-
-            $keepIds = DigestSendLog::query()
-                ->where('frequency', $frequency)
-                ->orderByDesc('sent_at')
-                ->limit($retention)
-                ->pluck('id');
-
-            if ($keepIds->isNotEmpty()) {
-                DigestSendLog::query()
-                    ->where('frequency', $frequency)
-                    ->whereNotIn('id', $keepIds)
-                    ->delete();
-            }
+            $this->upsertSendLog($frequency, $dispatched, $skipped);
+            $this->pruneOldLogs($frequency);
         }
 
-        // Window-complete check: if no eligible users remain for this frequency,
-        // mark it done so dueFrequencies() skips it for the rest of the window.
         if (!$isDryRun) {
-            $timezone = $this->settings->get('ernestdefoe-digest-mail.timezone', 'UTC');
-            $now      = Carbon::now($timezone);
-            $cutoff   = $this->lastSentCutoff($frequency);
-
-            $remaining = User::query()
-                ->where('digest_frequency', $frequency)
-                ->where('is_email_confirmed', true)
-                ->where(function ($q) use ($cutoff) {
-                    $q->whereNull('digest_last_sent_at')
-                      ->orWhere('digest_last_sent_at', '<', $cutoff);
-                })
-                ->limit(1)
-                ->count();
-
-            if ($remaining === 0) {
-                $this->markWindowComplete($frequency, $now);
-                $this->line("  [window]   All '{$frequency}' subscribers dispatched. Window marked complete.");
-            } else {
-                $this->line("  [window]   {$remaining} '{$frequency}' subscriber(s) remaining — will continue next minute.");
-            }
+            $this->checkAndMarkWindowComplete($frequency);
         }
 
         return [$dispatched, $skipped];
+    }
+
+    /**
+     * Stamp last sent so the user isn't double-dispatched if the command
+     * re-runs within the same window.
+     */
+    private function stampLastSent(User $user): void
+    {
+        User::where('id', $user->id)->update([
+            'digest_last_sent_at' => Carbon::now()->toDateTimeString(),
+        ]);
+    }
+
+    /**
+     * Log the batch — aggregate into one row per frequency per day. With
+     * window mode dispatching one chunk per minute, we update today's row
+     * rather than inserting a new one for each chunk.
+     */
+    private function upsertSendLog(string $frequency, int $dispatched, int $skipped): void
+    {
+        $nowUtc     = Carbon::now('UTC');
+        $startOfDay = $nowUtc->copy()->startOfDay();
+
+        $existing = DigestSendLog::query()
+            ->where('frequency', $frequency)
+            ->where('sent_at', '>=', $startOfDay)
+            ->where('sent_at', '<',  $startOfDay->copy()->addDay())
+            ->first();
+
+        if ($existing) {
+            $existing->sent_count    += $dispatched;
+            $existing->skipped_count += $skipped;
+            $existing->sent_at        = $nowUtc;
+            $existing->save();
+        } else {
+            DigestSendLog::create([
+                'frequency'     => $frequency,
+                'sent_count'    => $dispatched,
+                'skipped_count' => $skipped,
+                'sent_at'       => $nowUtc,
+            ]);
+        }
+    }
+
+    /**
+     * Purge old log entries beyond the retention limits.
+     * Daily: 30 rows, Weekly: 52 rows, Monthly: 24 rows.
+     */
+    private function pruneOldLogs(string $frequency): void
+    {
+        $retention = match ($frequency) {
+            'daily'   => 30,
+            'weekly'  => 52,
+            'monthly' => 24,
+            default   => 30,
+        };
+
+        $keepIds = DigestSendLog::query()
+            ->where('frequency', $frequency)
+            ->orderByDesc('sent_at')
+            ->limit($retention)
+            ->pluck('id');
+
+        if ($keepIds->isNotEmpty()) {
+            DigestSendLog::query()
+                ->where('frequency', $frequency)
+                ->whereNotIn('id', $keepIds)
+                ->delete();
+        }
+    }
+
+    /**
+     * Window-complete check: if no eligible users remain for this frequency,
+     * mark it done so dueFrequencies() skips it for the rest of the window.
+     */
+    private function checkAndMarkWindowComplete(string $frequency): void
+    {
+        $timezone = $this->settings->get('ernestdefoe-digest-mail.timezone', 'UTC');
+        $now      = Carbon::now($timezone);
+        $cutoff   = $this->lastSentCutoff($frequency);
+
+        $remaining = User::query()
+            ->where('digest_frequency', $frequency)
+            ->where('is_email_confirmed', true)
+            ->where(function ($q) use ($cutoff) {
+                $q->whereNull('digest_last_sent_at')
+                  ->orWhere('digest_last_sent_at', '<', $cutoff);
+            })
+            ->limit(1)
+            ->count();
+
+        if ($remaining === 0) {
+            $this->markWindowComplete($frequency, $now);
+            $this->line("  [window]   All '{$frequency}' subscribers dispatched. Window marked complete.");
+        } else {
+            $this->line("  [window]   {$remaining} '{$frequency}' subscriber(s) remaining — will continue next minute.");
+        }
     }
 
     // -------------------------------------------------------------------------

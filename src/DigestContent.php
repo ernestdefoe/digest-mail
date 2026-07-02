@@ -11,8 +11,11 @@ use Illuminate\Database\Eloquent\Collection;
 class DigestContent
 {
     public function __construct(
+        // No default: an optional parameter before required ones is deprecated
+        // in PHP 8.x. The single construction site (DigestQuery::buildForUser)
+        // passes every argument by name, so this stays nullable via the type.
         /** A single admin-pinned discussion to feature at the top of the digest, or null. */
-        public readonly ?object $featuredDiscussion = null,
+        public readonly ?object $featuredDiscussion,
 
         /** New discussions started during the digest period. */
         public readonly Collection $newDiscussions,

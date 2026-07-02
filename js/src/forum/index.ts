@@ -181,19 +181,48 @@ class DigestFrequencySetting extends Component<DigestFrequencyAttrs> {
 }
 
 app.initializers.add('ernestdefoe-digest-mail', () => {
-  // NOTE: the first argument is intentionally the component's module-path
-  // string rather than its prototype. This is preserved verbatim from the
-  // original shipped behaviour — do not "fix" it to a prototype reference
-  // without re-validating the settings-page injection end to end.
-  extend(
-    'flarum/forum/components/SettingsPage' as unknown as Record<string, unknown>,
-    'notificationsItems',
-    function (this: { user?: User }, items: { add: (key: string, content: Mithril.Children, priority?: number) => void }) {
-      const user = this.user;
-      if (!user || !app.session.user || user.id() !== app.session.user.id()) return;
-      items.add('digestFrequency', m(DigestFrequencySetting, { user }), 50);
+  // SettingsPage is CODE-SPLIT in Flarum 2 (routes.ts lazy-imports it), so it
+  // cannot be imported at boot — flarum.reg.get() would return undefined and
+  // crash the initializer. Core's extend() supports module-path STRINGS for
+  // exactly this case (deferred via flarum.reg.onLoad — see
+  // flarum/common/extend.ts). However, on some builds the router mounts a
+  // DIFFERENT copy of the class than the registry holds (the settings chunk
+  // is double-bundled), so wrapping only the registry copy never reaches the
+  // screen. We therefore hook BOTH: the registry (string form) AND the route's
+  // own lazy resolver — DefaultResolver.onmatch() awaits `component()` and
+  // mounts `.default`, so wrapping app.routes.settings.component targets the
+  // exact class instance that renders. addDigestFrequencyItem() dedupes.
+  const addDigestFrequencyItem = function (
+    items: { add: (key: string, content: Mithril.Children, priority?: number) => void; has: (key: string) => boolean }
+  ) {
+    const user = app.session.user;
+    if (!user || items.has('digestFrequency')) return;
+    items.add('digestFrequency', m(DigestFrequencySetting, { user }), 50);
+  };
+
+  const extendSettingsPage = (cls: any) => {
+    if (!cls || !cls.prototype || (cls as any).__digestFrequencyExtended) return;
+    (cls as any).__digestFrequencyExtended = true;
+    extend(cls.prototype, 'notificationsItems', addDigestFrequencyItem);
+  };
+
+  extend('flarum/forum/components/SettingsPage', 'notificationsItems', addDigestFrequencyItem);
+
+  const settingsRoute: any = (app as any).routes && (app as any).routes['settings'];
+  if (settingsRoute && typeof settingsRoute.component === 'function') {
+    if (settingsRoute.component.prototype instanceof Component) {
+      // Eager class (no code splitting on this build).
+      extendSettingsPage(settingsRoute.component);
+    } else {
+      // Lazy chunk: wrap the resolver, extend the real class on first load.
+      const original = settingsRoute.component;
+      settingsRoute.component = async () => {
+        const mod = await original();
+        extendSettingsPage(mod && (mod.default ?? mod));
+        return mod;
+      };
     }
-  );
+  }
 
   // Opt-in modal boot hook: on page load, if the current user still has the
   // digest_onboarding_pending preference set, open the opt-in modal once.

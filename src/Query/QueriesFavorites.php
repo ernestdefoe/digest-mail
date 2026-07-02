@@ -45,6 +45,7 @@ trait QueriesFavorites
 
         if ($reactionsEnabled) {
             // Get excluded reaction IDs (db->table() auto-applies the prefix)
+            // third-party table — no Eloquent model available.
             $excludedIds = $this->db->table('reactions')
                 ->whereIn('identifier', $excludedIdentifiers)
                 ->pluck('id')
@@ -56,6 +57,7 @@ trait QueriesFavorites
 
             // Use post_reactions only — fof/reactions also writes to post_likes for thumbsup,
             // so querying both would double-count.
+            // third-party table — no Eloquent model available.
             $rows = $this->db->select("
                 SELECT
                     d.id,
@@ -105,6 +107,7 @@ trait QueriesFavorites
 
         } else {
             // Likes-only mode (flarum-likes is always present if we reach here)
+            // third-party table — no Eloquent model available.
             $rows = $this->db->select("
                 SELECT
                     d.id,

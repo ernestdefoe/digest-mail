@@ -38,6 +38,7 @@ trait QueriesGamepedia
         $prefix    = $this->db->getTablePrefix();
         $since_str = $since->toDateTimeString();
 
+        // third-party table — no Eloquent model available.
         $mostDiscussedRows = $this->db->select("
             SELECT
                 g.id, g.name, g.slug, g.cover_image_id, g.genres, g.developer, g.release_date,
@@ -66,6 +67,7 @@ trait QueriesGamepedia
             ];
         }
 
+        // third-party table — no Eloquent model available.
         $newGames = $this->db->table('gamepedia_games')
             ->where('created_at', '>=', $since)
             ->orderByDesc('created_at')
@@ -116,6 +118,7 @@ trait QueriesGamepedia
         $since_str = $since->toDateTimeString();
 
         // ── Most discussed ────────────────────────────────────────────────────
+        // third-party table — no Eloquent model available.
         $mostDiscussedRows = $this->db->select("
             SELECT
                 g.id, g.name, g.slug, g.cover_image_url, g.developer, g.publisher,
@@ -150,6 +153,7 @@ trait QueriesGamepedia
         }
 
         // ── New games ─────────────────────────────────────────────────────────
+        // third-party table — no Eloquent model available.
         $newGameRows = $this->db->table('gamepedia_games')
             ->where('created_at', '>=', $since)
             ->orderByDesc('created_at')
@@ -167,7 +171,23 @@ trait QueriesGamepedia
             $newGames[]   = $game;
         }
 
-        // ── Top genres ────────────────────────────────────────────────────────
+        $topGenres = $this->getTopGenres($since, $prefix);
+
+        return [
+            'enabled'       => true,
+            'mostDiscussed' => $mostDiscussed,
+            'newGames'      => $newGames,
+            'topGenres'     => $topGenres,
+        ];
+    }
+
+    /**
+     * The five most-posted-about genres within the digest period.
+     * Returns an array of [ genre (stdClass), gameCount, postCount ].
+     */
+    private function getTopGenres(Carbon $since, string $prefix): array
+    {
+        // third-party table — no Eloquent model available.
         $topGenreRows = $this->db->select("
             SELECT
                 gr.id, gr.name, gr.slug,
@@ -186,7 +206,7 @@ trait QueriesGamepedia
             GROUP BY gr.id, gr.name, gr.slug
             ORDER BY post_count DESC
             LIMIT 5
-        ", [$since_str]);
+        ", [$since->toDateTimeString()]);
 
         $topGenres = [];
         foreach ($topGenreRows as $row) {
@@ -197,12 +217,7 @@ trait QueriesGamepedia
             ];
         }
 
-        return [
-            'enabled'       => true,
-            'mostDiscussed' => $mostDiscussed,
-            'newGames'      => $newGames,
-            'topGenres'     => $topGenres,
-        ];
+        return $topGenres;
     }
 
 
@@ -214,6 +229,7 @@ trait QueriesGamepedia
     {
         if (empty($gameIds)) return [];
 
+        // third-party table — no Eloquent model available.
         $rows = $this->db->table('gamepedia_game_genre AS gg')
             ->join('gamepedia_genres AS gr', 'gr.id', '=', 'gg.genre_id')
             ->whereIn('gg.game_id', $gameIds)

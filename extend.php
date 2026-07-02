@@ -161,11 +161,16 @@ return [
     // can be grayed out when an integration extension is not installed.
     (new Extend\ApiResource(Resource\ForumResource::class))
         ->fields(function () {
-            // NOTE: ApiResource->fields() callbacks are invoked by core with no
-            // arguments (Flarum\Foundation\ContainerUtil::wrapCallback does not
-            // inject typed closure parameters for this extender — unlike many
-            // others), so dependencies must be pulled from the container here
-            // rather than via typed closure params.
+            // INTENTIONAL resolve(): documented exception to the prefer-DI rule.
+            // (1) ApiResource->fields() callbacks are invoked by core with no
+            //     arguments — ContainerUtil::wrapCallback does not inject typed
+            //     closure parameters for this extender, so constructor-style DI
+            //     is unavailable here.
+            // (2) Capturing services at REGISTRATION time (a `use` closure over
+            //     values resolved while extend.php is evaluated) is not safe:
+            //     extend.php is loaded before the container finishes booting,
+            //     so resolution must stay lazy — inside the callback, at
+            //     request time, which is exactly what resolve() does below.
             /** @var ExtensionManager $manager */
             $manager = resolve(ExtensionManager::class);
 

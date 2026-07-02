@@ -29,6 +29,12 @@ class DigestQuery
 
     public function __construct(
         private SettingsRepositoryInterface $settings,
+        // INTENTIONAL EXCEPTION: $db is reserved for THIRD-PARTY integration
+        // tables only (leaderboard money, fof badges, picks/pickem, gamepedia,
+        // giveaways, awards, reactions) — none of those extensions ship an
+        // Eloquent model this extension could depend on. Every such call site
+        // carries a "third-party table" comment. This extension's own digest_*
+        // tables and all core tables go through Eloquent models exclusively.
         private ConnectionInterface         $db,
         private ExtensionManager            $extensions,
         private LoggerInterface             $log,
