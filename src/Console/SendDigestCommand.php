@@ -130,20 +130,31 @@ class SendDigestCommand extends Command
 
         if (!$inWindow) return [];
 
+        // Respect the admin "allowed frequencies" toggles. A cadence the admin
+        // has disabled must stop sending even to users already subscribed to it —
+        // the frontend only hides the *option*, so the sender is the source of
+        // truth. Defaults mirror the admin panel: daily off, weekly/monthly on.
+        // (A forced --frequency run bypasses this gate as an explicit override.)
+        $allowed = function (string $frequency): bool {
+            $default = ['daily' => '0', 'weekly' => '1', 'monthly' => '1'][$frequency] ?? '0';
+            $v = $this->settings->get('ernestdefoe-digest-mail.allow_' . $frequency);
+            return (($v === null || $v === '') ? $default : $v) === '1';
+        };
+
         $due = [];
 
-        // Daily — due if within window and not yet fully dispatched today.
-        if (!$this->isWindowComplete('daily', $now)) {
+        // Daily — due if allowed, within window, and not yet fully dispatched today.
+        if ($allowed('daily') && !$this->isWindowComplete('daily', $now)) {
             $due[] = 'daily';
         }
 
         // Weekly — only on the configured day.
-        if ($now->dayOfWeek === $weeklyDay && !$this->isWindowComplete('weekly', $now)) {
+        if ($allowed('weekly') && $now->dayOfWeek === $weeklyDay && !$this->isWindowComplete('weekly', $now)) {
             $due[] = 'weekly';
         }
 
         // Monthly — only on the configured day-of-month.
-        if ($now->day === $monthlyDay && !$this->isWindowComplete('monthly', $now)) {
+        if ($allowed('monthly') && $now->day === $monthlyDay && !$this->isWindowComplete('monthly', $now)) {
             $due[] = 'monthly';
         }
 

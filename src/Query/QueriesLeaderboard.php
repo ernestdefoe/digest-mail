@@ -102,21 +102,23 @@ trait QueriesLeaderboard
 
         $previousRanks = $this->reconstructPreviousRanks($totals, $periodPointsRows);
 
+        // --- Load top $limit users (the only rows we actually display) ---
+        $topRows = $totals->take($limit);
+        $topUserIds = $topRows->pluck('user_id')->all();
+        $users = User::whereIn('id', $topUserIds)->get()->keyBy('id');
+
         // --- Detect first-ever point within period (NEW badge) ---
-        // A user is "new" if their earliest point entry is >= $since
-        $allUserIds = $totals->pluck('user_id')->all();
+        // A user is "new" if their earliest point entry is >= $since. Only the
+        // displayed top-$limit users need this, so restrict the aggregate to
+        // their IDs — scanning the whole board here meant a whereIn over every
+        // ranked user on large forums for values we never read.
         // third-party table — no Eloquent model available.
         $firstPointDates = $this->db->table($pointsTable)
-            ->whereIn('user_id', $allUserIds)
+            ->whereIn('user_id', $topUserIds)
             ->selectRaw('user_id, MIN(created_at) as first_point_at')
             ->groupBy('user_id')
             ->get()
             ->keyBy('user_id');
-
-        // --- Load top $limit users ---
-        $topRows = $totals->take($limit);
-        $topUserIds = $topRows->pluck('user_id')->all();
-        $users = User::whereIn('id', $topUserIds)->get()->keyBy('id');
 
         $entries = [];
         foreach ($topRows as $i => $row) {
