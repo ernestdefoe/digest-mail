@@ -39,6 +39,15 @@ class UnsubscribeToken extends AbstractModel
 
     protected $table = 'digest_unsubscribe_tokens';
 
+    /**
+     * Explicit whitelist for the columns UnsubscribeTokenGenerator upserts.
+     * Required because Flarum/Laravel core no longer globally unguards models —
+     * without it, UnsubscribeToken::updateOrCreate() throws a
+     * MassAssignmentException on user_id (only on the create path, i.e. for
+     * users who don't yet have a token row), which kills every digest send.
+     */
+    protected $fillable = ['user_id', 'token', 'created_at'];
+
     protected $casts = ['created_at' => 'datetime'];
 
     public function user()
