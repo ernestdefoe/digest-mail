@@ -143,18 +143,28 @@ class DigestMailer
 
     public function sendToUser(User $user, DigestContent $content, string $unsubscribeToken): void
     {
-        $originalLocale = $this->translator->getLocale();
-        $userLocale     = $user->getPreference('locale') ?? $this->settings->get('default_locale');
+        $originalLocale       = $this->translator->getLocale();
+        $originalCarbonLocale = \Carbon\Carbon::getLocale();
+        $userLocale           = $user->getPreference('locale') ?? $this->settings->get('default_locale') ?? 'en';
         $this->translator->setLocale($userLocale);
+        // Relative times in the email (diffForHumans) localize off Carbon's
+        // locale, which is independent of the translator — set it too or the
+        // dates stay English while the rest of the digest is translated.
+        \Carbon\Carbon::setLocale($userLocale);
 
         try {
             $unsubscribeUrl = $this->url->to('forum')->route('resofire.digest-mail.unsubscribe')
                 . '?token=' . urlencode($unsubscribeToken);
 
             $forumTitle  = $this->settings->get('forum_title', 'Forum');
+            $freqKey     = 'ernestdefoe-digest-mail.email.frequency.' . $content->frequency;
+            $frequencyLabel = $this->translator->trans($freqKey);
+            if ($frequencyLabel === $freqKey) {
+                $frequencyLabel = $content->frequencyLabel();
+            }
             $subject     = $this->translator->trans(
                 'ernestdefoe-digest-mail.email.subject',
-                ['{forum}' => $forumTitle, '{frequency}' => $content->frequencyLabel()]
+                ['{forum}' => $forumTitle, '{frequency}' => $frequencyLabel]
             );
 
             $fromAddress = $this->settings->get('mail_from', 'noreply@' . parse_url($this->url->to('forum')->base(), PHP_URL_HOST));
@@ -172,6 +182,7 @@ class DigestMailer
                 'url'            => $this->url,
                 'darkColors'     => $darkColors,
                 'translator'     => $this->translator,
+                'frequencyLabel' => $frequencyLabel,
             ];
 
             $this->mailer->send(
@@ -186,6 +197,7 @@ class DigestMailer
             );
         } finally {
             $this->translator->setLocale($originalLocale);
+            \Carbon\Carbon::setLocale($originalCarbonLocale);
         }
     }
 }

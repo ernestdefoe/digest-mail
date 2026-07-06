@@ -208,6 +208,45 @@ Then enable the extension in your Flarum admin panel.
 
 ---
 
+## Migrating from `resofire/digest-mail`
+
+This extension is a drop-in-compatible fork. It uses the **same database schema** —
+the `digest_frequency` and `digest_last_sent_at` columns on `users`, and the
+`digest_unsubscribe_tokens` and `digest_send_log` tables — and the same
+`/digest/unsubscribe` route. Its migrations are idempotent (they detect and skip
+existing columns/tables), so switching keeps all of your subscriber data.
+
+**What carries over automatically:** every member's subscription status and
+frequency, their last-sent timestamps, and existing unsubscribe tokens (so
+unsubscribe links in already-delivered emails keep working).
+
+**What does not carry over:** the admin-side settings (content limits, schedule,
+integration toggles, section order). This fork uses its own setting prefix, so
+those reset to defaults and you re-enter them once in the admin panel. This is
+configuration only — no user data is lost.
+
+### Steps
+
+1. **Back up your database** (standard before any extension swap).
+2. In **Admin → Extensions**, **disable** `resofire/digest-mail`.
+   Disable only — do **not** use any "uninstall / purge data" option and do **not**
+   run `php flarum migrate:reset`, as those would drop the shared `digest_*` tables.
+3. Swap the Composer package and migrate:
+
+   ```bash
+   composer require ernestdefoe/digest-mail
+   composer remove resofire/digest-mail
+   php flarum migrate
+   php flarum assets:publish
+   php flarum cache:clear
+   ```
+
+4. In **Admin → Extensions**, **enable** "Digest Email".
+5. Re-enter your settings in the admin panel (subscribers are already preserved —
+   only the admin configuration needs setting again).
+
+---
+
 ## Cron Setup
 
 The only cron line required for all setups is the Flarum scheduler. Add it to your server's crontab by running `sudo crontab -u YOUR_WEB_USER -e`, replacing `YOUR_WEB_USER` with the user that owns your Flarum files. If you are unsure which user that is, run `ls -la /path/to/flarum` and check the owner column. Common values are:
