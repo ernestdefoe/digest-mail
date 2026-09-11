@@ -125,6 +125,28 @@
 
     $periodWord = $translator->trans('ernestdefoe-digest-mail.email.period.' . $content->frequency);
 
+    /*
+     * The digest heading, per frequency.
+     *
+     * A daily digest used to read "What's been happening this day", because
+     * the heading interpolated the same {period} word that strings like
+     * "+{points} this {period}" need. Each frequency now gets its own
+     * sentence.
+     *
+     * Falls back to the generic "this {period}" heading when a locale has not
+     * translated the specific key — trans() hands back the key itself when it
+     * has no translation, which would otherwise print the raw key to the
+     * reader. Same guard the mailer uses for the frequency label.
+     */
+    $headingKey  = 'ernestdefoe-digest-mail.email.heading_' . $content->frequency;
+    $headingText = $translator->trans($headingKey);
+    if ($headingText === $headingKey) {
+        $headingText = $translator->trans(
+            'ernestdefoe-digest-mail.email.heading',
+            ['{period}' => $periodWord]
+        );
+    }
+
     // Team logo + name helper
     $renderTeam = function ($team, string $align = 'left') use ($c) {
         $name = e($team->name);
@@ -231,7 +253,7 @@
 {{-- ── TITLE + DATE ──────────────────────────────────────────────────────── --}}
 <tr>
     <td class="pad" style="padding:30px 48px 26px; text-align:center; border-bottom:0.5px solid {{ $c['border'] }};">
-        <h1 class="t-main" style="margin:0 0 10px; font-size:26px; font-weight:600; color:{{ $c['text'] }}; letter-spacing:-0.5px; line-height:1.3;">{{ $translator->trans('ernestdefoe-digest-mail.email.heading', ['{period}' => $periodWord]) }}</h1>
+        <h1 class="t-main" style="margin:0 0 10px; font-size:26px; font-weight:600; color:{{ $c['text'] }}; letter-spacing:-0.5px; line-height:1.3;">{{ $headingText }}</h1>
         <p class="t-muted" style="margin:0; font-size:15px; color:{{ $c['textMuted'] }};">{{ $content->periodStart->format('F j') }} – {{ $periodEnd->format('F j, Y') }}</p>
     </td>
 </tr>

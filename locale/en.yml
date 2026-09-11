@@ -379,7 +379,19 @@ ernestdefoe-digest-mail:
 
   email:
     subject: "{forum} — Your {frequency} Digest"
+    # Generic fallback, still used by any locale that has not translated the
+    # three frequency-specific headings below.
     heading: "What's been happening this {period}"
+    # 🚨 One heading per frequency rather than "this {period}".
+    #
+    # {period} is shared with strings like "+{points} this {period}" and
+    # "Most Earned This {period}", where "day" is the right word — so a daily
+    # digest was headed "What's been happening this day". Giving translators a
+    # whole sentence also lets them place the time expression where their
+    # language wants it, which "this {x}" cannot.
+    heading_daily: "What's been happening today"
+    heading_weekly: "What's been happening this week"
+    heading_monthly: "What's been happening this month"
     header_badge: "{frequency} Digest"
     document_title: "{forum} — Your {frequency} Digest"
     frequency:
