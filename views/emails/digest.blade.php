@@ -209,7 +209,22 @@
         @else
             <a href="{{ $forumUrl }}" style="color:{{ $primaryColor }}; font-size:26px; font-weight:600; text-decoration:none; letter-spacing:-0.5px;">{{ $forumTitle }}</a>
         @endif
-        <p style="margin:10px 0 0; font-size:11px; font-weight:600; letter-spacing:2px; text-transform:uppercase; color:{{ $c['textMuted'] }};">{{ mb_strtoupper($translator->trans('ernestdefoe-digest-mail.email.header_badge', ['{frequency}' => $frequencyLabel])) }}</p>
+        <p style="margin:10px 0 0; font-size:11px; font-weight:600; letter-spacing:2px; text-transform:uppercase; color:{{ $c['textMuted'] }};">{{-- 🚨 Do NOT uppercase this in PHP.
+
+         Flarum's mail pipeline replaces every translation PARAMETER with an
+         opaque marker — flarumsafevalue<hex>endflarumsafevalue — and puts the
+         real value back after the view has rendered (Flarum\Mail\MutateEmail,
+         via SafeSubstitution::restore). That restore matches the marker
+         case-sensitively, with no /i flag.
+
+         mb_strtoupper() therefore turned the marker into
+         FLARUMSAFEVALUE4461696C79ENDFLARUMSAFEVALUE, which no longer matched,
+         so subscribers received the raw marker under the logo instead of
+         "Daily Digest" — 4461696c79 being the hex for "Daily".
+
+         The uppercasing is already handled by text-transform on this element,
+         which is how every other badge in this template does it. --}}
+      {{ $translator->trans('ernestdefoe-digest-mail.email.header_badge', ['{frequency}' => $frequencyLabel]) }}</p>
     </td>
 </tr>
 
