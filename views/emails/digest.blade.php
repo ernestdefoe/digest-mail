@@ -289,6 +289,21 @@
 
 {{-- ── DISCUSSION ROW MACRO ─────────────────────────────────────────────── --}}
 @php
+// 🚨 Never hand markup to the translator as a parameter.
+//
+// In an email, Flarum's MailTranslator swaps every parameter for an opaque
+// marker and puts the value back only after the template has rendered —
+// HTML-escaped (Flarum\Mail\SafeSubstitution::restore). A `<strong>` passed
+// as {user} was delivered to subscribers as visible source, and a value
+// escaped here first came out escaped twice. So translate with no parameters
+// (the placeholders come back intact), escape the sentence, and fill the
+// placeholders here. Every value in $replace must already be safe HTML.
+$tr = function (string $key, array $replace) use ($translator): string {
+    return strtr(e($translator->trans($key)), $replace);
+};
+@endphp
+
+@php
 $discRow = function ($disc, string $metaHtml) use ($url, $c, $renderAvatar) {
     $href       = $url->to('forum')->route('discussion', ['id' => $disc->id . '-' . $disc->slug]);
     $avatar     = $disc->user ? $renderAvatar($disc->user, 44, 17) : '';
@@ -311,7 +326,7 @@ $discRow = function ($disc, string $metaHtml) use ($url, $c, $renderAvatar) {
     $fd     = $content->featuredDiscussion;
     $fdHref = $url->to('forum')->route('discussion', ['id' => $fd->id . '-' . $fd->slug]);
     $fdMeta = $fd->comment_count . ' ' . ($fd->comment_count === 1 ? $translator->trans('ernestdefoe-digest-mail.email.units.reply') : $translator->trans('ernestdefoe-digest-mail.email.units.replies'));
-    if ($fd->last_posted_at) $fdMeta .= ' &middot; ' . $translator->trans('ernestdefoe-digest-mail.email.meta.last_activity', ['{time_ago}' => e($fd->last_posted_at->diffForHumans())]);
+    if ($fd->last_posted_at) $fdMeta .= ' &middot; ' . $tr('ernestdefoe-digest-mail.email.meta.last_activity', ['{time_ago}' => e($fd->last_posted_at->diffForHumans())]);
 @endphp
 <table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="margin-bottom:36px;">
     <tr><td class="card-tint" style="background-color:{{ $c['surface2'] }}; border:1.5px solid {{ $primaryColor }}; border-radius:10px; padding:24px 28px;">
@@ -352,7 +367,7 @@ $discRow = function ($disc, string $metaHtml) use ($url, $c, $renderAvatar) {
     @foreach ($content->newDiscussions as $disc)
     @php
         $meta = '';
-        if ($disc->user) $meta .= $translator->trans('ernestdefoe-digest-mail.email.meta.started_by', ['{user}' => '<strong class="t-strong" style="font-weight:500; color:' . $c['text'] . ';">' . e($disc->user->display_name) . '</strong>']) . ' &middot; ';
+        if ($disc->user) $meta .= $tr('ernestdefoe-digest-mail.email.meta.started_by', ['{user}' => '<strong class="t-strong" style="font-weight:500; color:' . $c['text'] . ';">' . e($disc->user->display_name) . '</strong>']) . ' &middot; ';
         $meta .= $disc->comment_count . ' ' . ($disc->comment_count === 1 ? $translator->trans('ernestdefoe-digest-mail.email.units.reply') : $translator->trans('ernestdefoe-digest-mail.email.units.replies'));
     @endphp
     <tr><td class="row-border" style="padding:16px 0; border-bottom:0.5px solid {{ $c['border'] }};">{!! $discRow($disc, $meta) !!}</td></tr>
@@ -367,7 +382,7 @@ $discRow = function ($disc, string $metaHtml) use ($url, $c, $renderAvatar) {
     @foreach ($content->hotDiscussions as $disc)
     @php
         $meta = $disc->comment_count . ' ' . ($disc->comment_count === 1 ? $translator->trans('ernestdefoe-digest-mail.email.units.reply') : $translator->trans('ernestdefoe-digest-mail.email.units.replies'));
-        if ($disc->lastPostedUser) $meta .= ' &middot; ' . $translator->trans('ernestdefoe-digest-mail.email.meta.last_reply_by', ['{user}' => '<strong class="t-strong" style="font-weight:500; color:' . $c['text'] . ';">' . e($disc->lastPostedUser->display_name) . '</strong>']);
+        if ($disc->lastPostedUser) $meta .= ' &middot; ' . $tr('ernestdefoe-digest-mail.email.meta.last_reply_by', ['{user}' => '<strong class="t-strong" style="font-weight:500; color:' . $c['text'] . ';">' . e($disc->lastPostedUser->display_name) . '</strong>']);
         if ($disc->last_posted_at) $meta .= ' &middot; ' . e($disc->last_posted_at->diffForHumans());
     @endphp
     <tr><td class="row-border" style="padding:16px 0; border-bottom:0.5px solid {{ $c['border'] }};">{!! $discRow($disc, $meta) !!}</td></tr>
@@ -382,9 +397,9 @@ $discRow = function ($disc, string $metaHtml) use ($url, $c, $renderAvatar) {
     @foreach ($content->unreadDiscussions as $disc)
     @php
         $meta = '';
-        if ($disc->user) $meta .= $translator->trans('ernestdefoe-digest-mail.email.meta.by', ['{user}' => '<strong class="t-strong" style="font-weight:500; color:' . $c['text'] . ';">' . e($disc->user->display_name) . '</strong>']) . ' &middot; ';
+        if ($disc->user) $meta .= $tr('ernestdefoe-digest-mail.email.meta.by', ['{user}' => '<strong class="t-strong" style="font-weight:500; color:' . $c['text'] . ';">' . e($disc->user->display_name) . '</strong>']) . ' &middot; ';
         $meta .= $disc->comment_count . ' ' . ($disc->comment_count === 1 ? $translator->trans('ernestdefoe-digest-mail.email.units.reply') : $translator->trans('ernestdefoe-digest-mail.email.units.replies'));
-        $meta .= ' &middot; ' . $translator->trans('ernestdefoe-digest-mail.email.meta.started', ['{time_ago}' => e($disc->created_at->diffForHumans())]);
+        $meta .= ' &middot; ' . $tr('ernestdefoe-digest-mail.email.meta.started', ['{time_ago}' => e($disc->created_at->diffForHumans())]);
     @endphp
     <tr><td class="row-border" style="padding:16px 0; border-bottom:0.5px solid {{ $c['border'] }};">{!! $discRow($disc, $meta) !!}</td></tr>
     @endforeach
@@ -1005,7 +1020,7 @@ $discRow = function ($disc, string $metaHtml) use ($url, $c, $renderAvatar) {
                     <a href="{{ $g['url'] }}" style="font-size:15px; font-weight:600; color:{{ $c['text'] }}; text-decoration:none;">&#127942; {{ e($g['prize']) }}</a>
                     <div class="t-muted" style="font-size:13px; color:{{ $c['textMuted'] }}; margin-top:3px;">{{ e($g['title']) }}</div>
                     @if (!empty($g['winners']))
-                    <div style="font-size:13px; color:{{ $c['text'] }}; margin-top:6px;">{{ $translator->trans('ernestdefoe-digest-mail.email.giveaways.won_by', ['{winners}' => e(implode(', ', $g['winners']))]) }}</div>
+                    <div style="font-size:13px; color:{{ $c['text'] }}; margin-top:6px;">{!! $tr('ernestdefoe-digest-mail.email.giveaways.won_by', ['{winners}' => e(implode(', ', $g['winners']))]) !!}</div>
                     @endif
                 </td>
             </tr>
@@ -1550,7 +1565,7 @@ $discRow = function ($disc, string $metaHtml) use ($url, $c, $renderAvatar) {
 <tr>
     <td class="pad card-foot" style="background-color:{{ $c['surface2'] }}; border-top:0.5px solid {{ $c['border'] }}; padding:24px 48px; text-align:center;">
         <p class="t-muted" style="margin:0 0 8px; font-size:13px; color:{{ $c['textMuted'] }}; line-height:1.7;">
-            {!! $translator->trans('ernestdefoe-digest-mail.email.footer.notice', ['{forum}' => '<a href="' . e($forumUrl) . '" class="t-muted" style="color:' . $c['textMuted'] . '; text-decoration:underline;">' . e($forumTitle) . '</a>', '{frequency}' => '<strong>' . e($frequencyLabel) . '</strong>']) !!}
+            {!! $tr('ernestdefoe-digest-mail.email.footer.notice', ['{forum}' => '<a href="' . e($forumUrl) . '" class="t-muted" style="color:' . $c['textMuted'] . '; text-decoration:underline;">' . e($forumTitle) . '</a>', '{frequency}' => '<strong>' . e($frequencyLabel) . '</strong>']) !!}
         </p>
         <p class="t-muted" style="margin:0; font-size:13px; color:{{ $c['textMuted'] }};">
             <a href="{{ $unsubscribeUrl }}" class="t-muted" style="color:{{ $c['textMuted'] }}; text-decoration:underline;">{{ $translator->trans('ernestdefoe-digest-mail.email.footer.unsubscribe') }}</a>
