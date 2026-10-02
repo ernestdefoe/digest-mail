@@ -10,6 +10,8 @@ use Flarum\Queue\AbstractJob;
 use Flarum\User\User;
 use Illuminate\Contracts\Cache\Repository as Cache;
 use Illuminate\Database\Eloquent\Collection;
+use Psr\Log\LoggerInterface;
+use Throwable;
 
 /**
  * Queueable job that sends a single digest email to one user.
@@ -42,13 +44,27 @@ class SendDigestJob extends AbstractJob
     /** Exponential backoff in seconds between retries. */
     public array $backoff = [30, 60, 120];
 
+    /**
+     * The command stamps digest_last_sent_at when it QUEUES this job, so a
+     * send that fails every attempt would otherwise still read as delivered.
+     * failed() puts the previous value back, but only if the stamp is still
+     * the one this dispatch wrote. Declared with defaults, not promoted, so a
+     * job queued by an older version still unserializes cleanly.
+     */
+    private ?string $stampedAt = null;
+    private ?string $previousSentAt = null;
+
     public function __construct(
         private User   $user,
         private string $frequency,
         private string $cacheKey,
         private Carbon $since,
         private string $theme,
+        ?string $stampedAt = null,
+        ?string $previousSentAt = null,
     ) {
+        $this->stampedAt      = $stampedAt;
+        $this->previousSentAt = $previousSentAt;
     }
 
     /**
@@ -99,5 +115,30 @@ class SendDigestJob extends AbstractJob
 
         // Step 5 — Render and send.
         $mailer->sendToUser($this->user, $content, $token);
+    }
+
+    /**
+     * Called once every attempt has failed (e.g. the mail transport is down).
+     *
+     * Un-stamps the user so the subscriber list and stats stop claiming a
+     * delivery that never happened, and the user stays eligible for the next
+     * run. It deliberately does NOT re-open the send window: against a broken
+     * transport that would re-dispatch every subscriber each minute.
+     */
+    public function failed(?Throwable $e): void
+    {
+        if ($this->stampedAt !== null) {
+            User::where('id', $this->user->id)
+                ->where('digest_last_sent_at', $this->stampedAt)
+                ->update(['digest_last_sent_at' => $this->previousSentAt]);
+        }
+
+        resolve(LoggerInterface::class)->error(sprintf(
+            '[digest-mail] %s digest to user #%d was NOT delivered after %d attempts: %s',
+            $this->frequency,
+            $this->user->id,
+            $this->tries,
+            $e?->getMessage() ?? 'unknown error'
+        ));
     }
 }

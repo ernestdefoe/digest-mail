@@ -279,8 +279,12 @@ class SendDigestCommand extends Command
             // The worker builds content and generates the token at send time.
             $theme = $this->mailer->resolveTheme($user);
 
-            $job = (new SendDigestJob($user, $frequency, $cacheKey, $since, $theme))
-                ->onQueue($queueName);
+            $stampedAt = Carbon::now()->toDateTimeString();
+
+            $job = (new SendDigestJob(
+                $user, $frequency, $cacheKey, $since, $theme,
+                $stampedAt, $user->getRawOriginal('digest_last_sent_at'),
+            ))->onQueue($queueName);
             $job->tries = $this->jobTries();
             $job->backoff = [30, 60, 120];
 
@@ -290,7 +294,7 @@ class SendDigestCommand extends Command
 
             $this->queue->push($job);
 
-            $this->stampLastSent($user);
+            $this->stampLastSent($user, $stampedAt);
 
             $this->line("  [queued]   {$user->username} (#{$user->id})");
             $dispatched++;
@@ -312,10 +316,10 @@ class SendDigestCommand extends Command
      * Stamp last sent so the user isn't double-dispatched if the command
      * re-runs within the same window.
      */
-    private function stampLastSent(User $user): void
+    private function stampLastSent(User $user, string $stampedAt): void
     {
         User::where('id', $user->id)->update([
-            'digest_last_sent_at' => Carbon::now()->toDateTimeString(),
+            'digest_last_sent_at' => $stampedAt,
         ]);
     }
 

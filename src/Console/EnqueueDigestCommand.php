@@ -148,8 +148,12 @@ class EnqueueDigestCommand extends Command
             // Real enqueue: push lightweight job — worker builds content at send time.
             $theme = $this->mailer->resolveTheme($user);
 
-            $job = (new SendDigestJob($user, $frequency, $cacheKey, $since, $theme))
-                ->onQueue($queueName);
+            $stampedAt = Carbon::now()->toDateTimeString();
+
+            $job = (new SendDigestJob(
+                $user, $frequency, $cacheKey, $since, $theme,
+                $stampedAt, $user->getRawOriginal('digest_last_sent_at'),
+            ))->onQueue($queueName);
             $job->tries = $tries;
             $job->backoff = [30, 60, 120];
 
@@ -161,7 +165,7 @@ class EnqueueDigestCommand extends Command
 
             // Stamp last sent so this user isn't double-dispatched.
             User::where('id', $user->id)->update([
-                'digest_last_sent_at' => Carbon::now()->toDateTimeString(),
+                'digest_last_sent_at' => $stampedAt,
             ]);
 
             $enqueued++;
