@@ -362,9 +362,11 @@ Originally created by [Resofire](https://github.com/resofire). Rebranded and
 maintained by [ernestdefoe](https://github.com/ernestdefoe), with full credit and
 thanks to the original author.
 
-## Discuss
+## Support
 
-Questions, ideas and release notes: [Digest Mail on discuss.flarum.org](https://discuss.flarum.org/d/39383-digest-mail).
+- **Support forum:** [Digest Email on ernestdefoe.online](https://ernestdefoe.online/d/46)
+- **Flarum community:** [Digest Email on discuss.flarum.org](https://discuss.flarum.org/d/39383-digest-mail)
+- **Bug reports:** [GitHub issues](https://github.com/ernestdefoe/digest-mail/issues)
 
 ## License
 
