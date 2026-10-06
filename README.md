@@ -362,6 +362,10 @@ Originally created by [Resofire](https://github.com/resofire). Rebranded and
 maintained by [ernestdefoe](https://github.com/ernestdefoe), with full credit and
 thanks to the original author.
 
+## Discuss
+
+Questions, ideas and release notes: [Digest Mail on discuss.flarum.org](https://discuss.flarum.org/d/39383-digest-mail).
+
 ## License
 
 MIT — Copyright (c) 2026 Resofire
