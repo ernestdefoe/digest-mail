@@ -15,6 +15,7 @@
     }
   ],
   "support": {
+    "forum": "https://discuss.flarum.org/d/39383-digest-mail",
     "issues": "https://github.com/ernestdefoe/digest-mail/issues",
     "source": "https://github.com/ernestdefoe/digest-mail"
   },
