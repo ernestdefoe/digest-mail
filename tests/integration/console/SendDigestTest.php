@@ -56,6 +56,24 @@ class SendDigestTest extends ConsoleTestCase
     }
 
     #[Test]
+    public function the_digest_shows_the_logo_cores_emails_show()
+    {
+        if (! class_exists(\Flarum\Mail\EmailLogo::class)) {
+            $this->markTestSkipped('Emails have had their own logo since Flarum 2.0.0.');
+        }
+
+        // A forum logo in WebP, and the PNG copy core made of it for email.
+        $this->setting('logo_path', 'logo-forum.webp');
+        $this->setting('logo_email_copy_path', 'logo-email-copy.png');
+
+        $this->runCommand(['command' => 'digest:send', '--frequency' => 'weekly']);
+
+        $html = self::$sent[0]['html'];
+        $this->assertStringContainsString('/assets/logo-email-copy.png"', $html);
+        $this->assertStringNotContainsString('logo-forum.webp', $html);
+    }
+
+    #[Test]
     public function a_dry_run_lists_recipients_and_sends_nothing()
     {
         $output = $this->runCommand(['command' => 'digest:send', '--frequency' => 'weekly', '--dry-run' => true]);

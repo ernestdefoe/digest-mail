@@ -1,7 +1,15 @@
 @php
     $primaryColor = $settings->get('theme_primary_color', '#4f46e5');
-    $logoPath     = $settings->get('logo_path');
-    $logoUrl      = $logoPath ? $url->to('forum')->path('assets/' . $logoPath) : null;
+    // Flarum 2 keeps the forum logo as WebP, which many mail clients can't
+    // show. From 2.0.0 core gives emails their own logo instead: one the admin
+    // uploaded for email, or a PNG copy of the forum logo. Use the one core's
+    // emails do.
+    if (class_exists(\Flarum\Mail\EmailLogo::class)) {
+        $logoUrl  = resolve(\Flarum\Mail\EmailLogo::class)->resolve()['url'] ?? null;
+    } else {
+        $logoPath = $settings->get('logo_path');
+        $logoUrl  = $logoPath ? $url->to('forum')->path('assets/' . $logoPath) : null;
+    }
     $year         = date('Y');
     $theme        = $content->theme;
 
