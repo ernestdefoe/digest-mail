@@ -2,15 +2,14 @@
 
 namespace Resofire\DigestMail\Job;
 
-use Resofire\DigestMail\DigestMailer;
-use Resofire\DigestMail\DigestQuery;
-use Resofire\DigestMail\Token\UnsubscribeTokenGenerator;
 use Carbon\Carbon;
 use Flarum\Queue\AbstractJob;
 use Flarum\User\User;
 use Illuminate\Contracts\Cache\Repository as Cache;
-use Illuminate\Database\Eloquent\Collection;
 use Psr\Log\LoggerInterface;
+use Resofire\DigestMail\DigestMailer;
+use Resofire\DigestMail\DigestQuery;
+use Resofire\DigestMail\Token\UnsubscribeTokenGenerator;
 use Throwable;
 
 /**
@@ -55,7 +54,7 @@ class SendDigestJob extends AbstractJob
     private ?string $previousSentAt = null;
 
     public function __construct(
-        private User   $user,
+        private User $user,
         private string $frequency,
         private string $cacheKey,
         private Carbon $since,
@@ -63,7 +62,7 @@ class SendDigestJob extends AbstractJob
         ?string $stampedAt = null,
         ?string $previousSentAt = null,
     ) {
-        $this->stampedAt      = $stampedAt;
+        $this->stampedAt = $stampedAt;
         $this->previousSentAt = $previousSentAt;
     }
 
@@ -80,9 +79,9 @@ class SendDigestJob extends AbstractJob
      *   5. Render blade template and send email
      */
     public function handle(
-        DigestMailer             $mailer,
-        DigestQuery              $query,
-        Cache                    $cache,
+        DigestMailer $mailer,
+        DigestQuery $query,
+        Cache $cache,
         UnsubscribeTokenGenerator $tokenGenerator,
     ): void {
         // Step 1 — Read shared data from cache.

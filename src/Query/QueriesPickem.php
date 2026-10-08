@@ -11,7 +11,6 @@ use Flarum\User\User;
  */
 trait QueriesPickem
 {
-
     // -------------------------------------------------------------------------
     // Section 7 — Pick'em
     // -------------------------------------------------------------------------
@@ -28,10 +27,10 @@ trait QueriesPickem
     public function getPickem(Carbon $since, int $limit = 5): array
     {
         $extInstalled = $this->extensions->isEnabled('huseyinfiliz-pickem');
-        $raw          = $this->settings->get('ernestdefoe-digest-mail.enable_pickem');
+        $raw = $this->settings->get('ernestdefoe-digest-mail.enable_pickem');
         $adminEnabled = $raw === null || $raw === '' ? true : (bool) $raw;
 
-        if (!$extInstalled || !$adminEnabled) {
+        if (! $extInstalled || ! $adminEnabled) {
             return ['enabled' => false, 'upcomingEvents' => [], 'recentResults' => [], 'leaderboard' => []];
         }
 
@@ -79,22 +78,24 @@ trait QueriesPickem
             ->get(['user_id', 'total_points', 'total_picks', 'correct_picks']);
 
         $lbUserIds = $lbRows->pluck('user_id')->all();
-        $lbUsers   = User::whereIn('id', $lbUserIds)->get()->keyBy('id');
+        $lbUsers = User::whereIn('id', $lbUserIds)->get()->keyBy('id');
 
         $leaderboard = [];
         foreach ($lbRows as $i => $row) {
             $user = $lbUsers->get($row->user_id);
-            if (!$user) continue;
+            if (! $user) {
+                continue;
+            }
             $accuracy = $row->total_picks > 0
                 ? round(($row->correct_picks / $row->total_picks) * 100)
                 : 0;
             $leaderboard[] = [
-                'rank'          => $i + 1,
-                'user'          => $user,
-                'totalPoints'   => (int) $row->total_points,
-                'totalPicks'    => (int) $row->total_picks,
-                'correctPicks'  => (int) $row->correct_picks,
-                'accuracy'      => $accuracy,
+                'rank' => $i + 1,
+                'user' => $user,
+                'totalPoints' => (int) $row->total_points,
+                'totalPicks' => (int) $row->total_picks,
+                'correctPicks' => (int) $row->correct_picks,
+                'accuracy' => $accuracy,
             ];
         }
 
@@ -103,13 +104,15 @@ trait QueriesPickem
         foreach ($upcomingRows as $ev) {
             $homeTeam = $teams->get($ev->home_team_id);
             $awayTeam = $teams->get($ev->away_team_id);
-            if (!$homeTeam || !$awayTeam) continue;
+            if (! $homeTeam || ! $awayTeam) {
+                continue;
+            }
             $upcoming[] = [
-                'id'        => $ev->id,
-                'homeTeam'  => $homeTeam,
-                'awayTeam'  => $awayTeam,
+                'id' => $ev->id,
+                'homeTeam' => $homeTeam,
+                'awayTeam' => $awayTeam,
                 'matchDate' => Carbon::parse($ev->match_date),
-                'cutoff'    => Carbon::parse($ev->cutoff_date),
+                'cutoff' => Carbon::parse($ev->cutoff_date),
                 'allowDraw' => (bool) $ev->allow_draw,
             ];
         }
@@ -119,22 +122,24 @@ trait QueriesPickem
         foreach ($recentRows as $ev) {
             $homeTeam = $teams->get($ev->home_team_id);
             $awayTeam = $teams->get($ev->away_team_id);
-            if (!$homeTeam || !$awayTeam) continue;
+            if (! $homeTeam || ! $awayTeam) {
+                continue;
+            }
             $results[] = [
-                'homeTeam'  => $homeTeam,
-                'awayTeam'  => $awayTeam,
+                'homeTeam' => $homeTeam,
+                'awayTeam' => $awayTeam,
                 'matchDate' => Carbon::parse($ev->match_date),
                 'homeScore' => $ev->home_score,
                 'awayScore' => $ev->away_score,
-                'result'    => $ev->result, // 'home' | 'away' | 'draw'
+                'result' => $ev->result, // 'home' | 'away' | 'draw'
             ];
         }
 
         return [
-            'enabled'        => true,
+            'enabled' => true,
             'upcomingEvents' => $upcoming,
-            'recentResults'  => $results,
-            'leaderboard'    => $leaderboard,
+            'recentResults' => $results,
+            'leaderboard' => $leaderboard,
         ];
     }
 }

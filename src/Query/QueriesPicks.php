@@ -11,8 +11,6 @@ use Flarum\User\User;
  */
 trait QueriesPicks
 {
-
-
     // -------------------------------------------------------------------------
     // Section 7b — Picks (ernestdefoe/picks)
     // -------------------------------------------------------------------------
@@ -34,30 +32,30 @@ trait QueriesPicks
     public function getPicks(Carbon $since, int $limit = 5): array
     {
         $empty = [
-            'enabled'          => false,
-            'confidenceMode'   => false,
+            'enabled' => false,
+            'confidenceMode' => false,
             'leaderboardScope' => 'alltime',
-            'currentWeek'      => null,
-            'upcomingEvents'   => [],
-            'recentResults'    => [],
-            'leaderboard'      => [],
+            'currentWeek' => null,
+            'upcomingEvents' => [],
+            'recentResults' => [],
+            'leaderboard' => [],
             'leaderboardLabel' => '',
-            'picksForumUrl'    => '',
+            'picksForumUrl' => '',
         ];
 
         $extInstalled = $this->extensions->isEnabled('ernestdefoe-picks');
-        $raw          = $this->settings->get('ernestdefoe-digest-mail.enable_picks');
+        $raw = $this->settings->get('ernestdefoe-digest-mail.enable_picks');
         $adminEnabled = $raw === null || $raw === '' ? true : (bool) $raw;
 
-        if (!$extInstalled || !$adminEnabled) {
+        if (! $extInstalled || ! $adminEnabled) {
             return $empty;
         }
 
-        $now            = Carbon::now('UTC');
-        $baseUrl        = rtrim($this->settings->get('url', ''), '/');
+        $now = Carbon::now('UTC');
+        $baseUrl = rtrim($this->settings->get('url', ''), '/');
         $confidenceMode = (bool) $this->settings->get('ernestdefoe-picks.confidence_mode', false);
-        $lbScope        = $this->settings->get('ernestdefoe-digest-mail.picks_leaderboard_scope', 'alltime');
-        if (!in_array($lbScope, ['week', 'season', 'alltime'], true)) {
+        $lbScope = $this->settings->get('ernestdefoe-digest-mail.picks_leaderboard_scope', 'alltime');
+        if (! in_array($lbScope, ['week', 'season', 'alltime'], true)) {
             $lbScope = 'alltime';
         }
 
@@ -71,26 +69,26 @@ trait QueriesPicks
 
         if ($openWeekRow) {
             $currentWeek = [
-                'id'         => $openWeekRow->id,
-                'name'       => $openWeekRow->name,
+                'id' => $openWeekRow->id,
+                'name' => $openWeekRow->name,
                 'weekNumber' => $openWeekRow->week_number,
-                'isOpen'     => (bool) $openWeekRow->is_open,
+                'isOpen' => (bool) $openWeekRow->is_open,
             ];
         }
 
-        $events      = $this->buildPicksEvents($since, $now, $limit);
+        $events = $this->buildPicksEvents($since, $now, $limit);
         $leaderboard = $this->buildPicksLeaderboard($lbScope, $limit);
 
         return [
-            'enabled'          => true,
-            'confidenceMode'   => $confidenceMode,
+            'enabled' => true,
+            'confidenceMode' => $confidenceMode,
             'leaderboardScope' => $leaderboard['scope'],
-            'currentWeek'      => $currentWeek,
-            'upcomingEvents'   => $events['upcoming'],
-            'recentResults'    => $events['results'],
-            'leaderboard'      => $leaderboard['rows'],
+            'currentWeek' => $currentWeek,
+            'upcomingEvents' => $events['upcoming'],
+            'recentResults' => $events['results'],
+            'leaderboard' => $leaderboard['rows'],
             'leaderboardLabel' => $leaderboard['label'],
-            'picksForumUrl'    => $baseUrl . '/picks',
+            'picksForumUrl' => $baseUrl.'/picks',
         ];
     }
 
@@ -135,7 +133,7 @@ trait QueriesPicks
 
         // Batch-load week names for upcoming events
         $weekIds = collect($upcomingRows)->pluck('week_id')->unique()->filter()->values()->all();
-        $weeks   = count($weekIds)
+        $weeks = count($weekIds)
             // third-party table — no Eloquent model available.
             ? $this->db->table('picks_weeks')->whereIn('id', $weekIds)->get(['id', 'name'])->keyBy('id')
             : collect();
@@ -145,16 +143,18 @@ trait QueriesPicks
         foreach ($upcomingRows as $ev) {
             $homeTeam = $teams->get($ev->home_team_id);
             $awayTeam = $teams->get($ev->away_team_id);
-            if (!$homeTeam || !$awayTeam) continue;
+            if (! $homeTeam || ! $awayTeam) {
+                continue;
+            }
             $week = $ev->week_id ? $weeks->get($ev->week_id) : null;
             $upcoming[] = [
-                'id'          => $ev->id,
-                'homeTeam'    => $homeTeam,
-                'awayTeam'    => $awayTeam,
-                'matchDate'   => Carbon::parse($ev->match_date),
-                'cutoff'      => Carbon::parse($ev->cutoff_date),
+                'id' => $ev->id,
+                'homeTeam' => $homeTeam,
+                'awayTeam' => $awayTeam,
+                'matchDate' => Carbon::parse($ev->match_date),
+                'cutoff' => Carbon::parse($ev->cutoff_date),
                 'neutralSite' => (bool) $ev->neutral_site,
-                'weekName'    => $week->name ?? null,
+                'weekName' => $week->name ?? null,
             ];
         }
 
@@ -163,14 +163,16 @@ trait QueriesPicks
         foreach ($recentRows as $ev) {
             $homeTeam = $teams->get($ev->home_team_id);
             $awayTeam = $teams->get($ev->away_team_id);
-            if (!$homeTeam || !$awayTeam) continue;
+            if (! $homeTeam || ! $awayTeam) {
+                continue;
+            }
             $results[] = [
-                'homeTeam'  => $homeTeam,
-                'awayTeam'  => $awayTeam,
+                'homeTeam' => $homeTeam,
+                'awayTeam' => $awayTeam,
                 'matchDate' => Carbon::parse($ev->match_date),
                 'homeScore' => $ev->home_score,
                 'awayScore' => $ev->away_score,
-                'result'    => $ev->result, // 'home' | 'away'
+                'result' => $ev->result, // 'home' | 'away'
             ];
         }
 
@@ -208,7 +210,7 @@ trait QueriesPicks
                 $weekRow = $this->db->table('picks_weeks')
                     ->where('id', $lastScoredWeekRow->week_id)
                     ->first(['name']);
-                $lbLabel = $weekRow ? $weekRow->name . ' — Picks Leaderboard' : 'Picks Leaderboard';
+                $lbLabel = $weekRow ? $weekRow->name.' — Picks Leaderboard' : 'Picks Leaderboard';
             } else {
                 // No scored week data yet — fall back to alltime
                 $lbScope = 'alltime';
@@ -231,7 +233,7 @@ trait QueriesPicks
                 $seasonRow = $this->db->table('picks_seasons')
                     ->where('id', $lastScoredSeasonRow->season_id)
                     ->first(['name']);
-                $lbLabel = $seasonRow ? $seasonRow->name . ' — Picks Leaderboard' : 'Picks Leaderboard';
+                $lbLabel = $seasonRow ? $seasonRow->name.' — Picks Leaderboard' : 'Picks Leaderboard';
             } else {
                 // No scored season data yet — fall back to alltime
                 $lbScope = 'alltime';
@@ -243,29 +245,31 @@ trait QueriesPicks
             $lbLabel = 'All-Time Picks Leaderboard';
         }
 
-        $lbRows    = $lbQuery->get(['user_id', 'total_points', 'total_picks', 'correct_picks', 'previous_rank']);
+        $lbRows = $lbQuery->get(['user_id', 'total_points', 'total_picks', 'correct_picks', 'previous_rank']);
         $lbUserIds = $lbRows->pluck('user_id')->all();
-        $lbUsers   = User::whereIn('id', $lbUserIds)->get()->keyBy('id');
+        $lbUsers = User::whereIn('id', $lbUserIds)->get()->keyBy('id');
 
         $leaderboard = [];
         foreach ($lbRows as $i => $row) {
             $user = $lbUsers->get($row->user_id);
-            if (!$user) continue;
-            $currentRank  = $i + 1;
+            if (! $user) {
+                continue;
+            }
+            $currentRank = $i + 1;
             $previousRank = isset($row->previous_rank) ? (int) $row->previous_rank : null;
-            $movement     = $previousRank !== null ? $previousRank - $currentRank : null;
-            $accuracy     = $row->total_picks > 0
+            $movement = $previousRank !== null ? $previousRank - $currentRank : null;
+            $accuracy = $row->total_picks > 0
                 ? round(($row->correct_picks / $row->total_picks) * 100)
                 : 0;
             $leaderboard[] = [
-                'rank'         => $currentRank,
+                'rank' => $currentRank,
                 'previousRank' => $previousRank,
-                'movement'     => $movement,
-                'user'         => $user,
-                'totalPoints'  => (int) $row->total_points,
-                'totalPicks'   => (int) $row->total_picks,
+                'movement' => $movement,
+                'user' => $user,
+                'totalPoints' => (int) $row->total_points,
+                'totalPicks' => (int) $row->total_picks,
                 'correctPicks' => (int) $row->correct_picks,
-                'accuracy'     => $accuracy,
+                'accuracy' => $accuracy,
             ];
         }
 

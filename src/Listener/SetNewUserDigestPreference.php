@@ -26,7 +26,7 @@ class SetNewUserDigestPreference
             $frequency = $this->settings->get('ernestdefoe-digest-mail.onboarding_frequency', 'weekly');
 
             // Only apply if the chosen frequency is still enabled.
-            $allowed = $this->settings->get('ernestdefoe-digest-mail.allow_' . $frequency, null);
+            $allowed = $this->settings->get('ernestdefoe-digest-mail.allow_'.$frequency, null);
             if ($allowed !== '1') {
                 return;
             }

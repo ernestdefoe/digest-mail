@@ -2,16 +2,15 @@
 
 namespace Resofire\DigestMail\Console;
 
-use Resofire\DigestMail\DigestQuery;
-use Resofire\DigestMail\DigestMailer;
-use Resofire\DigestMail\Job\SendDigestJob;
 use Carbon\Carbon;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\User;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Cache\Repository as Cache;
 use Illuminate\Contracts\Queue\Queue;
-use Illuminate\Database\Eloquent\Collection;
+use Resofire\DigestMail\DigestMailer;
+use Resofire\DigestMail\DigestQuery;
+use Resofire\DigestMail\Job\SendDigestJob;
 
 /**
  * Two-phase digest enqueue command.
@@ -49,15 +48,15 @@ class EnqueueDigestCommand extends Command
 
     protected $description = 'Pre-populate the digest queue without sending. Use for two-phase operation.';
 
-    private const FREQUENCIES      = ['daily', 'weekly', 'monthly'];
+    private const FREQUENCIES = ['daily', 'weekly', 'monthly'];
     private const SHARED_CACHE_TTL = 7200;
 
     public function __construct(
         private SettingsRepositoryInterface $settings,
-        private DigestQuery                 $query,
-        private DigestMailer                $mailer,
-        private Queue                       $queue,
-        private Cache                       $cache,
+        private DigestQuery $query,
+        private DigestMailer $mailer,
+        private Queue $queue,
+        private Cache $cache,
     ) {
         parent::__construct();
     }
@@ -65,10 +64,11 @@ class EnqueueDigestCommand extends Command
     public function handle(): int
     {
         $frequency = $this->option('frequency');
-        $isDryRun  = (bool) $this->option('dry-run');
+        $isDryRun = (bool) $this->option('dry-run');
 
-        if (!$frequency || !in_array($frequency, self::FREQUENCIES, true)) {
-            $this->error('--frequency is required. Must be one of: ' . implode(', ', self::FREQUENCIES));
+        if (! $frequency || ! in_array($frequency, self::FREQUENCIES, true)) {
+            $this->error('--frequency is required. Must be one of: '.implode(', ', self::FREQUENCIES));
+
             return self::FAILURE;
         }
 
@@ -83,22 +83,22 @@ class EnqueueDigestCommand extends Command
             (int) $this->settings->get('ernestdefoe-digest-mail.queue_chunk_size', 200)
         ));
 
-        $tries     = max(1, (int) $this->settings->get('ernestdefoe-digest-mail.queue_tries', 3));
+        $tries = max(1, (int) $this->settings->get('ernestdefoe-digest-mail.queue_tries', 3));
 
-        $since  = $this->periodStart($frequency);
+        $since = $this->periodStart($frequency);
         $cutoff = $this->lastSentCutoff($frequency);
 
         $this->info(
-            "Enqueuing '{$frequency}' digests " .
-            "(since: {$since->toDateTimeString()}, " .
+            "Enqueuing '{$frequency}' digests ".
+            "(since: {$since->toDateTimeString()}, ".
             "queue: {$queueName}, delay: {$delaySecs}s, chunk: {$chunkSize})"
         );
 
         // Build and cache shared data now, before jobs are created.
         // Workers will re-use this cache rather than re-querying.
         $sharedData = null;
-        $cacheKey   = "resofire_digest_shared_{$frequency}_{$since->timestamp}";
-        if (!$isDryRun) {
+        $cacheKey = "resofire_digest_shared_{$frequency}_{$since->timestamp}";
+        if (! $isDryRun) {
             $sharedData = $this->cache->remember(
                 $cacheKey,
                 self::SHARED_CACHE_TTL,
@@ -117,12 +117,12 @@ class EnqueueDigestCommand extends Command
                 && empty($sharedData['pickem']['recentResults']);
 
             if ($sharedEmpty) {
-                $this->line("  [preflight] Shared sections are empty. Users with unread discussions will still be enqueued.");
+                $this->line('  [preflight] Shared sections are empty. Users with unread discussions will still be enqueued.');
             }
         }
 
         $enqueued = 0;
-        $skipped  = 0;
+        $skipped = 0;
 
         $users = User::query()
             ->where('digest_frequency', $frequency)
@@ -137,11 +137,15 @@ class EnqueueDigestCommand extends Command
         foreach ($users as $user) {
             // Dry-run: build content just to count eligible users.
             if ($isDryRun) {
-                $theme   = $this->mailer->resolveTheme($user);
+                $theme = $this->mailer->resolveTheme($user);
                 $content = $this->query->buildForUser(
                     $user, $since, $frequency, $theme, $sharedData
                 );
-                if ($content->isEmpty()) { $skipped++; } else { $enqueued++; }
+                if ($content->isEmpty()) {
+                    $skipped++;
+                } else {
+                    $enqueued++;
+                }
                 continue;
             }
 
@@ -175,5 +179,4 @@ class EnqueueDigestCommand extends Command
 
         return self::SUCCESS;
     }
-
 }

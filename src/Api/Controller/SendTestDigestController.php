@@ -2,10 +2,6 @@
 
 namespace Resofire\DigestMail\Api\Controller;
 
-use Resofire\DigestMail\DigestContent;
-use Resofire\DigestMail\DigestMailer;
-use Resofire\DigestMail\DigestQuery;
-use Resofire\DigestMail\Token\UnsubscribeTokenGenerator;
 use Carbon\Carbon;
 use Flarum\Http\RequestUtil;
 use Flarum\User\Exception\PermissionDeniedException;
@@ -16,9 +12,12 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Psr\Log\LoggerInterface;
+use Resofire\DigestMail\DigestMailer;
+use Resofire\DigestMail\DigestQuery;
+use Resofire\DigestMail\Token\UnsubscribeTokenGenerator;
 
 /**
- * POST /api/ernestdefoe/digest-mail/test-send
+ * POST /api/ernestdefoe/digest-mail/test-send.
  *
  * Renders and sends a digest email immediately to an arbitrary address,
  * without touching digest_last_sent_at or consuming any unsubscribe token.
@@ -44,11 +43,12 @@ class SendTestDigestController implements RequestHandlerInterface
     private const VALID_FREQUENCIES = ['daily', 'weekly', 'monthly'];
 
     public function __construct(
-        private DigestQuery                 $query,
-        private DigestMailer                $mailer,
-        private UnsubscribeTokenGenerator   $tokenGenerator,
-        private LoggerInterface             $log,
-    ) {}
+        private DigestQuery $query,
+        private DigestMailer $mailer,
+        private UnsubscribeTokenGenerator $tokenGenerator,
+        private LoggerInterface $log,
+    ) {
+    }
 
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
@@ -58,11 +58,11 @@ class SendTestDigestController implements RequestHandlerInterface
             throw new PermissionDeniedException();
         }
 
-        $body      = $request->getParsedBody();
-        $email     = trim((string) Arr::get($body, 'email', ''));
+        $body = $request->getParsedBody();
+        $email = trim((string) Arr::get($body, 'email', ''));
         $frequency = (string) Arr::get($body, 'frequency', 'weekly');
-        $theme     = (string) Arr::get($body, 'theme', 'auto');
-        if (!in_array($theme, ['light', 'dark', 'auto'], true)) {
+        $theme = (string) Arr::get($body, 'theme', 'auto');
+        if (! in_array($theme, ['light', 'dark', 'auto'], true)) {
             $theme = 'auto';
         }
 
@@ -85,8 +85,8 @@ class SendTestDigestController implements RequestHandlerInterface
         // preview reflects what a real subscriber would see. We look back one
         // full period so there is content to show even on a quiet forum.
         $since = match ($frequency) {
-            'daily'   => Carbon::now('UTC')->subDay(),
-            'weekly'  => Carbon::now('UTC')->subWeek(),
+            'daily' => Carbon::now('UTC')->subDay(),
+            'weekly' => Carbon::now('UTC')->subWeek(),
             'monthly' => Carbon::now('UTC')->subMonth(),
         };
 
@@ -97,15 +97,15 @@ class SendTestDigestController implements RequestHandlerInterface
         // We extend the lookback window up to 90 days before giving up.
         if ($content->isEmpty()) {
             $extended = Carbon::now('UTC')->subDays(90);
-            $content  = $this->query->buildForUser($actor, $extended, $frequency, $theme);
+            $content = $this->query->buildForUser($actor, $extended, $frequency, $theme);
         }
 
         // Build a temporary User-like object pointed at the test address.
         // We use the real actor's account (for permissions/preferences) but
         // override the email so the mail goes to the test address.
-        $testUser                = clone $actor;
-        $testUser->email         = $email;
-        $testUser->display_name  = $testUser->display_name ?? $testUser->username;
+        $testUser = clone $actor;
+        $testUser->email = $email;
+        $testUser->display_name = $testUser->display_name ?? $testUser->username;
 
         // Generate (or reuse) a real unsubscribe token so the link in the
         // test email is fully clickable. The next real digest send will
@@ -118,7 +118,7 @@ class SendTestDigestController implements RequestHandlerInterface
             // Log the real cause for the admin's server logs; don't leak the raw
             // exception message (which can include mail credentials / host detail)
             // back to the API caller.
-            $this->log->error('[digest-mail] test send failed: ' . $e->getMessage(), ['exception' => $e]);
+            $this->log->error('[digest-mail] test send failed: '.$e->getMessage(), ['exception' => $e]);
 
             return new JsonResponse(
                 ['error' => 'Mail sending failed. Check the server logs for details.'],
@@ -129,11 +129,11 @@ class SendTestDigestController implements RequestHandlerInterface
         $lb = $content->leaderboard;
 
         return new JsonResponse([
-            'sent'      => true,
-            'to'        => $email,
+            'sent' => true,
+            'to' => $email,
             'frequency' => $frequency,
-            '_lb_enabled'  => $lb['enabled'] ?? null,
-            '_lb_count'    => count($lb['entries'] ?? []),
+            '_lb_enabled' => $lb['enabled'] ?? null,
+            '_lb_count' => count($lb['entries'] ?? []),
         ]);
     }
 }

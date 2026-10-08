@@ -1,13 +1,5 @@
 <?php
 
-use Resofire\DigestMail\Api\Controller\CheckTokenController;
-use Resofire\DigestMail\Api\Controller\DigestStatsController;
-use Resofire\DigestMail\Api\Controller\DigestSubscribersController;
-use Resofire\DigestMail\Api\Controller\SendTestDigestController;
-use Resofire\DigestMail\Console\SendDigestCommand;
-use Resofire\DigestMail\Console\EnqueueDigestCommand;
-use Resofire\DigestMail\Controller\UnsubscribeController;
-use Resofire\DigestMail\Listener\SetNewUserDigestPreference;
 use Flarum\Api\Context;
 use Flarum\Api\Resource;
 use Flarum\Api\Schema;
@@ -16,6 +8,14 @@ use Flarum\Extension\ExtensionManager;
 use Flarum\User\Event\Activated;
 use Flarum\User\User;
 use Illuminate\Console\Scheduling\Event;
+use Resofire\DigestMail\Api\Controller\CheckTokenController;
+use Resofire\DigestMail\Api\Controller\DigestStatsController;
+use Resofire\DigestMail\Api\Controller\DigestSubscribersController;
+use Resofire\DigestMail\Api\Controller\SendTestDigestController;
+use Resofire\DigestMail\Console\EnqueueDigestCommand;
+use Resofire\DigestMail\Console\SendDigestCommand;
+use Resofire\DigestMail\Controller\UnsubscribeController;
+use Resofire\DigestMail\Listener\SetNewUserDigestPreference;
 
 return [
     // -------------------------------------------------------------------------
@@ -30,7 +30,7 @@ return [
     // 'ernestdefoe-digest-mail::unsubscribe' anywhere in the extension.
     // -------------------------------------------------------------------------
     (new Extend\View)
-        ->namespace('ernestdefoe-digest-mail', __DIR__ . '/views'),
+        ->namespace('ernestdefoe-digest-mail', __DIR__.'/views'),
 
     // -------------------------------------------------------------------------
     // New user onboarding — event listener
@@ -63,7 +63,7 @@ return [
     // -------------------------------------------------------------------------
     // Translations
     // -------------------------------------------------------------------------
-    new Extend\Locales(__DIR__ . '/locale'),
+    new Extend\Locales(__DIR__.'/locale'),
 
     // -------------------------------------------------------------------------
     // Frontend assets
@@ -72,10 +72,10 @@ return [
     // Admin: adds the digest settings panel under the extension page.
     // -------------------------------------------------------------------------
     (new Extend\Frontend('forum'))
-        ->js(__DIR__ . '/js/dist/forum.js'),
+        ->js(__DIR__.'/js/dist/forum.js'),
 
     (new Extend\Frontend('admin'))
-        ->js(__DIR__ . '/js/dist/admin.js'),
+        ->js(__DIR__.'/js/dist/admin.js'),
 
     // -------------------------------------------------------------------------
     // Console
@@ -162,8 +162,7 @@ return [
             Schema\Str::make('digestFrequency')
                 ->nullable()
                 ->get(fn (User $user) => $user->digest_frequency)
-                ->writable(fn (User $user, Context $context) =>
-                    $context->getActor()->id === $user->id || $context->getActor()->isAdmin()
+                ->writable(fn (User $user, Context $context) => $context->getActor()->id === $user->id || $context->getActor()->isAdmin()
                 )
                 ->in(['daily', 'weekly', 'monthly']),
         ]),
@@ -187,7 +186,7 @@ return [
 
             /** @var \Flarum\Settings\SettingsRepositoryInterface $settings */
             $settings = resolve(\Flarum\Settings\SettingsRepositoryInterface::class);
-            $raw = fn(string $key, string $fallback) => ($v = $settings->get($key)) === null || $v === '' ? $fallback : $v;
+            $raw = fn (string $key, string $fallback) => ($v = $settings->get($key)) === null || $v === '' ? $fallback : $v;
 
             return [
                 // Admin-only: reveals which optional integrations are installed.
@@ -198,39 +197,39 @@ return [
                     ->get(function () use ($manager) {
                         return [
                             'leaderboard' => [
-                                'enabled'         => $manager->isEnabled('huseyinfiliz-leaderboard'),
-                                'title'           => 'Leaderboard',
-                                'iconName'        => 'fas fa-trophy',
-                                'iconColor'       => '#ffffff',
-                                'iconBg'          => '#3498db',
+                                'enabled' => $manager->isEnabled('huseyinfiliz-leaderboard'),
+                                'title' => 'Leaderboard',
+                                'iconName' => 'fas fa-trophy',
+                                'iconColor' => '#ffffff',
+                                'iconBg' => '#3498db',
                             ],
                             'badges' => [
-                                'enabled'         => $manager->isEnabled('fof-badges'),
-                                'title'           => 'Badges',
-                                'iconName'        => 'fas fa-award',
-                                'iconColor'       => '#ffffff',
-                                'iconBg'          => '#8b5cf6',
+                                'enabled' => $manager->isEnabled('fof-badges'),
+                                'title' => 'Badges',
+                                'iconName' => 'fas fa-award',
+                                'iconColor' => '#ffffff',
+                                'iconBg' => '#8b5cf6',
                             ],
                             'pickem' => [
-                                'enabled'         => $manager->isEnabled('huseyinfiliz-pickem'),
-                                'title'           => "Pick'em",
-                                'iconName'        => 'fas fa-football-ball',
-                                'iconColor'       => '#ffffff',
-                                'iconBg'          => '#16a34a',
+                                'enabled' => $manager->isEnabled('huseyinfiliz-pickem'),
+                                'title' => "Pick'em",
+                                'iconName' => 'fas fa-football-ball',
+                                'iconColor' => '#ffffff',
+                                'iconBg' => '#16a34a',
                             ],
                             'picks' => [
-                                'enabled'         => $manager->isEnabled('ernestdefoe-picks'),
-                                'title'           => 'CFB Picks',
-                                'iconName'        => 'fas fa-football',
-                                'iconColor'       => '#ffffff',
-                                'iconBg'          => '#69c6b9',
+                                'enabled' => $manager->isEnabled('ernestdefoe-picks'),
+                                'title' => 'CFB Picks',
+                                'iconName' => 'fas fa-football',
+                                'iconColor' => '#ffffff',
+                                'iconBg' => '#69c6b9',
                             ],
                             'giveaways' => [
-                                'enabled'         => $manager->isEnabled('ernestdefoe-giveaways'),
-                                'title'           => 'Giveaways',
-                                'iconName'        => 'fas fa-gift',
-                                'iconColor'       => '#ffffff',
-                                'iconBg'          => '#69c6b9',
+                                'enabled' => $manager->isEnabled('ernestdefoe-giveaways'),
+                                'title' => 'Giveaways',
+                                'iconName' => 'fas fa-gift',
+                                'iconColor' => '#ffffff',
+                                'iconBg' => '#69c6b9',
                             ],
                             'nightmode' => [
                                 'enabled' => false,
@@ -239,43 +238,43 @@ return [
                                 'enabled' => false,
                             ],
                             'gamepedia' => [
-                                'enabled'  => $manager->isEnabled('huseyinfiliz-gamepedia'),
-                                'title'    => 'Gamepedia',
+                                'enabled' => $manager->isEnabled('huseyinfiliz-gamepedia'),
+                                'title' => 'Gamepedia',
                                 'iconName' => 'fas fa-gamepad',
-                                'iconColor'=> '#ffffff',
-                                'iconBg'   => '#e85d04',
+                                'iconColor' => '#ffffff',
+                                'iconBg' => '#e85d04',
                             ],
                             'resofireGamepedia' => [
-                                'enabled'  => $manager->isEnabled('resofire-gamepedia'),
-                                'title'    => 'Resofire Gamepedia',
+                                'enabled' => $manager->isEnabled('resofire-gamepedia'),
+                                'title' => 'Resofire Gamepedia',
                                 'iconName' => 'fas fa-gamepad',
-                                'iconColor'=> '#ffffff',
-                                'iconBg'   => '#1a1a2e',
+                                'iconColor' => '#ffffff',
+                                'iconBg' => '#1a1a2e',
                             ],
                             'likes' => [
                                 'enabled' => $manager->isEnabled('flarum-likes'),
                             ],
                             'reactions' => [
-                                'enabled'  => $manager->isEnabled('fof-reactions') || $manager->isEnabled('resofire-reactions'),
-                                'title'    => 'Reactions',
+                                'enabled' => $manager->isEnabled('fof-reactions') || $manager->isEnabled('resofire-reactions'),
+                                'title' => 'Reactions',
                                 'iconName' => 'fas fa-smile',
-                                'iconColor'=> '#ffffff',
-                                'iconBg'   => '#f59e0b',
+                                'iconColor' => '#ffffff',
+                                'iconBg' => '#f59e0b',
                             ],
                             'awards' => [
-                                'enabled'  => $manager->isEnabled('huseyinfiliz-awards'),
-                                'title'    => 'Awards',
+                                'enabled' => $manager->isEnabled('huseyinfiliz-awards'),
+                                'title' => 'Awards',
                                 'iconName' => 'fas fa-star',
-                                'iconColor'=> '#ffffff',
-                                'iconBg'   => '#f59e0b',
+                                'iconColor' => '#ffffff',
+                                'iconBg' => '#f59e0b',
                             ],
                         ];
                     }),
                 Schema\Arr::make('digestAllowedFrequencies')
                     ->get(function () use ($raw) {
                         return [
-                            'daily'   => $raw('ernestdefoe-digest-mail.allow_daily',   '0') === '1',
-                            'weekly'  => $raw('ernestdefoe-digest-mail.allow_weekly',  '1') === '1',
+                            'daily' => $raw('ernestdefoe-digest-mail.allow_daily', '0') === '1',
+                            'weekly' => $raw('ernestdefoe-digest-mail.allow_weekly', '1') === '1',
                             'monthly' => $raw('ernestdefoe-digest-mail.allow_monthly', '1') === '1',
                         ];
                     }),
@@ -285,34 +284,34 @@ return [
     // Settings defaults — returned by Flarum before the admin saves for the
     // first time, so the extension behaves sensibly out of the box.
     (new Extend\Settings())
-        ->default('ernestdefoe-digest-mail.enable_badges',      '1')
+        ->default('ernestdefoe-digest-mail.enable_badges', '1')
         ->default('ernestdefoe-digest-mail.enable_leaderboard', '1')
-        ->default('ernestdefoe-digest-mail.enable_picks',       '1')
-        ->default('ernestdefoe-digest-mail.limit_picks',        '5')
+        ->default('ernestdefoe-digest-mail.enable_picks', '1')
+        ->default('ernestdefoe-digest-mail.limit_picks', '5')
         ->default('ernestdefoe-digest-mail.picks_leaderboard_scope', 'alltime')
-        ->default('ernestdefoe-digest-mail.enable_giveaways',   '1')
-        ->default('ernestdefoe-digest-mail.limit_giveaways',    '5')
-        ->default('ernestdefoe-digest-mail.enable_gamepedia',              '1')
-        ->default('ernestdefoe-digest-mail.enable_resofire_gamepedia',     '1')
-        ->default('ernestdefoe-digest-mail.limit_resofire_gamepedia',      '5')
-        ->default('ernestdefoe-digest-mail.enable_reactions',   '1')
-        ->default('ernestdefoe-digest-mail.enable_awards',      '1')
-        ->default('ernestdefoe-digest-mail.limit_favorites',    '6')
-        ->default('ernestdefoe-digest-mail.queue_name',         'digest')
-        ->default('ernestdefoe-digest-mail.queue_chunk_size',   '200')
-        ->default('ernestdefoe-digest-mail.queue_delay',        '0')
-        ->default('ernestdefoe-digest-mail.queue_tries',        '3')
-        ->default('ernestdefoe-digest-mail.section_order',      '')
-        ->default('ernestdefoe-digest-mail.allow_daily',        '0')
-        ->default('ernestdefoe-digest-mail.allow_weekly',       '1')
-        ->default('ernestdefoe-digest-mail.allow_monthly',      '1')
-        ->default('ernestdefoe-digest-mail.timezone',           'UTC')
-        ->default('ernestdefoe-digest-mail.send_hour',          '8')
-        ->default('ernestdefoe-digest-mail.send_window_start',  '8')
-        ->default('ernestdefoe-digest-mail.send_window_end',    '8')
-        ->default('ernestdefoe-digest-mail.weekly_day',         '1')
-        ->default('ernestdefoe-digest-mail.monthly_day',        '1')
-        ->default('ernestdefoe-digest-mail.onboarding_mode',    'none')
+        ->default('ernestdefoe-digest-mail.enable_giveaways', '1')
+        ->default('ernestdefoe-digest-mail.limit_giveaways', '5')
+        ->default('ernestdefoe-digest-mail.enable_gamepedia', '1')
+        ->default('ernestdefoe-digest-mail.enable_resofire_gamepedia', '1')
+        ->default('ernestdefoe-digest-mail.limit_resofire_gamepedia', '5')
+        ->default('ernestdefoe-digest-mail.enable_reactions', '1')
+        ->default('ernestdefoe-digest-mail.enable_awards', '1')
+        ->default('ernestdefoe-digest-mail.limit_favorites', '6')
+        ->default('ernestdefoe-digest-mail.queue_name', 'digest')
+        ->default('ernestdefoe-digest-mail.queue_chunk_size', '200')
+        ->default('ernestdefoe-digest-mail.queue_delay', '0')
+        ->default('ernestdefoe-digest-mail.queue_tries', '3')
+        ->default('ernestdefoe-digest-mail.section_order', '')
+        ->default('ernestdefoe-digest-mail.allow_daily', '0')
+        ->default('ernestdefoe-digest-mail.allow_weekly', '1')
+        ->default('ernestdefoe-digest-mail.allow_monthly', '1')
+        ->default('ernestdefoe-digest-mail.timezone', 'UTC')
+        ->default('ernestdefoe-digest-mail.send_hour', '8')
+        ->default('ernestdefoe-digest-mail.send_window_start', '8')
+        ->default('ernestdefoe-digest-mail.send_window_end', '8')
+        ->default('ernestdefoe-digest-mail.weekly_day', '1')
+        ->default('ernestdefoe-digest-mail.monthly_day', '1')
+        ->default('ernestdefoe-digest-mail.onboarding_mode', 'none')
         ->default('ernestdefoe-digest-mail.onboarding_frequency', 'weekly'),
 
 ];

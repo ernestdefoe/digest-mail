@@ -3,13 +3,12 @@
 namespace Resofire\DigestMail;
 
 use Carbon\Carbon;
-use Flarum\Discussion\Discussion;
 use Flarum\Extension\ExtensionManager;
 use Flarum\Group\Group;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\User;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\ConnectionInterface;
+use Illuminate\Database\Eloquent\Collection;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -35,10 +34,11 @@ class DigestQuery
         // Eloquent model this extension could depend on. Every such call site
         // carries a "third-party table" comment. This extension's own digest_*
         // tables and all core tables go through Eloquent models exclusively.
-        private ConnectionInterface         $db,
-        private ExtensionManager            $extensions,
-        private LoggerInterface             $log,
-    ) {}
+        private ConnectionInterface $db,
+        private ExtensionManager $extensions,
+        private LoggerInterface $log,
+    ) {
+    }
 
     // -------------------------------------------------------------------------
     // Section — Favorite Discussions (likes + optional reactions)
@@ -52,28 +52,35 @@ class DigestQuery
      * Negative identifiers (thumbsdown, confused) are excluded from scoring and display.
      */
     private const REACTION_EMOJI = [
-        'thumbsup'   => '👍️',
-        'heart'      => '❤️',
-        'tada'       => '🎉',
-        'laughing'   => '😆',
-        'joy'        => '😂',
+        'thumbsup' => '👍️',
+        'heart' => '❤️',
+        'tada' => '🎉',
+        'laughing' => '😆',
+        'joy' => '😂',
         'astonished' => '😲',
-        'sob'        => '😭',
-        'fire'       => '🔥',
-        'eyes'       => '👀',
+        'sob' => '😭',
+        'fire' => '🔥',
+        'eyes' => '👀',
     ];
 
     public function getSectionOrder(): array
     {
         $default = ['discussions', 'members', 'stats', 'leaderboard', 'badges', 'pickem', 'picks', 'giveaways', 'gamepedia', 'resofireGamepedia', 'favorites', 'awards'];
         $raw = $this->settings->get('ernestdefoe-digest-mail.section_order', '');
-        if (!$raw) return $default;
+        if (! $raw) {
+            return $default;
+        }
         $decoded = json_decode($raw, true);
-        if (!is_array($decoded) || empty($decoded)) return $default;
+        if (! is_array($decoded) || empty($decoded)) {
+            return $default;
+        }
         // Ensure all default keys are present (in case new sections were added)
         foreach ($default as $key) {
-            if (!in_array($key, $decoded, true)) $decoded[] = $key;
+            if (! in_array($key, $decoded, true)) {
+                $decoded[] = $key;
+            }
         }
+
         return $decoded;
     }
 
@@ -137,34 +144,34 @@ class DigestQuery
     {
         $actor = $this->memberActor();
 
-        $limitNew         = (int) $this->settings->get('ernestdefoe-digest-mail.limit_new',         5);
-        $limitHot         = (int) $this->settings->get('ernestdefoe-digest-mail.limit_hot',         5);
-        $limitMembers     = (int) $this->settings->get('ernestdefoe-digest-mail.limit_members',     5);
-        $limitBadges      = (int) $this->settings->get('ernestdefoe-digest-mail.limit_badges',      5) ?: 5;
+        $limitNew = (int) $this->settings->get('ernestdefoe-digest-mail.limit_new', 5);
+        $limitHot = (int) $this->settings->get('ernestdefoe-digest-mail.limit_hot', 5);
+        $limitMembers = (int) $this->settings->get('ernestdefoe-digest-mail.limit_members', 5);
+        $limitBadges = (int) $this->settings->get('ernestdefoe-digest-mail.limit_badges', 5) ?: 5;
         $limitLeaderboard = (int) $this->settings->get('ernestdefoe-digest-mail.limit_leaderboard', 10) ?: 10;
-        $limitPickem      = (int) $this->settings->get('ernestdefoe-digest-mail.limit_pickem',      5) ?: 5;
-        $limitPicks       = (int) $this->settings->get('ernestdefoe-digest-mail.limit_picks',        5) ?: 5;
-        $limitGiveaways   = (int) $this->settings->get('ernestdefoe-digest-mail.limit_giveaways',    5) ?: 5;
-        $limitGamepedia          = (int) $this->settings->get('ernestdefoe-digest-mail.limit_gamepedia',          5) ?: 5;
-        $limitResofireGamepedia  = (int) $this->settings->get('ernestdefoe-digest-mail.limit_resofire_gamepedia', 5) ?: 5;
-        $limitFavorites   = (int) $this->settings->get('ernestdefoe-digest-mail.limit_favorites',   6);
+        $limitPickem = (int) $this->settings->get('ernestdefoe-digest-mail.limit_pickem', 5) ?: 5;
+        $limitPicks = (int) $this->settings->get('ernestdefoe-digest-mail.limit_picks', 5) ?: 5;
+        $limitGiveaways = (int) $this->settings->get('ernestdefoe-digest-mail.limit_giveaways', 5) ?: 5;
+        $limitGamepedia = (int) $this->settings->get('ernestdefoe-digest-mail.limit_gamepedia', 5) ?: 5;
+        $limitResofireGamepedia = (int) $this->settings->get('ernestdefoe-digest-mail.limit_resofire_gamepedia', 5) ?: 5;
+        $limitFavorites = (int) $this->settings->get('ernestdefoe-digest-mail.limit_favorites', 6);
 
         return [
             'featuredDiscussion' => $this->getFeaturedDiscussion($actor),
-            'newDiscussions'     => $this->getNewDiscussions($actor, $since, $limitNew),
-            'hotDiscussions'     => $this->getHotDiscussions($actor, $since, $limitHot),
-            'newMembers'         => $this->getNewMembers($since, $limitMembers),
-            'favorites'          => $this->getFavoriteDiscussions($actor, $since, $limitFavorites),
-            'stats'              => $this->getStats($since),
-            'badges'             => $this->getBadges($since, $limitBadges),
-            'leaderboard'        => $this->getLeaderboard($since, $limitLeaderboard),
-            'pickem'             => $this->getPickem($since, $limitPickem),
-            'picks'              => $this->getPicks($since, $limitPicks),
-            'giveaways'          => $this->getGiveaways($since, $limitGiveaways),
-            'gamepedia'          => $this->getGamepedia($since, $limitGamepedia),
-            'resofireGamepedia'  => $this->getResofireGamepedia($since, $limitResofireGamepedia),
-            'awards'             => $this->getAwards(),
-            'sectionOrder'       => $this->getSectionOrder(),
+            'newDiscussions' => $this->getNewDiscussions($actor, $since, $limitNew),
+            'hotDiscussions' => $this->getHotDiscussions($actor, $since, $limitHot),
+            'newMembers' => $this->getNewMembers($since, $limitMembers),
+            'favorites' => $this->getFavoriteDiscussions($actor, $since, $limitFavorites),
+            'stats' => $this->getStats($since),
+            'badges' => $this->getBadges($since, $limitBadges),
+            'leaderboard' => $this->getLeaderboard($since, $limitLeaderboard),
+            'pickem' => $this->getPickem($since, $limitPickem),
+            'picks' => $this->getPicks($since, $limitPicks),
+            'giveaways' => $this->getGiveaways($since, $limitGiveaways),
+            'gamepedia' => $this->getGamepedia($since, $limitGamepedia),
+            'resofireGamepedia' => $this->getResofireGamepedia($since, $limitResofireGamepedia),
+            'awards' => $this->getAwards(),
+            'sectionOrder' => $this->getSectionOrder(),
         ];
     }
 
@@ -183,11 +190,11 @@ class DigestQuery
      * (backwards-compatible with direct callers like SendTestDigestController).
      */
     public function buildForUser(
-        User    $actor,
-        Carbon  $since,
-        string  $frequency,
-        string  $theme = 'auto',
-        ?array  $sharedData = null,
+        User $actor,
+        Carbon $since,
+        string $frequency,
+        string $theme = 'auto',
+        ?array $sharedData = null,
     ): DigestContent {
         $limitUnread = (int) $this->settings->get('ernestdefoe-digest-mail.limit_unread', 5);
 

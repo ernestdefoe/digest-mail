@@ -74,7 +74,7 @@ class DigestContent
          *   recentResults      array of [ homeTeam, awayTeam, matchDate, homeScore, awayScore, result ]
          *   leaderboard        array of [ rank, previousRank, movement, user, totalPoints, totalPicks, correctPicks, accuracy ]
          *   leaderboardLabel   string — human-readable scope label for display (e.g. "Week 9" or "2024 Season")
-         *   picksForumUrl      string — full URL to the picks page
+         *   picksForumUrl      string — full URL to the picks page.
          */
         public readonly array $picks = [],
 
@@ -83,7 +83,7 @@ class DigestContent
          *   enabled        bool
          *   endingSoon     array of [ title, prize, url, endsAt(Carbon), entrantCount, winnerCount ]
          *   recentWinners  array of [ title, prize, url, drawnAt(Carbon), winners(string[]) ]
-         *   forumUrl       string
+         *   forumUrl       string.
          */
         public readonly array $giveaways = [],
 
@@ -91,7 +91,7 @@ class DigestContent
          * Gamepedia section data (huseyinfiliz/gamepedia).
          *   enabled        bool
          *   mostDiscussed  array of [ game, postCount, discussionCount ]
-         *   newGames       array of game objects added this period
+         *   newGames       array of game objects added this period.
          */
         public readonly array $gamepedia = [],
 
@@ -103,7 +103,7 @@ class DigestContent
          *                             postCount, discussionCount,
          *                             genres (array of stdClass) ]
          *   newGames       array of stdClass — each has genres array attached
-         *   topGenres      array of [ genre (stdClass), gameCount, postCount ]
+         *   topGenres      array of [ genre (stdClass), gameCount, postCount ].
          */
         public readonly array $resofireGamepedia = [],
 
@@ -114,7 +114,7 @@ class DigestContent
          *     score       — total engagement count
          *     likeCount   — total likes (likes-only mode)
          *     reactions   — array of [ emoji, count ] sorted by count desc
-         *     mode        — 'likes' | 'reactions'
+         *     mode        — 'likes' | 'reactions'.
          */
         public readonly array $favorites = [],
 
@@ -126,7 +126,7 @@ class DigestContent
          *     effectiveStatus — 'upcoming' | 'active' | 'ended' | 'published'
          *     categories      — array of stdClass rows with nominee_count, vote_count
          *     totalVotes      — int
-         *     topNominees     — array of [ categoryName, nomineeName, nomineeImage, voteCount ]
+         *     topNominees     — array of [ categoryName, nomineeName, nomineeImage, voteCount ].
          */
         public readonly array $awards = [],
 
@@ -137,7 +137,8 @@ class DigestContent
 
         /** Ordered list of section keys, e.g. ["discussions","members","stats","badges"] */
         public readonly array $sectionOrder = [],
-    ) {}
+    ) {
+    }
 
     public function isEmpty(): bool
     {
@@ -147,25 +148,37 @@ class DigestContent
             && $this->unreadDiscussions->isEmpty()
             && $this->newMembers->isEmpty();
 
-        if (!$coreEmpty) return false;
+        if (! $coreEmpty) {
+            return false;
+        }
 
         // Awards: any active or upcoming award is time-sensitive enough to send alone
-        if (!empty($this->awards['awards'])) return false;
+        if (! empty($this->awards['awards'])) {
+            return false;
+        }
 
         // Leaderboard: someone earned points this period
-        if (!empty($this->leaderboard['entries'])) return false;
+        if (! empty($this->leaderboard['entries'])) {
+            return false;
+        }
 
         // Pick'em: upcoming matches or recent results worth surfacing
-        if (!empty($this->pickem['upcomingEvents'])
-            || !empty($this->pickem['recentResults'])) return false;
+        if (! empty($this->pickem['upcomingEvents'])
+            || ! empty($this->pickem['recentResults'])) {
+            return false;
+        }
 
         // Picks (ernestdefoe/picks): upcoming matches or recent results worth surfacing
-        if (!empty($this->picks['upcomingEvents'])
-            || !empty($this->picks['recentResults'])) return false;
+        if (! empty($this->picks['upcomingEvents'])
+            || ! empty($this->picks['recentResults'])) {
+            return false;
+        }
 
         // Giveaways: ending-soon or freshly-drawn winners are time-sensitive
-        if (!empty($this->giveaways['endingSoon'])
-            || !empty($this->giveaways['recentWinners'])) return false;
+        if (! empty($this->giveaways['endingSoon'])
+            || ! empty($this->giveaways['recentWinners'])) {
+            return false;
+        }
 
         return true;
     }
@@ -173,10 +186,10 @@ class DigestContent
     public function frequencyLabel(): string
     {
         return match ($this->frequency) {
-            'daily'   => 'Daily',
-            'weekly'  => 'Weekly',
+            'daily' => 'Daily',
+            'weekly' => 'Weekly',
             'monthly' => 'Monthly',
-            default   => ucfirst($this->frequency),
+            default => ucfirst($this->frequency),
         };
     }
 }

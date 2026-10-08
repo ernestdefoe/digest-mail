@@ -11,7 +11,6 @@ use Flarum\User\User;
  */
 trait QueriesBadges
 {
-
     // -------------------------------------------------------------------------
     // Section 5 — Badges
     // -------------------------------------------------------------------------
@@ -33,10 +32,10 @@ trait QueriesBadges
     public function getBadges(Carbon $since, int $limit = 10): array
     {
         $extInstalled = $this->extensions->isEnabled('fof-badges');
-        $raw          = $this->settings->get('ernestdefoe-digest-mail.enable_badges');
+        $raw = $this->settings->get('ernestdefoe-digest-mail.enable_badges');
         $adminEnabled = $raw === null || $raw === '' ? true : (bool) $raw;
 
-        if (!$extInstalled || !$adminEnabled) {
+        if (! $extInstalled || ! $adminEnabled) {
             return ['enabled' => false, 'recentEarners' => [], 'mostEarned' => null, 'rarest' => null];
         }
 
@@ -68,7 +67,7 @@ trait QueriesBadges
         // Collect unique IDs for batch loading
         $badgeIds = $recentRows->pluck('badge_id')
             ->merge($periodCounts->pluck('badge_id'))->unique()->values()->all();
-        $userIds  = $recentRows->pluck('user_id')->unique()->values()->all();
+        $userIds = $recentRows->pluck('user_id')->unique()->values()->all();
 
         // third-party table — no Eloquent model available.
         $badges = $this->db->table('fof_badges')
@@ -82,13 +81,17 @@ trait QueriesBadges
         // --- Recent earners (up to $limit) ---
         $recentEarners = [];
         foreach ($recentRows as $row) {
-            if (count($recentEarners) >= $limit) break;
+            if (count($recentEarners) >= $limit) {
+                break;
+            }
             $badge = $badges->get($row->badge_id);
-            $user  = $users->get($row->user_id);
-            if (!$badge || !$user) continue;
+            $user = $users->get($row->user_id);
+            if (! $badge || ! $user) {
+                continue;
+            }
             $recentEarners[] = [
-                'user'     => $user,
-                'badge'    => $badge,
+                'user' => $user,
+                'badge' => $badge,
                 'earnedAt' => Carbon::parse($row->earned_at),
             ];
         }
@@ -110,16 +113,16 @@ trait QueriesBadges
         $rarestBadge = $badges->sortBy('earned_count')->first();
         if ($rarestBadge) {
             $rarest = [
-                'badge'       => $rarestBadge,
+                'badge' => $rarestBadge,
                 'earnedCount' => (int) $rarestBadge->earned_count,
             ];
         }
 
         return [
-            'enabled'      => true,
-            'recentEarners'=> $recentEarners,
-            'mostEarned'   => $mostEarned,
-            'rarest'       => $rarest,
+            'enabled' => true,
+            'recentEarners' => $recentEarners,
+            'mostEarned' => $mostEarned,
+            'rarest' => $rarest,
         ];
     }
 }

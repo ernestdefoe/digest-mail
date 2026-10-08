@@ -10,7 +10,6 @@ use Carbon\Carbon;
  */
 trait QueriesGamepedia
 {
-
     // -------------------------------------------------------------------------
     // Section 8 — Gamepedia (huseyinfiliz/gamepedia)
     // -------------------------------------------------------------------------
@@ -28,14 +27,14 @@ trait QueriesGamepedia
     public function getGamepedia(Carbon $since, int $limit = 5): array
     {
         $extInstalled = $this->extensions->isEnabled('huseyinfiliz-gamepedia');
-        $raw          = $this->settings->get('ernestdefoe-digest-mail.enable_gamepedia');
+        $raw = $this->settings->get('ernestdefoe-digest-mail.enable_gamepedia');
         $adminEnabled = $raw === null || $raw === '' ? true : (bool) $raw;
 
-        if (!$extInstalled || !$adminEnabled) {
+        if (! $extInstalled || ! $adminEnabled) {
             return ['enabled' => false, 'mostDiscussed' => [], 'newGames' => []];
         }
 
-        $prefix    = $this->db->getTablePrefix();
+        $prefix = $this->db->getTablePrefix();
         $since_str = $since->toDateTimeString();
 
         // third-party table — no Eloquent model available.
@@ -61,8 +60,8 @@ trait QueriesGamepedia
         $mostDiscussed = [];
         foreach ($mostDiscussedRows as $row) {
             $mostDiscussed[] = [
-                'game'            => $row,
-                'postCount'       => (int) $row->post_count,
+                'game' => $row,
+                'postCount' => (int) $row->post_count,
                 'discussionCount' => (int) $row->discussion_count,
             ];
         }
@@ -76,12 +75,11 @@ trait QueriesGamepedia
             ->all();
 
         return [
-            'enabled'       => true,
+            'enabled' => true,
             'mostDiscussed' => $mostDiscussed,
-            'newGames'      => $newGames,
+            'newGames' => $newGames,
         ];
     }
-
 
     // -------------------------------------------------------------------------
     // Section 8b — Resofire Gamepedia (resofire/gamepedia)
@@ -107,14 +105,14 @@ trait QueriesGamepedia
     public function getResofireGamepedia(Carbon $since, int $limit = 5): array
     {
         $extInstalled = $this->extensions->isEnabled('resofire-gamepedia');
-        $raw          = $this->settings->get('ernestdefoe-digest-mail.enable_resofire_gamepedia');
+        $raw = $this->settings->get('ernestdefoe-digest-mail.enable_resofire_gamepedia');
         $adminEnabled = $raw === null || $raw === '' ? true : (bool) $raw;
 
-        if (!$extInstalled || !$adminEnabled) {
+        if (! $extInstalled || ! $adminEnabled) {
             return ['enabled' => false, 'mostDiscussed' => [], 'newGames' => [], 'topGenres' => []];
         }
 
-        $prefix    = $this->db->getTablePrefix();
+        $prefix = $this->db->getTablePrefix();
         $since_str = $since->toDateTimeString();
 
         // ── Most discussed ────────────────────────────────────────────────────
@@ -139,16 +137,16 @@ trait QueriesGamepedia
             LIMIT {$limit}
         ", [$since_str]);
 
-        $mdIds      = collect($mostDiscussedRows)->pluck('id')->all();
+        $mdIds = collect($mostDiscussedRows)->pluck('id')->all();
         $mdGenreMap = $this->loadGenresForGames($mdIds);
 
         $mostDiscussed = [];
         foreach ($mostDiscussedRows as $row) {
             $mostDiscussed[] = [
-                'game'            => $row,
-                'postCount'       => (int) $row->post_count,
+                'game' => $row,
+                'postCount' => (int) $row->post_count,
                 'discussionCount' => (int) $row->discussion_count,
-                'genres'          => $mdGenreMap[$row->id] ?? [],
+                'genres' => $mdGenreMap[$row->id] ?? [],
             ];
         }
 
@@ -159,25 +157,25 @@ trait QueriesGamepedia
             ->orderByDesc('created_at')
             ->limit($limit)
             ->get(['id', 'name', 'slug', 'cover_image_url', 'developer',
-                   'publisher', 'first_release_date', 'created_at'])
+                'publisher', 'first_release_date', 'created_at'])
             ->all();
 
-        $ngIds      = array_map(fn ($g) => $g->id, $newGameRows);
+        $ngIds = array_map(fn ($g) => $g->id, $newGameRows);
         $ngGenreMap = $this->loadGenresForGames($ngIds);
 
         $newGames = [];
         foreach ($newGameRows as $game) {
             $game->genres = $ngGenreMap[$game->id] ?? [];
-            $newGames[]   = $game;
+            $newGames[] = $game;
         }
 
         $topGenres = $this->getTopGenres($since, $prefix);
 
         return [
-            'enabled'       => true,
+            'enabled' => true,
             'mostDiscussed' => $mostDiscussed,
-            'newGames'      => $newGames,
-            'topGenres'     => $topGenres,
+            'newGames' => $newGames,
+            'topGenres' => $topGenres,
         ];
     }
 
@@ -211,7 +209,7 @@ trait QueriesGamepedia
         $topGenres = [];
         foreach ($topGenreRows as $row) {
             $topGenres[] = [
-                'genre'     => $row,
+                'genre' => $row,
                 'gameCount' => (int) $row->game_count,
                 'postCount' => (int) $row->post_count,
             ];
@@ -220,14 +218,15 @@ trait QueriesGamepedia
         return $topGenres;
     }
 
-
     /**
      * Load genres for a set of game IDs from resofire/gamepedia schema.
      * Returns a map of [ game_id => [ stdClass(id, name, slug), ... ] ].
      */
     private function loadGenresForGames(array $gameIds): array
     {
-        if (empty($gameIds)) return [];
+        if (empty($gameIds)) {
+            return [];
+        }
 
         // third-party table — no Eloquent model available.
         $rows = $this->db->table('gamepedia_game_genre AS gg')
@@ -237,8 +236,8 @@ trait QueriesGamepedia
 
         $map = [];
         foreach ($rows as $row) {
-            $genre       = new \stdClass();
-            $genre->id   = $row->id;
+            $genre = new \stdClass();
+            $genre->id = $row->id;
             $genre->name = $row->name;
             $genre->slug = $row->slug;
             $map[$row->game_id][] = $genre;

@@ -2,17 +2,17 @@
 
 namespace Resofire\DigestMail\Console;
 
-use Resofire\DigestMail\DigestContent;
-use Resofire\DigestMail\DigestQuery;
-use Resofire\DigestMail\DigestMailer;
-use Resofire\DigestMail\DigestSendLog;
-use Resofire\DigestMail\Job\SendDigestJob;
 use Carbon\Carbon;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\User;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Cache\Repository as Cache;
 use Illuminate\Contracts\Queue\Queue;
+use Resofire\DigestMail\DigestContent;
+use Resofire\DigestMail\DigestMailer;
+use Resofire\DigestMail\DigestQuery;
+use Resofire\DigestMail\DigestSendLog;
+use Resofire\DigestMail\Job\SendDigestJob;
 
 /**
  * Console command that drives the entire digest send cycle.
@@ -48,28 +48,29 @@ class SendDigestCommand extends Command
 
     protected $description = 'Send digest emails to subscribed forum members.';
 
-    private const FREQUENCIES      = ['daily', 'weekly', 'monthly'];
-    private const SHARED_CACHE_TTL    = 7200; // 2 hours
+    private const FREQUENCIES = ['daily', 'weekly', 'monthly'];
+    private const SHARED_CACHE_TTL = 7200; // 2 hours
     private const WINDOW_COMPLETE_TTL = 86400; // 24 hours — cleared at midnight
 
     public function __construct(
         private SettingsRepositoryInterface $settings,
-        private DigestQuery                 $query,
-        private DigestMailer                $mailer,
-        private Queue                       $queue,
-        private Cache                       $cache,
+        private DigestQuery $query,
+        private DigestMailer $mailer,
+        private Queue $queue,
+        private Cache $cache,
     ) {
         parent::__construct();
     }
 
     public function handle(): int
     {
-        $isDryRun        = (bool) $this->option('dry-run');
+        $isDryRun = (bool) $this->option('dry-run');
         $forcedFrequency = $this->option('frequency');
-        $singleUserId    = $this->option('user');
+        $singleUserId = $this->option('user');
 
-        if ($forcedFrequency !== null && !in_array($forcedFrequency, self::FREQUENCIES, true)) {
-            $this->error('Invalid --frequency. Must be one of: ' . implode(', ', self::FREQUENCIES));
+        if ($forcedFrequency !== null && ! in_array($forcedFrequency, self::FREQUENCIES, true)) {
+            $this->error('Invalid --frequency. Must be one of: '.implode(', ', self::FREQUENCIES));
+
             return self::FAILURE;
         }
 
@@ -79,13 +80,14 @@ class SendDigestCommand extends Command
 
         if (empty($dueFrequencies)) {
             $this->info('No digest frequencies are due at this time. Exiting.');
+
             return self::SUCCESS;
         }
 
-        $this->info('Due frequencies: ' . implode(', ', $dueFrequencies));
+        $this->info('Due frequencies: '.implode(', ', $dueFrequencies));
 
         $totalDispatched = 0;
-        $totalSkipped    = 0;
+        $totalSkipped = 0;
 
         foreach ($dueFrequencies as $frequency) {
             [$dispatched, $skipped] = $this->processFrequency(
@@ -94,7 +96,7 @@ class SendDigestCommand extends Command
                 $singleUserId !== null ? (int) $singleUserId : null
             );
             $totalDispatched += $dispatched;
-            $totalSkipped    += $skipped;
+            $totalSkipped += $skipped;
         }
 
         $this->newLine();
@@ -110,10 +112,10 @@ class SendDigestCommand extends Command
     /** @return list<'daily'|'weekly'|'monthly'> */
     private function dueFrequencies(): array
     {
-        $timezone    = $this->settings->get('ernestdefoe-digest-mail.timezone', 'UTC');
-        $now         = Carbon::now($timezone);
-        $weeklyDay   = (int) $this->settings->get('ernestdefoe-digest-mail.weekly_day',  1);
-        $monthlyDay  = (int) $this->settings->get('ernestdefoe-digest-mail.monthly_day', 1);
+        $timezone = $this->settings->get('ernestdefoe-digest-mail.timezone', 'UTC');
+        $now = Carbon::now($timezone);
+        $weeklyDay = (int) $this->settings->get('ernestdefoe-digest-mail.weekly_day', 1);
+        $monthlyDay = (int) $this->settings->get('ernestdefoe-digest-mail.monthly_day', 1);
 
         // Window mode: send_window_start and send_window_end define a range of
         // hours during which the scheduler fires repeatedly, dispatching one
@@ -123,13 +125,15 @@ class SendDigestCommand extends Command
         // send_window_start, behave exactly as before — fire once at that hour.
         $windowStart = (int) $this->settings->get('ernestdefoe-digest-mail.send_window_start',
             $this->settings->get('ernestdefoe-digest-mail.send_hour', 8));
-        $windowEnd   = (int) $this->settings->get('ernestdefoe-digest-mail.send_window_end', $windowStart);
+        $windowEnd = (int) $this->settings->get('ernestdefoe-digest-mail.send_window_end', $windowStart);
 
         $inWindow = ($windowEnd > $windowStart)
             ? ($now->hour >= $windowStart && $now->hour < $windowEnd)
             : ($now->hour === $windowStart);
 
-        if (!$inWindow) return [];
+        if (! $inWindow) {
+            return [];
+        }
 
         // Respect the admin "allowed frequencies" toggles. A cadence the admin
         // has disabled must stop sending even to users already subscribed to it —
@@ -138,24 +142,25 @@ class SendDigestCommand extends Command
         // (A forced --frequency run bypasses this gate as an explicit override.)
         $allowed = function (string $frequency): bool {
             $default = ['daily' => '0', 'weekly' => '1', 'monthly' => '1'][$frequency] ?? '0';
-            $v = $this->settings->get('ernestdefoe-digest-mail.allow_' . $frequency);
+            $v = $this->settings->get('ernestdefoe-digest-mail.allow_'.$frequency);
+
             return (($v === null || $v === '') ? $default : $v) === '1';
         };
 
         $due = [];
 
         // Daily — due if allowed, within window, and not yet fully dispatched today.
-        if ($allowed('daily') && !$this->isWindowComplete('daily', $now)) {
+        if ($allowed('daily') && ! $this->isWindowComplete('daily', $now)) {
             $due[] = 'daily';
         }
 
         // Weekly — only on the configured day.
-        if ($allowed('weekly') && $now->dayOfWeek === $weeklyDay && !$this->isWindowComplete('weekly', $now)) {
+        if ($allowed('weekly') && $now->dayOfWeek === $weeklyDay && ! $this->isWindowComplete('weekly', $now)) {
             $due[] = 'weekly';
         }
 
         // Monthly — only on the configured day-of-month.
-        if ($allowed('monthly') && $now->day === $monthlyDay && !$this->isWindowComplete('monthly', $now)) {
+        if ($allowed('monthly') && $now->day === $monthlyDay && ! $this->isWindowComplete('monthly', $now)) {
             $due[] = 'monthly';
         }
 
@@ -169,6 +174,7 @@ class SendDigestCommand extends Command
     private function isWindowComplete(string $frequency, \Carbon\Carbon $now): bool
     {
         $key = $this->windowCompleteKey($frequency, $now);
+
         return $this->cache->has($key);
     }
 
@@ -188,7 +194,7 @@ class SendDigestCommand extends Command
      */
     private function windowCompleteKey(string $frequency, \Carbon\Carbon $now): string
     {
-        return 'resofire_digest_window_complete_' . $frequency . '_' . $now->toDateString();
+        return 'resofire_digest_window_complete_'.$frequency.'_'.$now->toDateString();
     }
 
     // -------------------------------------------------------------------------
@@ -201,10 +207,10 @@ class SendDigestCommand extends Command
      */
     private function processFrequency(string $frequency, bool $isDryRun, ?int $singleUserId): array
     {
-        $since     = $this->periodStart($frequency);
-        $cutoff    = $this->lastSentCutoff($frequency);
+        $since = $this->periodStart($frequency);
+        $cutoff = $this->lastSentCutoff($frequency);
         $dispatched = 0;
-        $skipped    = 0;
+        $skipped = 0;
 
         // Resolve queue settings — CLI flags take priority over admin settings.
         $queueName = $this->option('queue')
@@ -219,16 +225,16 @@ class SendDigestCommand extends Command
         ));
 
         $this->info(
-            "Processing '{$frequency}' " .
-            "(since: {$since->toDateTimeString()}, " .
+            "Processing '{$frequency}' ".
+            "(since: {$since->toDateTimeString()}, ".
             "queue: {$queueName}, delay: {$delaySecs}s, chunk: {$chunkSize})"
         );
 
         // Build shared data once and cache it for this frequency run.
         // All per-user jobs will read from this cache instead of re-querying.
         $sharedData = null;
-        $cacheKey   = "resofire_digest_shared_{$frequency}_{$since->timestamp}";
-        if (!$isDryRun) {
+        $cacheKey = "resofire_digest_shared_{$frequency}_{$since->timestamp}";
+        if (! $isDryRun) {
             $sharedData = $this->cache->remember(
                 $cacheKey,
                 self::SHARED_CACHE_TTL,
@@ -240,7 +246,7 @@ class SendDigestCommand extends Command
             // We still process users because their unread section may justify
             // sending individually — that cannot be checked without per-user queries.
             if ($this->sharedDataIsEmpty($sharedData)) {
-                $this->line("  [preflight] Shared sections are empty. Users with unread discussions will still be processed.");
+                $this->line('  [preflight] Shared sections are empty. Users with unread discussions will still be processed.');
             }
         }
 
@@ -266,7 +272,7 @@ class SendDigestCommand extends Command
         foreach ($users as $user) {
             // Dry-run: build content to summarise what would be sent.
             if ($isDryRun) {
-                $theme   = $this->mailer->resolveTheme($user);
+                $theme = $this->mailer->resolveTheme($user);
                 $content = $this->query->buildForUser(
                     $user, $since, $frequency, $theme, $sharedData
                 );
@@ -274,7 +280,7 @@ class SendDigestCommand extends Command
                     $this->line("  [skip]     {$user->username} (#{$user->id}) — no content");
                     $skipped++;
                 } else {
-                    $this->line("  [dry-run]  {$user->username} (#{$user->id}) — " . $this->contentSummary($content));
+                    $this->line("  [dry-run]  {$user->username} (#{$user->id}) — ".$this->contentSummary($content));
                     $dispatched++;
                 }
                 continue;
@@ -305,12 +311,12 @@ class SendDigestCommand extends Command
             $dispatched++;
         }
 
-        if (!$isDryRun && $dispatched > 0) {
+        if (! $isDryRun && $dispatched > 0) {
             $this->upsertSendLog($frequency, $dispatched, $skipped);
             $this->pruneOldLogs($frequency);
         }
 
-        if (!$isDryRun) {
+        if (! $isDryRun) {
             $this->checkAndMarkWindowComplete($frequency);
         }
 
@@ -335,26 +341,26 @@ class SendDigestCommand extends Command
      */
     private function upsertSendLog(string $frequency, int $dispatched, int $skipped): void
     {
-        $nowUtc     = Carbon::now('UTC');
+        $nowUtc = Carbon::now('UTC');
         $startOfDay = $nowUtc->copy()->startOfDay();
 
         $existing = DigestSendLog::query()
             ->where('frequency', $frequency)
             ->where('sent_at', '>=', $startOfDay)
-            ->where('sent_at', '<',  $startOfDay->copy()->addDay())
+            ->where('sent_at', '<', $startOfDay->copy()->addDay())
             ->first();
 
         if ($existing) {
-            $existing->sent_count    += $dispatched;
+            $existing->sent_count += $dispatched;
             $existing->skipped_count += $skipped;
-            $existing->sent_at        = $nowUtc;
+            $existing->sent_at = $nowUtc;
             $existing->save();
         } else {
             DigestSendLog::create([
-                'frequency'     => $frequency,
-                'sent_count'    => $dispatched,
+                'frequency' => $frequency,
+                'sent_count' => $dispatched,
                 'skipped_count' => $skipped,
-                'sent_at'       => $nowUtc,
+                'sent_at' => $nowUtc,
             ]);
         }
     }
@@ -366,10 +372,10 @@ class SendDigestCommand extends Command
     private function pruneOldLogs(string $frequency): void
     {
         $retention = match ($frequency) {
-            'daily'   => 30,
-            'weekly'  => 52,
+            'daily' => 30,
+            'weekly' => 52,
             'monthly' => 24,
-            default   => 30,
+            default => 30,
         };
 
         $keepIds = DigestSendLog::query()
@@ -393,8 +399,8 @@ class SendDigestCommand extends Command
     private function checkAndMarkWindowComplete(string $frequency): void
     {
         $timezone = $this->settings->get('ernestdefoe-digest-mail.timezone', 'UTC');
-        $now      = Carbon::now($timezone);
-        $cutoff   = $this->lastSentCutoff($frequency);
+        $now = Carbon::now($timezone);
+        $cutoff = $this->lastSentCutoff($frequency);
 
         $remaining = User::query()
             ->where('digest_frequency', $frequency)
@@ -431,15 +437,29 @@ class SendDigestCommand extends Command
     private function sharedDataIsEmpty(array $shared): bool
     {
         // Core shared sections
-        if (!empty($shared['newDiscussions']) && $shared['newDiscussions']->isNotEmpty()) return false;
-        if (!empty($shared['hotDiscussions']) && $shared['hotDiscussions']->isNotEmpty()) return false;
-        if (!empty($shared['newMembers'])     && $shared['newMembers']->isNotEmpty())     return false;
+        if (! empty($shared['newDiscussions']) && $shared['newDiscussions']->isNotEmpty()) {
+            return false;
+        }
+        if (! empty($shared['hotDiscussions']) && $shared['hotDiscussions']->isNotEmpty()) {
+            return false;
+        }
+        if (! empty($shared['newMembers']) && $shared['newMembers']->isNotEmpty()) {
+            return false;
+        }
 
         // Force-send triggers
-        if (!empty($shared['awards']['awards']))            return false;
-        if (!empty($shared['leaderboard']['entries']))      return false;
-        if (!empty($shared['pickem']['upcomingEvents']))    return false;
-        if (!empty($shared['pickem']['recentResults']))     return false;
+        if (! empty($shared['awards']['awards'])) {
+            return false;
+        }
+        if (! empty($shared['leaderboard']['entries'])) {
+            return false;
+        }
+        if (! empty($shared['pickem']['upcomingEvents'])) {
+            return false;
+        }
+        if (! empty($shared['pickem']['recentResults'])) {
+            return false;
+        }
 
         // Note: unreadDiscussions is per-user, so we cannot check it here.
         // A user with unread content will still get sent even if we reach here,
@@ -451,11 +471,22 @@ class SendDigestCommand extends Command
     private function contentSummary(DigestContent $content): string
     {
         $parts = [];
-        if ($content->newDiscussions->isNotEmpty())   $parts[] = $content->newDiscussions->count()   . ' new';
-        if ($content->hotDiscussions->isNotEmpty())    $parts[] = $content->hotDiscussions->count()   . ' hot';
-        if ($content->unreadDiscussions->isNotEmpty()) $parts[] = $content->unreadDiscussions->count(). ' unread';
-        if ($content->newMembers->isNotEmpty())        $parts[] = $content->newMembers->count()       . ' members';
-        if (!empty($content->awards['awards']))        $parts[] = count($content->awards['awards'])   . ' award(s)';
+        if ($content->newDiscussions->isNotEmpty()) {
+            $parts[] = $content->newDiscussions->count().' new';
+        }
+        if ($content->hotDiscussions->isNotEmpty()) {
+            $parts[] = $content->hotDiscussions->count().' hot';
+        }
+        if ($content->unreadDiscussions->isNotEmpty()) {
+            $parts[] = $content->unreadDiscussions->count().' unread';
+        }
+        if ($content->newMembers->isNotEmpty()) {
+            $parts[] = $content->newMembers->count().' members';
+        }
+        if (! empty($content->awards['awards'])) {
+            $parts[] = count($content->awards['awards']).' award(s)';
+        }
+
         return implode(', ', $parts) ?: 'extension sections only';
     }
 }

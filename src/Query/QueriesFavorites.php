@@ -12,7 +12,6 @@ use Flarum\User\User;
  */
 trait QueriesFavorites
 {
-
     /**
      * Returns top discussions ranked by engagement (likes and/or reactions)
      * during the period. Only discussions with at least 1 engagement shown.
@@ -26,18 +25,22 @@ trait QueriesFavorites
      */
     public function getFavoriteDiscussions(User $actor, Carbon $since, int $limit): array
     {
-        if ($limit <= 0) return [];
+        if ($limit <= 0) {
+            return [];
+        }
 
-        $prefix    = $this->db->getTablePrefix();
+        $prefix = $this->db->getTablePrefix();
         $since_str = $since->toDateTimeString();
 
-        $likesOn     = $this->extensions->isEnabled('flarum-likes');
+        $likesOn = $this->extensions->isEnabled('flarum-likes');
         $reactionsOn = $this->extensions->isEnabled('fof-reactions') || $this->extensions->isEnabled('resofire-reactions');
-        $rawEnable   = $this->settings->get('ernestdefoe-digest-mail.enable_reactions');
+        $rawEnable = $this->settings->get('ernestdefoe-digest-mail.enable_reactions');
         $reactionsEnabled = $reactionsOn && ($rawEnable === null || $rawEnable === '' || $rawEnable === '1');
 
         // Neither extension active — nothing to show
-        if (!$likesOn && !$reactionsOn) return [];
+        if (! $likesOn && ! $reactionsOn) {
+            return [];
+        }
 
         // thumbsdown and confused exist in fof/reactions; neither exists in resofire/reactions.
         // The query safely returns an empty exclusion list if neither identifier is found.
@@ -52,7 +55,7 @@ trait QueriesFavorites
                 ->toArray();
 
             $excludedIdsSql = count($excludedIds)
-                ? 'AND pr.reaction_id NOT IN (' . implode(',', array_map('intval', $excludedIds)) . ')'
+                ? 'AND pr.reaction_id NOT IN ('.implode(',', array_map('intval', $excludedIds)).')'
                 : '';
 
             // Use post_reactions only — fof/reactions also writes to post_likes for thumbsup,
@@ -80,11 +83,11 @@ trait QueriesFavorites
             // Pivot rows into per-discussion reaction counts
             $pivot = [];
             foreach ($rows as $row) {
-                if (!isset($pivot[$row->id])) {
+                if (! isset($pivot[$row->id])) {
                     $pivot[$row->id] = [
-                        'title'     => $row->title,
-                        'slug'      => $row->slug,
-                        'user_id'   => $row->user_id,
+                        'title' => $row->title,
+                        'slug' => $row->slug,
+                        'user_id' => $row->user_id,
                         'reactions' => [],
                         'likeCount' => 0,
                     ];
@@ -96,12 +99,14 @@ trait QueriesFavorites
             $scored = [];
             foreach ($pivot as $discId => $data) {
                 $score = (int) array_sum($data['reactions']);
-                if ($score < 1) continue;
+                if ($score < 1) {
+                    continue;
+                }
                 $scored[$discId] = ['score' => $score, 'data' => $data];
             }
 
             // Sort by score descending
-            uasort($scored, fn($a, $b) => $b['score'] <=> $a['score']);
+            uasort($scored, fn ($a, $b) => $b['score'] <=> $a['score']);
             $scored = array_slice($scored, 0, $limit, true);
             $mode = 'reactions';
 
@@ -131,10 +136,10 @@ trait QueriesFavorites
             foreach ($rows as $row) {
                 $scored[(int) $row->id] = [
                     'score' => (int) $row->like_count,
-                    'data'  => [
-                        'title'     => $row->title,
-                        'slug'      => $row->slug,
-                        'user_id'   => $row->user_id,
+                    'data' => [
+                        'title' => $row->title,
+                        'slug' => $row->slug,
+                        'user_id' => $row->user_id,
                         'reactions' => [],
                         'likeCount' => (int) $row->like_count,
                     ],
@@ -143,10 +148,12 @@ trait QueriesFavorites
             $mode = 'likes';
         }
 
-        if (empty($scored)) return [];
+        if (empty($scored)) {
+            return [];
+        }
 
         // Eager-load discussion authors, filtered to what the actor can see
-        $discIds     = array_keys($scored);
+        $discIds = array_keys($scored);
         $discussions = Discussion::whereIn('id', $discIds)
             ->whereVisibleTo($actor)
             ->with('user')
@@ -155,7 +162,9 @@ trait QueriesFavorites
 
         $result = [];
         foreach ($scored as $discId => $entry) {
-            if (!isset($discussions[$discId])) continue;
+            if (! isset($discussions[$discId])) {
+                continue;
+            }
 
             $disc = $discussions[$discId];
             $data = $entry['data'];
@@ -177,10 +186,10 @@ trait QueriesFavorites
 
             $result[] = [
                 'discussion' => $disc,
-                'score'      => $entry['score'],
-                'likeCount'  => $data['likeCount'],
-                'reactions'  => $emojiBreakdown,
-                'mode'       => $mode,
+                'score' => $entry['score'],
+                'likeCount' => $data['likeCount'],
+                'reactions' => $emojiBreakdown,
+                'mode' => $mode,
             ];
         }
 

@@ -2,15 +2,12 @@
 
 namespace Resofire\DigestMail\Query;
 
-use Carbon\Carbon;
-
 /**
  * QueriesAwards: extracted from DigestQuery to keep each integration's digest queries
  * in its own cohesive unit. Composed into DigestQuery via `use`.
  */
 trait QueriesAwards
 {
-
     // -------------------------------------------------------------------------
     // Section — Awards (huseyinfiliz/awards integration)
     // -------------------------------------------------------------------------
@@ -22,15 +19,15 @@ trait QueriesAwards
      *   effectiveStatus — 'upcoming' | 'active' | 'ended' | 'published'
      *   categories   — array of stdClass rows with nominee_count and vote_count
      *   totalVotes   — int
-     *   topNominees  — array of [ categoryName, nomineeName ] (only when show_live_votes)
+     *   topNominees  — array of [ categoryName, nomineeName ] (only when show_live_votes).
      */
     public function getAwards(): array
     {
         $extInstalled = $this->extensions->isEnabled('huseyinfiliz-awards');
-        $raw          = $this->settings->get('ernestdefoe-digest-mail.enable_awards');
+        $raw = $this->settings->get('ernestdefoe-digest-mail.enable_awards');
         $adminEnabled = $raw === null || $raw === '' ? true : (bool) $raw;
 
-        if (!$extInstalled || !$adminEnabled) {
+        if (! $extInstalled || ! $adminEnabled) {
             return ['enabled' => false, 'awards' => []];
         }
 
@@ -68,8 +65,8 @@ trait QueriesAwards
         }
 
         $awardIds = array_map(fn ($a) => (int) $a->id, $awardRows);
-        $prefix   = $this->db->getTablePrefix();
-        $in       = implode(',', array_fill(0, count($awardIds), '?'));
+        $prefix = $this->db->getTablePrefix();
+        $in = implode(',', array_fill(0, count($awardIds), '?'));
 
         // Category vote/nominee counts for ALL awards in ONE query (was one query
         // per award — an N+1), grouped by award_id below.
@@ -129,16 +126,16 @@ trait QueriesAwards
             $seen = [];
             foreach ($topRows as $row) {
                 $aid = (int) $row->award_id;
-                $key = $aid . "\0" . $row->category_name;
+                $key = $aid."\0".$row->category_name;
                 if (isset($seen[$key])) {
                     continue;
                 }
                 $seen[$key] = true;
                 $topByAward[$aid][] = [
-                    'categoryName'  => $row->category_name,
-                    'nomineeName'   => $row->nominee_name,
-                    'nomineeImage'  => $row->nominee_image,
-                    'voteCount'     => (int) $row->vote_count,
+                    'categoryName' => $row->category_name,
+                    'nomineeName' => $row->nominee_name,
+                    'nomineeImage' => $row->nominee_image,
+                    'voteCount' => (int) $row->vote_count,
                 ];
             }
         }
@@ -147,11 +144,11 @@ trait QueriesAwards
         foreach ($awardRows as $award) {
             $cats = $categoriesByAward[(int) $award->id] ?? [];
             $awards[] = [
-                'award'          => $award,
-                'effectiveStatus'=> $statuses[$award->id],
-                'categories'     => $cats,
-                'totalVotes'     => (int) array_sum(array_map(fn ($row) => $row->vote_count, $cats)),
-                'topNominees'    => $topByAward[(int) $award->id] ?? [],
+                'award' => $award,
+                'effectiveStatus' => $statuses[$award->id],
+                'categories' => $cats,
+                'totalVotes' => (int) array_sum(array_map(fn ($row) => $row->vote_count, $cats)),
+                'topNominees' => $topByAward[(int) $award->id] ?? [],
             ];
         }
 

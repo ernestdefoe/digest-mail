@@ -12,7 +12,7 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 
 /**
- * GET /api/ernestdefoe/digest-mail/subscribers
+ * GET /api/ernestdefoe/digest-mail/subscribers.
  *
  * Returns a paginated list of subscribers for a given frequency.
  *
@@ -37,12 +37,13 @@ use Psr\Http\Server\RequestHandlerInterface;
 class DigestSubscribersController implements RequestHandlerInterface
 {
     private const VALID_FREQUENCIES = ['daily', 'weekly', 'monthly'];
-    private const DEFAULT_PER_PAGE  = 15;
-    private const MAX_PER_PAGE      = 50;
+    private const DEFAULT_PER_PAGE = 15;
+    private const MAX_PER_PAGE = 50;
 
     public function __construct(
         private Factory $filesystem,
-    ) {}
+    ) {
+    }
 
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
@@ -51,10 +52,10 @@ class DigestSubscribersController implements RequestHandlerInterface
             throw new PermissionDeniedException();
         }
 
-        $params    = $request->getQueryParams();
+        $params = $request->getQueryParams();
         $frequency = $params['frequency'] ?? '';
-        $page      = max(1, (int) ($params['page'] ?? 1));
-        $perPage   = min(self::MAX_PER_PAGE, max(1, (int) ($params['per_page'] ?? self::DEFAULT_PER_PAGE)));
+        $page = max(1, (int) ($params['page'] ?? 1));
+        $perPage = min(self::MAX_PER_PAGE, max(1, (int) ($params['per_page'] ?? self::DEFAULT_PER_PAGE)));
 
         if (! in_array($frequency, self::VALID_FREQUENCIES, true)) {
             return new JsonResponse(['error' => 'Invalid frequency.'], 400);
@@ -64,7 +65,7 @@ class DigestSubscribersController implements RequestHandlerInterface
             ->where('digest_frequency', $frequency)
             ->where('is_email_confirmed', true);
 
-        $total  = (clone $base)->count();
+        $total = (clone $base)->count();
         $offset = ($page - 1) * $perPage;
 
         $rows = (clone $base)
@@ -86,18 +87,18 @@ class DigestSubscribersController implements RequestHandlerInterface
             }
 
             return [
-                'id'         => $row->id,
-                'username'   => $row->username,
+                'id' => $row->id,
+                'username' => $row->username,
                 'avatar_url' => $avatarUrl,
-                'last_sent'  => $row->digest_last_sent_at,
+                'last_sent' => $row->digest_last_sent_at,
             ];
         })->values()->all();
 
         return new JsonResponse([
-            'data'        => $data,
-            'total'       => $total,
-            'page'        => $page,
-            'per_page'    => $perPage,
+            'data' => $data,
+            'total' => $total,
+            'page' => $page,
+            'per_page' => $perPage,
             'total_pages' => $total > 0 ? (int) ceil($total / $perPage) : 1,
         ]);
     }

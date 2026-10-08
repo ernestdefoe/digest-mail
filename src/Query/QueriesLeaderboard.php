@@ -11,7 +11,6 @@ use Flarum\User\User;
  */
 trait QueriesLeaderboard
 {
-
     // -------------------------------------------------------------------------
     // Section 6 — Leaderboard
     // -------------------------------------------------------------------------
@@ -35,16 +34,16 @@ trait QueriesLeaderboard
     public function getLeaderboard(Carbon $since, int $limit = 10): array
     {
         $extInstalled = $this->extensions->isEnabled('huseyinfiliz-leaderboard');
-        $raw          = $this->settings->get('ernestdefoe-digest-mail.enable_leaderboard');
+        $raw = $this->settings->get('ernestdefoe-digest-mail.enable_leaderboard');
         $adminEnabled = $raw === null || $raw === '' ? true : (bool) $raw;
 
-        if (!$extInstalled || !$adminEnabled) {
+        if (! $extInstalled || ! $adminEnabled) {
             return ['enabled' => false, 'entries' => [], 'biggestMover' => null];
         }
 
         // Use unprefixed names — ->table() applies the DB prefix automatically.
-        $totalsTable  = 'leaderboard_user_totals';
-        $pointsTable  = 'leaderboard_points';
+        $totalsTable = 'leaderboard_user_totals';
+        $pointsTable = 'leaderboard_points';
 
         // --- All-time totals (current ranking) ---
         // third-party table — no Eloquent model available.
@@ -78,16 +77,16 @@ trait QueriesLeaderboard
         // Use the same defaults as PointService.
         $pointValues = [
             'discussion_started' => (int) $this->settings->get('huseyinfiliz-leaderboard.points_discussion_started', 1),
-            'post_created'       => (int) $this->settings->get('huseyinfiliz-leaderboard.points_post_created',       1),
-            'daily_login'        => (int) $this->settings->get('huseyinfiliz-leaderboard.points_daily_login',        1),
-            'like_received'      => (int) $this->settings->get('huseyinfiliz-leaderboard.points_like_received',      1),
-            'like_given'         => (int) $this->settings->get('huseyinfiliz-leaderboard.points_like_given',         0),
-            'reaction_received'  => (int) $this->settings->get('huseyinfiliz-leaderboard.points_reaction_received',  1),
-            'reaction_given'     => (int) $this->settings->get('huseyinfiliz-leaderboard.points_reaction_given',     0),
-            'best_answer'        => (int) $this->settings->get('huseyinfiliz-leaderboard.points_best_answer',        2),
-            'badge_earned'       => (int) $this->settings->get('huseyinfiliz-leaderboard.points_badge_earned',       3),
-            'upvote_received'    => (int) $this->settings->get('huseyinfiliz-leaderboard.points_upvote_received',    1),
-            'downvote_received'  => (int) $this->settings->get('huseyinfiliz-leaderboard.points_downvote_received', -1),
+            'post_created' => (int) $this->settings->get('huseyinfiliz-leaderboard.points_post_created', 1),
+            'daily_login' => (int) $this->settings->get('huseyinfiliz-leaderboard.points_daily_login', 1),
+            'like_received' => (int) $this->settings->get('huseyinfiliz-leaderboard.points_like_received', 1),
+            'like_given' => (int) $this->settings->get('huseyinfiliz-leaderboard.points_like_given', 0),
+            'reaction_received' => (int) $this->settings->get('huseyinfiliz-leaderboard.points_reaction_received', 1),
+            'reaction_given' => (int) $this->settings->get('huseyinfiliz-leaderboard.points_reaction_given', 0),
+            'best_answer' => (int) $this->settings->get('huseyinfiliz-leaderboard.points_best_answer', 2),
+            'badge_earned' => (int) $this->settings->get('huseyinfiliz-leaderboard.points_badge_earned', 3),
+            'upvote_received' => (int) $this->settings->get('huseyinfiliz-leaderboard.points_upvote_received', 1),
+            'downvote_received' => (int) $this->settings->get('huseyinfiliz-leaderboard.points_downvote_received', -1),
         ];
 
         [$case, $bindings] = $this->buildCaseExpression($pointValues);
@@ -122,36 +121,38 @@ trait QueriesLeaderboard
 
         $entries = [];
         foreach ($topRows as $i => $row) {
-            $uid          = $row->user_id;
-            $user         = $users->get($uid);
-            if (!$user) continue;
+            $uid = $row->user_id;
+            $user = $users->get($uid);
+            if (! $user) {
+                continue;
+            }
 
-            $currentRank  = $i + 1;
+            $currentRank = $i + 1;
             $previousRank = $previousRanks[$uid] ?? $currentRank;
-            $rankChange   = $previousRank - $currentRank; // positive = moved up
+            $rankChange = $previousRank - $currentRank; // positive = moved up
 
-            $periodPts    = isset($periodPointsRows[$uid])
+            $periodPts = isset($periodPointsRows[$uid])
                 ? (int) $periodPointsRows[$uid]->period_points
                 : 0;
 
-            $firstAt      = isset($firstPointDates[$uid])
+            $firstAt = isset($firstPointDates[$uid])
                 ? Carbon::parse($firstPointDates[$uid]->first_point_at)
                 : null;
-            $isNew        = $firstAt !== null && $firstAt->gte($since);
+            $isNew = $firstAt !== null && $firstAt->gte($since);
 
             $entries[] = [
-                'user'         => $user,
-                'rank'         => $currentRank,
-                'points'       => (int) $row->points_total,
+                'user' => $user,
+                'rank' => $currentRank,
+                'points' => (int) $row->points_total,
                 'periodPoints' => $periodPts,
-                'rankChange'   => $rankChange,
-                'isNew'        => $isNew,
+                'rankChange' => $rankChange,
+                'isNew' => $isNew,
             ];
         }
 
         // --- Biggest mover — highest period_points among top $limit ---
         $biggestMover = null;
-        if (!empty($entries)) {
+        if (! empty($entries)) {
             $mover = collect($entries)->sortByDesc('periodPoints')->first();
             if ($mover && $mover['periodPoints'] > 0) {
                 $biggestMover = $mover;
@@ -159,8 +160,8 @@ trait QueriesLeaderboard
         }
 
         return [
-            'enabled'      => true,
-            'entries'      => $entries,
+            'enabled' => true,
+            'entries' => $entries,
             'biggestMover' => $biggestMover,
         ];
     }

@@ -10,7 +10,6 @@ use Carbon\Carbon;
  */
 trait QueriesGiveaways
 {
-
     // -------------------------------------------------------------------------
     // Section order
     // -------------------------------------------------------------------------
@@ -28,28 +27,28 @@ trait QueriesGiveaways
      *   enabled        bool
      *   endingSoon     array of [ title, prize, url, endsAt(Carbon), entrantCount, winnerCount ]
      *   recentWinners  array of [ title, prize, url, drawnAt(Carbon), winners(string[]) ]
-     *   forumUrl       string — full URL to /giveaways
+     *   forumUrl       string — full URL to /giveaways.
      */
     public function getGiveaways(Carbon $since, int $limit = 5): array
     {
         $empty = [
-            'enabled'       => false,
-            'endingSoon'    => [],
+            'enabled' => false,
+            'endingSoon' => [],
             'recentWinners' => [],
-            'forumUrl'      => '',
+            'forumUrl' => '',
         ];
 
         $extInstalled = $this->extensions->isEnabled('ernestdefoe-giveaways');
-        $raw          = $this->settings->get('ernestdefoe-digest-mail.enable_giveaways');
+        $raw = $this->settings->get('ernestdefoe-digest-mail.enable_giveaways');
         $adminEnabled = $raw === null || $raw === '' ? true : (bool) $raw;
-        if (!$extInstalled || !$adminEnabled) {
+        if (! $extInstalled || ! $adminEnabled) {
             return $empty;
         }
 
         try {
-            $now      = Carbon::now('UTC');
-            $baseUrl  = rtrim($this->settings->get('url', ''), '/');
-            $forumUrl = $baseUrl . '/giveaways';
+            $now = Carbon::now('UTC');
+            $baseUrl = rtrim($this->settings->get('url', ''), '/');
+            $forumUrl = $baseUrl.'/giveaways';
 
             // Ending soon: active, already started, ending in the future, soonest first.
             // third-party table — no Eloquent model available.
@@ -63,7 +62,7 @@ trait QueriesGiveaways
                 ->limit($limit)
                 ->get(['id', 'title', 'slug', 'prize', 'ends_at', 'winner_count']);
 
-            $endingIds   = collect($endingRows)->pluck('id')->all();
+            $endingIds = collect($endingRows)->pluck('id')->all();
             $entryCounts = count($endingIds)
                 // third-party table — no Eloquent model available.
                 ? $this->db->table('giveaway_entries')->whereIn('giveaway_id', $endingIds)
@@ -73,12 +72,12 @@ trait QueriesGiveaways
             $endingSoon = [];
             foreach ($endingRows as $r) {
                 $endingSoon[] = [
-                    'title'        => $r->title,
-                    'prize'        => $r->prize,
-                    'url'          => $forumUrl . '/' . $r->slug,
-                    'endsAt'       => Carbon::parse($r->ends_at),
+                    'title' => $r->title,
+                    'prize' => $r->prize,
+                    'url' => $forumUrl.'/'.$r->slug,
+                    'endsAt' => Carbon::parse($r->ends_at),
                     'entrantCount' => (int) ($entryCounts[$r->id] ?? 0),
-                    'winnerCount'  => (int) $r->winner_count,
+                    'winnerCount' => (int) $r->winner_count,
                 ];
             }
 
@@ -91,7 +90,7 @@ trait QueriesGiveaways
                 ->limit($limit)
                 ->get(['id', 'title', 'slug', 'prize', 'drawn_at']);
 
-            $drawnIds          = collect($drawnRows)->pluck('id')->all();
+            $drawnIds = collect($drawnRows)->pluck('id')->all();
             $winnersByGiveaway = [];
             if (count($drawnIds)) {
                 // third-party table — no Eloquent model available.
@@ -108,9 +107,9 @@ trait QueriesGiveaways
             $recentWinners = [];
             foreach ($drawnRows as $r) {
                 $recentWinners[] = [
-                    'title'   => $r->title,
-                    'prize'   => $r->prize,
-                    'url'     => $forumUrl . '/' . $r->slug,
+                    'title' => $r->title,
+                    'prize' => $r->prize,
+                    'url' => $forumUrl.'/'.$r->slug,
                     'drawnAt' => Carbon::parse($r->drawn_at),
                     'winners' => $winnersByGiveaway[$r->id] ?? [],
                 ];
@@ -121,10 +120,10 @@ trait QueriesGiveaways
             }
 
             return [
-                'enabled'       => true,
-                'endingSoon'    => $endingSoon,
+                'enabled' => true,
+                'endingSoon' => $endingSoon,
                 'recentWinners' => $recentWinners,
-                'forumUrl'      => $forumUrl,
+                'forumUrl' => $forumUrl,
             ];
         } catch (\Throwable $e) {
             // The giveaways tables belong to a third-party extension and may be

@@ -3,20 +3,21 @@
 namespace Resofire\DigestMail;
 
 use Flarum\Http\UrlGenerator;
+use Flarum\Locale\Translator;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\User;
-use Flarum\Locale\Translator;
 use Illuminate\Contracts\Mail\Mailer;
 use Illuminate\Mail\Message;
 
 class DigestMailer
 {
     public function __construct(
-        private Mailer                      $mailer,
-        private UrlGenerator                $url,
+        private Mailer $mailer,
+        private UrlGenerator $url,
         private SettingsRepositoryInterface $settings,
-        private Translator                  $translator,
-    ) {}
+        private Translator $translator,
+    ) {
+    }
 
     /**
      * Resolve the effective email theme for a user.
@@ -68,8 +69,8 @@ class DigestMailer
     {
         return match ((string) $scheme) {
             'light', 'light-hc' => 'light',
-            'dark',  'dark-hc'  => 'dark',
-            default             => 'auto',
+            'dark',  'dark-hc' => 'dark',
+            default => 'auto',
         };
     }
 
@@ -93,19 +94,25 @@ class DigestMailer
         $b = hexdec(substr($hex, 4, 2)) / 255;
 
         // RGB → HSL
-        $max  = max($r, $g, $b);
-        $min  = min($r, $g, $b);
-        $l    = ($max + $min) / 2;
-        $s    = 0;
-        $h    = 0;
+        $max = max($r, $g, $b);
+        $min = min($r, $g, $b);
+        $l = ($max + $min) / 2;
+        $s = 0;
+        $h = 0;
         $diff = $max - $min;
 
         if ($diff > 0) {
             $s = $diff / (1 - abs(2 * $l - 1));
-            if ($max === $r) $h = 60 * fmod(($g - $b) / $diff, 6);
-            elseif ($max === $g) $h = 60 * (($b - $r) / $diff + 2);
-            else                  $h = 60 * (($r - $g) / $diff + 4);
-            if ($h < 0) $h += 360;
+            if ($max === $r) {
+                $h = 60 * fmod(($g - $b) / $diff, 6);
+            } elseif ($max === $g) {
+                $h = 60 * (($b - $r) / $diff + 2);
+            } else {
+                $h = 60 * (($r - $g) / $diff + 4);
+            }
+            if ($h < 0) {
+                $h += 360;
+            }
         }
 
         // Build dark palette — desaturate and darken significantly
@@ -115,27 +122,35 @@ class DigestMailer
             $c = (1 - abs(2 * $l - 1)) * $s;
             $x = $c * (1 - abs(fmod($h / 60, 2) - 1));
             $m = $l - $c / 2;
-            if ($h < 60)       [$r,$g,$b] = [$c,$x,0];
-            elseif ($h < 120)  [$r,$g,$b] = [$x,$c,0];
-            elseif ($h < 180)  [$r,$g,$b] = [0,$c,$x];
-            elseif ($h < 240)  [$r,$g,$b] = [0,$x,$c];
-            elseif ($h < 300)  [$r,$g,$b] = [$x,0,$c];
-            else               [$r,$g,$b] = [$c,0,$x];
+            if ($h < 60) {
+                [$r,$g,$b] = [$c, $x, 0];
+            } elseif ($h < 120) {
+                [$r,$g,$b] = [$x, $c, 0];
+            } elseif ($h < 180) {
+                [$r,$g,$b] = [0, $c, $x];
+            } elseif ($h < 240) {
+                [$r,$g,$b] = [0, $x, $c];
+            } elseif ($h < 300) {
+                [$r,$g,$b] = [$x, 0, $c];
+            } else {
+                [$r,$g,$b] = [$c, 0, $x];
+            }
+
             return sprintf('#%02x%02x%02x',
-                round(($r+$m)*255), round(($g+$m)*255), round(($b+$m)*255));
+                round(($r + $m) * 255), round(($g + $m) * 255), round(($b + $m) * 255));
         };
 
         return [
             // Page background — very dark, slight hue tint
-            'bg'      => $hslToHex($h, min($s * 0.3, 0.15), 0.10),
+            'bg' => $hslToHex($h, min($s * 0.3, 0.15), 0.10),
             // Card/surface background
             'surface' => $hslToHex($h, min($s * 0.25, 0.12), 0.15),
             // Slightly lighter surface for alternating rows
-            'surface2'=> $hslToHex($h, min($s * 0.2,  0.10), 0.19),
+            'surface2' => $hslToHex($h, min($s * 0.2, 0.10), 0.19),
             // Border color
-            'border'  => $hslToHex($h, min($s * 0.2,  0.10), 0.22),
+            'border' => $hslToHex($h, min($s * 0.2, 0.10), 0.22),
             // Primary text
-            'text'    => '#e5e7eb',
+            'text' => '#e5e7eb',
             // Secondary text
             'textMuted' => '#9ca3af',
         ];
@@ -143,9 +158,9 @@ class DigestMailer
 
     public function sendToUser(User $user, DigestContent $content, string $unsubscribeToken): void
     {
-        $originalLocale       = $this->translator->getLocale();
+        $originalLocale = $this->translator->getLocale();
         $originalCarbonLocale = \Carbon\Carbon::getLocale();
-        $userLocale           = $user->getPreference('locale') ?? $this->settings->get('default_locale') ?? 'en';
+        $userLocale = $user->getPreference('locale') ?? $this->settings->get('default_locale') ?? 'en';
         $this->translator->setLocale($userLocale);
         // Relative times in the email (diffForHumans) localize off Carbon's
         // locale, which is independent of the translator — set it too or the
@@ -154,34 +169,34 @@ class DigestMailer
 
         try {
             $unsubscribeUrl = $this->url->to('forum')->route('resofire.digest-mail.unsubscribe')
-                . '?token=' . urlencode($unsubscribeToken);
+                .'?token='.urlencode($unsubscribeToken);
 
-            $forumTitle  = $this->settings->get('forum_title', 'Forum');
-            $freqKey     = 'ernestdefoe-digest-mail.email.frequency.' . $content->frequency;
+            $forumTitle = $this->settings->get('forum_title', 'Forum');
+            $freqKey = 'ernestdefoe-digest-mail.email.frequency.'.$content->frequency;
             $frequencyLabel = $this->translator->trans($freqKey);
             if ($frequencyLabel === $freqKey) {
                 $frequencyLabel = $content->frequencyLabel();
             }
-            $subject     = $this->translator->trans(
+            $subject = $this->translator->trans(
                 'ernestdefoe-digest-mail.email.subject',
                 ['{forum}' => $forumTitle, '{frequency}' => $frequencyLabel]
             );
 
-            $fromAddress = $this->settings->get('mail_from', 'noreply@' . parse_url($this->url->to('forum')->base(), PHP_URL_HOST));
-            $fromName    = $this->settings->get('mail_from_name', $forumTitle);
+            $fromAddress = $this->settings->get('mail_from', 'noreply@'.parse_url($this->url->to('forum')->base(), PHP_URL_HOST));
+            $fromName = $this->settings->get('mail_from_name', $forumTitle);
 
             $secondaryHex = $this->settings->get('theme_secondary_color', '#4f46e5');
-            $darkColors   = self::darkColorsFromSecondary($secondaryHex);
+            $darkColors = self::darkColorsFromSecondary($secondaryHex);
 
             $viewData = [
-                'content'        => $content,
-                'user'           => $user,
-                'forumTitle'     => $forumTitle,
-                'forumUrl'       => $this->url->to('forum')->base(),
+                'content' => $content,
+                'user' => $user,
+                'forumTitle' => $forumTitle,
+                'forumUrl' => $this->url->to('forum')->base(),
                 'unsubscribeUrl' => $unsubscribeUrl,
-                'url'            => $this->url,
-                'darkColors'     => $darkColors,
-                'translator'     => $this->translator,
+                'url' => $this->url,
+                'darkColors' => $darkColors,
+                'translator' => $this->translator,
                 'frequencyLabel' => $frequencyLabel,
             ];
 

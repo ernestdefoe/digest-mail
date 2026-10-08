@@ -2,7 +2,6 @@
 
 namespace Resofire\DigestMail\Controller;
 
-use Resofire\DigestMail\Token\UnsubscribeToken;
 use Flarum\Http\Controller\AbstractHtmlController;
 use Flarum\Http\UrlGenerator;
 use Flarum\Locale\Translator;
@@ -14,6 +13,7 @@ use Illuminate\Support\Arr;
 use Laminas\Diactoros\Response\RedirectResponse;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface as Request;
+use Resofire\DigestMail\Token\UnsubscribeToken;
 
 /**
  * Handles GET /digest/unsubscribe?token=...
@@ -29,11 +29,12 @@ class UnsubscribeController extends AbstractHtmlController
     private const VALID_FREQUENCIES = ['daily', 'weekly', 'monthly'];
 
     public function __construct(
-        private ViewFactory                 $view,
-        private UrlGenerator                $url,
+        private ViewFactory $view,
+        private UrlGenerator $url,
         private SettingsRepositoryInterface $settings,
-        private Translator                  $translator,
-    ) {}
+        private Translator $translator,
+    ) {
+    }
 
     /**
      * Override handle() so we can return a RedirectResponse when a frequency
@@ -41,9 +42,9 @@ class UnsubscribeController extends AbstractHtmlController
      */
     public function handle(Request $request): ResponseInterface
     {
-        $params    = $request->getQueryParams();
-        $rawToken  = Arr::get($params, 'token', '');
-        $saved     = (bool) Arr::get($params, 'saved', false);
+        $params = $request->getQueryParams();
+        $rawToken = Arr::get($params, 'token', '');
+        $saved = (bool) Arr::get($params, 'saved', false);
         $frequency = Arr::get($params, 'frequency');
 
         // Show saved confirmation — no token needed at this point.
@@ -70,7 +71,7 @@ class UnsubscribeController extends AbstractHtmlController
             $token->delete();
 
             $savedUrl = $this->url->to('forum')->route('resofire.digest-mail.unsubscribe')
-                . '?saved=1';
+                .'?saved=1';
 
             return new RedirectResponse($savedUrl);
         }
@@ -81,36 +82,36 @@ class UnsubscribeController extends AbstractHtmlController
 
     protected function render(Request $request): Renderable|string
     {
-        $params   = $request->getQueryParams();
+        $params = $request->getQueryParams();
         $rawToken = Arr::get($params, 'token', '');
-        $saved    = (bool) Arr::get($params, 'saved', false);
+        $saved = (bool) Arr::get($params, 'saved', false);
 
         if ($saved) {
             return $this->view->make('ernestdefoe-digest-mail::unsubscribe-saved')
-                ->with('forumUrl',    $this->url->to('forum')->base())
-                ->with('settings',    $this->settings)
-                ->with('translator',  $this->translator);
+                ->with('forumUrl', $this->url->to('forum')->base())
+                ->with('settings', $this->settings)
+                ->with('translator', $this->translator);
         }
 
         $token = UnsubscribeToken::findValid($rawToken);
 
         if ($token === null) {
             return $this->view->make('ernestdefoe-digest-mail::unsubscribe-invalid')
-                ->with('forumUrl',    $this->url->to('forum')->base())
-                ->with('settings',    $this->settings)
-                ->with('translator',  $this->translator);
+                ->with('forumUrl', $this->url->to('forum')->base())
+                ->with('settings', $this->settings)
+                ->with('translator', $this->translator);
         }
 
-        $user    = $token->user;
+        $user = $token->user;
         $baseUrl = $this->url->to('forum')->route('resofire.digest-mail.unsubscribe')
-            . '?token=' . urlencode($rawToken) . '&frequency=';
+            .'?token='.urlencode($rawToken).'&frequency=';
 
         return $this->view->make('ernestdefoe-digest-mail::unsubscribe')
-            ->with('user',             $user)
+            ->with('user', $user)
             ->with('currentFrequency', $user->digest_frequency)
-            ->with('token',            $rawToken)
-            ->with('postUrl',          $baseUrl)
-            ->with('settings',         $this->settings)
-            ->with('translator',       $this->translator);
+            ->with('token', $rawToken)
+            ->with('postUrl', $baseUrl)
+            ->with('settings', $this->settings)
+            ->with('translator', $this->translator);
     }
 }

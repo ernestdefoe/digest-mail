@@ -13,7 +13,6 @@ use Illuminate\Database\Eloquent\Collection;
  */
 trait QueriesDiscussions
 {
-
     // -------------------------------------------------------------------------
     // Section 0 — Featured discussion
     // -------------------------------------------------------------------------
@@ -27,10 +26,14 @@ trait QueriesDiscussions
     public function getFeaturedDiscussion(User $actor): ?Discussion
     {
         $raw = $this->settings->get('ernestdefoe-digest-mail.featured_discussion_id');
-        if (!$raw) return null;
+        if (! $raw) {
+            return null;
+        }
 
         $id = (int) $raw;
-        if ($id <= 0) return null;
+        if ($id <= 0) {
+            return null;
+        }
 
         return Discussion::whereVisibleTo($actor)
             ->where('discussions.id', $id)
@@ -38,7 +41,6 @@ trait QueriesDiscussions
             ->with(['user', 'lastPostedUser'])
             ->first();
     }
-
 
     // -------------------------------------------------------------------------
     // Section 1 — New discussions
@@ -64,14 +66,13 @@ trait QueriesDiscussions
             ->get();
     }
 
-
     // -------------------------------------------------------------------------
     // Section 2 — Hot discussions
     // -------------------------------------------------------------------------
 
     public function getHotDiscussions(User $actor, Carbon $since, int $limit): Collection
     {
-        $replyWeight   = (float) $this->settings->get('ernestdefoe-digest-mail.hot_reply_weight',   1.0);
+        $replyWeight = (float) $this->settings->get('ernestdefoe-digest-mail.hot_reply_weight', 1.0);
         $recencyWeight = (float) $this->settings->get('ernestdefoe-digest-mail.hot_recency_weight', 0.5);
 
         // The hot score blends reply volume with recency. The recency term needs
@@ -111,7 +112,6 @@ trait QueriesDiscussions
             ->values();
     }
 
-
     // -------------------------------------------------------------------------
     // Section 3 — Unread discussions
     // -------------------------------------------------------------------------
@@ -140,7 +140,6 @@ trait QueriesDiscussions
             ->get();
     }
 
-
     // -------------------------------------------------------------------------
     // Section 4 — New members
     // -------------------------------------------------------------------------
@@ -155,7 +154,6 @@ trait QueriesDiscussions
             ->limit($limit)
             ->get();
     }
-
 
     // -------------------------------------------------------------------------
     // Period stats — counts for the stats bar

@@ -2,14 +2,14 @@
 
 namespace Resofire\DigestMail\Api\Controller;
 
+use Carbon\Carbon;
 use Flarum\Http\RequestUtil;
 use Flarum\User\Exception\PermissionDeniedException;
-use Resofire\DigestMail\Token\UnsubscribeToken;
-use Carbon\Carbon;
 use Laminas\Diactoros\Response\JsonResponse;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
+use Resofire\DigestMail\Token\UnsubscribeToken;
 
 /**
  * GET /api/ernestdefoe/digest-mail/check-token?token=...
@@ -55,8 +55,8 @@ class CheckTokenController implements RequestHandlerInterface
             ->toDateTimeString();
 
         return new JsonResponse([
-            'valid'      => true,
-            'username'   => $token->user->username,
+            'valid' => true,
+            'username' => $token->user->username,
             'created_at' => $token->created_at->toDateTimeString(),
             'expires_at' => $expiresAt,
         ]);

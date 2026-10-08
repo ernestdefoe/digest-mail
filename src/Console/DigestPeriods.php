@@ -15,8 +15,8 @@ trait DigestPeriods
     private function periodStart(string $frequency): Carbon
     {
         return match ($frequency) {
-            'daily'   => Carbon::now('UTC')->subDay(),
-            'weekly'  => Carbon::now('UTC')->subWeek(),
+            'daily' => Carbon::now('UTC')->subDay(),
+            'weekly' => Carbon::now('UTC')->subWeek(),
             'monthly' => Carbon::now('UTC')->subMonth(),
         };
     }
@@ -25,8 +25,8 @@ trait DigestPeriods
     private function lastSentCutoff(string $frequency): Carbon
     {
         return match ($frequency) {
-            'daily'   => Carbon::now('UTC')->subHours(23),
-            'weekly'  => Carbon::now('UTC')->subDays(6),
+            'daily' => Carbon::now('UTC')->subHours(23),
+            'weekly' => Carbon::now('UTC')->subDays(6),
             'monthly' => Carbon::now('UTC')->subDays(28),
         };
     }
