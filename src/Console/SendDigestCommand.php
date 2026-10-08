@@ -107,6 +107,7 @@ class SendDigestCommand extends Command
     // Time-gate
     // -------------------------------------------------------------------------
 
+    /** @return list<'daily'|'weekly'|'monthly'> */
     private function dueFrequencies(): array
     {
         $timezone    = $this->settings->get('ernestdefoe-digest-mail.timezone', 'UTC');
@@ -194,6 +195,10 @@ class SendDigestCommand extends Command
     // Per-frequency processing
     // -------------------------------------------------------------------------
 
+    /**
+     * @param 'daily'|'weekly'|'monthly' $frequency
+     * @return array{int, int}
+     */
     private function processFrequency(string $frequency, bool $isDryRun, ?int $singleUserId): array
     {
         $since     = $this->periodStart($frequency);

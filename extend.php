@@ -15,6 +15,7 @@ use Flarum\Extend;
 use Flarum\Extension\ExtensionManager;
 use Flarum\User\Event\Activated;
 use Flarum\User\User;
+use Illuminate\Console\Scheduling\Event;
 
 return [
     // -------------------------------------------------------------------------
@@ -51,6 +52,14 @@ return [
     (new Extend\User)
         ->registerPreference('digest_onboarding_pending', null, false),
 
+    // The two columns the first migration adds to users, declared so their
+    // type is known. Both are read and written as the strings the database
+    // holds (digest_last_sent_at is compared and restored raw), so 'string'
+    // keeps every value exactly as it was.
+    (new Extend\Model(User::class))
+        ->cast('digest_frequency', 'string')
+        ->cast('digest_last_sent_at', 'string'),
+
     // -------------------------------------------------------------------------
     // Translations
     // -------------------------------------------------------------------------
@@ -86,7 +95,9 @@ return [
     (new Extend\Console)
         ->command(SendDigestCommand::class)
         ->command(EnqueueDigestCommand::class)
-        ->schedule(SendDigestCommand::class, fn ($event) => $event->everyMinute()),
+        ->schedule(SendDigestCommand::class, function (Event $event): void {
+            $event->everyMinute();
+        }),
 
     // -------------------------------------------------------------------------
     // Forum routes

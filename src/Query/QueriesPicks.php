@@ -154,7 +154,7 @@ trait QueriesPicks
                 'matchDate'   => Carbon::parse($ev->match_date),
                 'cutoff'      => Carbon::parse($ev->cutoff_date),
                 'neutralSite' => (bool) $ev->neutral_site,
-                'weekName'    => $week?->name ?? null,
+                'weekName'    => $week->name ?? null,
             ];
         }
 

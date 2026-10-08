@@ -32,7 +32,7 @@ class DigestStatsController implements RequestHandlerInterface
             ->where('is_email_confirmed', true)
             ->count();
 
-        $freqRows = User::query()
+        $freqRows = User::query()->toBase()
             ->selectRaw('digest_frequency, COUNT(*) as cnt')
             ->where('is_email_confirmed', true)
             ->whereIn('digest_frequency', ['daily', 'weekly', 'monthly'])
@@ -50,7 +50,7 @@ class DigestStatsController implements RequestHandlerInterface
             : 0;
 
         // Last sent per frequency
-        $lastSentRows = User::query()
+        $lastSentRows = User::query()->toBase()
             ->selectRaw('digest_frequency, MAX(digest_last_sent_at) as last_sent')
             ->whereIn('digest_frequency', ['daily', 'weekly', 'monthly'])
             ->whereNotNull('digest_last_sent_at')

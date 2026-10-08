@@ -5,6 +5,7 @@ namespace Resofire\DigestMail\Token;
 use Carbon\Carbon;
 use Flarum\Database\AbstractModel;
 use Flarum\User\User;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * Eloquent model for the digest_unsubscribe_tokens table.
@@ -50,7 +51,10 @@ class UnsubscribeToken extends AbstractModel
 
     protected $casts = ['created_at' => 'datetime'];
 
-    public function user()
+    /**
+     * @return BelongsTo<User, $this>
+     */
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
@@ -59,7 +63,7 @@ class UnsubscribeToken extends AbstractModel
      * Retrieve a token record by its raw string value.
      * Returns null if the token does not exist or has expired.
      */
-    public static function findValid(string $rawToken): ?static
+    public static function findValid(string $rawToken): ?self
     {
         $record = static::where('token', $rawToken)->first();
 

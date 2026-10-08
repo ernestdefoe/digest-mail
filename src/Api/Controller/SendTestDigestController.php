@@ -8,7 +8,6 @@ use Resofire\DigestMail\DigestQuery;
 use Resofire\DigestMail\Token\UnsubscribeTokenGenerator;
 use Carbon\Carbon;
 use Flarum\Http\RequestUtil;
-use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\Exception\PermissionDeniedException;
 use Flarum\User\User;
 use Illuminate\Support\Arr;
@@ -48,7 +47,6 @@ class SendTestDigestController implements RequestHandlerInterface
         private DigestQuery                 $query,
         private DigestMailer                $mailer,
         private UnsubscribeTokenGenerator   $tokenGenerator,
-        private SettingsRepositoryInterface $settings,
         private LoggerInterface             $log,
     ) {}
 

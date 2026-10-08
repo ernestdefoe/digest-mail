@@ -101,13 +101,12 @@ trait QueriesDiscussions
         $now = Carbon::now();
 
         return $candidates
-            ->map(function (Discussion $d) use ($replyWeight, $recencyWeight, $now) {
+            ->sortByDesc(function (Discussion $d) use ($replyWeight, $recencyWeight, $now) {
                 $hours = $d->last_posted_at ? max(0, $now->diffInHours($d->last_posted_at)) : PHP_INT_MAX;
-                $d->hot_score = ((int) $d->comment_count * $replyWeight)
+
+                return ((int) $d->comment_count * $replyWeight)
                     + (1.0 / (1.0 + $hours * $recencyWeight));
-                return $d;
             })
-            ->sortByDesc('hot_score')
             ->take($limit)
             ->values();
     }

@@ -11,6 +11,7 @@ use Carbon\Carbon;
  */
 trait DigestPeriods
 {
+    /** @param 'daily'|'weekly'|'monthly' $frequency */
     private function periodStart(string $frequency): Carbon
     {
         return match ($frequency) {
@@ -20,6 +21,7 @@ trait DigestPeriods
         };
     }
 
+    /** @param 'daily'|'weekly'|'monthly' $frequency */
     private function lastSentCutoff(string $frequency): Carbon
     {
         return match ($frequency) {
