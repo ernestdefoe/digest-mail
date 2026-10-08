@@ -52,13 +52,13 @@ let DEFAULT_ORDER=["discussions","members","stats","leaderboard","badges","picke
 let ExtIcon={view:function(vnode){let a=vnode.attrs;let sz=a.size||40;let fz=Math.round(sz*0.44);return m("div",{style:"width:"+sz+"px;height:"+sz+"px;border-radius:8px;background-color:"+(a.iconBg||"#6b7280")+";display:flex;align-items:center;justify-content:center;flex-shrink:0;"},m("i",{className:a.iconName||"fas fa-puzzle-piece",style:"color:"+(a.iconColor||"#fff")+";font-size:"+fz+"px;"}));}};
 
 let IntegrationToggle={
-  oninit:function(vnode){let key=vnode.attrs.settingKey;let ext=vnode.attrs.extData||{};let saved=app.data.settings[key];if(saved===undefined||saved===null){saved=ext.enabled?"1":"0";}vnode.state.on=saved==="1"||saved===true||saved===1;vnode.state.saving=false;},
+  oninit:function(vnode){let key=vnode.attrs.settingKey;let ext=vnode.attrs.extData||{};let saved: unknown=app.data.settings[key];if(saved===undefined||saved===null){saved=ext.enabled?"1":"0";}vnode.state.on=saved==="1"||saved===true||saved===1;vnode.state.saving=false;},
   toggle:function(vnode){let ext=vnode.attrs.extData||{};if(!ext.enabled||vnode.state.saving)return;vnode.state.on=!vnode.state.on;vnode.state.saving=true;let newVal=vnode.state.on?"1":"0";saveSetting(vnode.attrs.settingKey,newVal).then(function(){vnode.state.saving=false;m.redraw();}).catch(function(){vnode.state.on=!vnode.state.on;vnode.state.saving=false;m.redraw();});},
-  view:function(vnode){let a=vnode.attrs;let s=vnode.state;let tr=function(k,v){return app.translator.trans(k,v);};let ext=a.extData||{};let installed=!!ext.enabled;let on=installed&&s.on;let trackBg=!installed?"var(--control-bg)":on?"var(--primary-color,#4f46e5)":"var(--control-color,#d1d5db)";let thumbLeft=on?"22px":"2px";let cardOpacity=installed?"1":"0.55";let cursor=installed?"pointer":"not-allowed";let statusText=installed?(a.installedNote||tr("ernestdefoe-digest-mail.admin.integrations.extension_active")):(a.notInstalledNote||tr("ernestdefoe-digest-mail.admin.integrations.not_installed_or_disabled"));let statusColor=installed?"#16a34a":"var(--muted-color)";return m("div",{style:"display:flex;align-items:center;gap:16px;padding:16px 20px;border-radius:8px;background:var(--control-bg);border:1px solid var(--control-bg);opacity:"+cardOpacity+";margin-bottom:10px;transition:opacity .2s;"},m(ExtIcon,{iconName:ext.iconName,iconColor:ext.iconColor,iconBg:ext.iconBg,size:44}),m("div",{style:"flex:1;min-width:0;"},m("div",{style:"display:flex;align-items:center;gap:8px;margin-bottom:3px;"},m("span",{style:"font-size:16px;font-weight:700;color:var(--heading-color,var(--text-color));"},ext.title||a.settingKey),m("span",{style:"font-size:11px;font-weight:600;padding:2px 7px;border-radius:20px;background:"+(installed?"rgba(34,197,94,.15)":"var(--control-bg)")+";color:"+(installed?"#16a34a":"var(--muted-color)")+";"},installed?tr("ernestdefoe-digest-mail.admin.integrations.status_active"):tr("ernestdefoe-digest-mail.admin.integrations.status_inactive"))),m("div",{style:"font-size:13px;color:var(--muted-color);line-height:1.45;margin-bottom:4px;"},a.description),m("div",{style:"font-size:12px;color:"+statusColor+";"},statusText)),m("div",{style:"flex-shrink:0;cursor:"+cursor+";user-select:none;",title:installed?(on?tr("ernestdefoe-digest-mail.admin.integrations.toggle_disable_title"):tr("ernestdefoe-digest-mail.admin.integrations.toggle_enable_title")):tr("ernestdefoe-digest-mail.admin.integrations.toggle_install_first_title"),onclick:function(){IntegrationToggle.toggle(vnode);}},m("div",{style:"position:relative;width:46px;height:26px;border-radius:13px;background-color:"+trackBg+";transition:background-color .2s;"},m("div",{style:"position:absolute;top:3px;left:"+thumbLeft+";width:20px;height:20px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.3);transition:left .15s;"}))));} 
+  view:function(vnode){let a=vnode.attrs;let s=vnode.state;let tr=function(k,v?){return app.translator.trans(k,v);};let ext=a.extData||{};let installed=!!ext.enabled;let on=installed&&s.on;let trackBg=!installed?"var(--control-bg)":on?"var(--primary-color,#4f46e5)":"var(--control-color,#d1d5db)";let thumbLeft=on?"22px":"2px";let cardOpacity=installed?"1":"0.55";let cursor=installed?"pointer":"not-allowed";let statusText=installed?(a.installedNote||tr("ernestdefoe-digest-mail.admin.integrations.extension_active")):(a.notInstalledNote||tr("ernestdefoe-digest-mail.admin.integrations.not_installed_or_disabled"));let statusColor=installed?"#16a34a":"var(--muted-color)";return m("div",{style:"display:flex;align-items:center;gap:16px;padding:16px 20px;border-radius:8px;background:var(--control-bg);border:1px solid var(--control-bg);opacity:"+cardOpacity+";margin-bottom:10px;transition:opacity .2s;"},m(ExtIcon,{iconName:ext.iconName,iconColor:ext.iconColor,iconBg:ext.iconBg,size:44}),m("div",{style:"flex:1;min-width:0;"},m("div",{style:"display:flex;align-items:center;gap:8px;margin-bottom:3px;"},m("span",{style:"font-size:16px;font-weight:700;color:var(--heading-color,var(--text-color));"},ext.title||a.settingKey),m("span",{style:"font-size:11px;font-weight:600;padding:2px 7px;border-radius:20px;background:"+(installed?"rgba(34,197,94,.15)":"var(--control-bg)")+";color:"+(installed?"#16a34a":"var(--muted-color)")+";"},installed?tr("ernestdefoe-digest-mail.admin.integrations.status_active"):tr("ernestdefoe-digest-mail.admin.integrations.status_inactive"))),m("div",{style:"font-size:13px;color:var(--muted-color);line-height:1.45;margin-bottom:4px;"},a.description),m("div",{style:"font-size:12px;color:"+statusColor+";"},statusText)),m("div",{style:"flex-shrink:0;cursor:"+cursor+";user-select:none;",title:installed?(on?tr("ernestdefoe-digest-mail.admin.integrations.toggle_disable_title"):tr("ernestdefoe-digest-mail.admin.integrations.toggle_enable_title")):tr("ernestdefoe-digest-mail.admin.integrations.toggle_install_first_title"),onclick:function(){IntegrationToggle.toggle(vnode);}},m("div",{style:"position:relative;width:46px;height:26px;border-radius:13px;background-color:"+trackBg+";transition:background-color .2s;"},m("div",{style:"position:absolute;top:3px;left:"+thumbLeft+";width:20px;height:20px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.3);transition:left .15s;"}))));} 
 };
 
 let FrequencyToggle={
-  oninit:function(vnode){let saved=app.data.settings[vnode.attrs.settingKey];if(saved===undefined||saved===null)saved=vnode.attrs.defaultOn?"1":"0";vnode.state.on=saved==="1"||saved===true||saved===1;vnode.state.saving=false;},
+  oninit:function(vnode){let saved: unknown=app.data.settings[vnode.attrs.settingKey];if(saved===undefined||saved===null)saved=vnode.attrs.defaultOn?"1":"0";vnode.state.on=saved==="1"||saved===true||saved===1;vnode.state.saving=false;},
   toggle:function(vnode){if(vnode.state.saving)return;vnode.state.on=!vnode.state.on;vnode.state.saving=true;let newVal=vnode.state.on?"1":"0";saveSetting(vnode.attrs.settingKey,newVal).then(function(){vnode.state.saving=false;m.redraw();}).catch(function(){vnode.state.on=!vnode.state.on;vnode.state.saving=false;m.redraw();});},
   view:function(vnode){let a=vnode.attrs;let s=vnode.state;let tr=function(k){return app.translator.trans(k);};let on=s.on;let trackBg=on?"var(--primary-color,#4f46e5)":"var(--control-color,#d1d5db)";let thumbLeft=on?"22px":"2px";return m("div",{style:"display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-radius:8px;background:var(--control-bg);border:1px solid var(--control-bg);margin-bottom:10px;"},m("div",{style:"display:flex;align-items:center;gap:14px;flex:1;"},m("div",{style:"width:44px;height:44px;border-radius:8px;flex-shrink:0;background:"+a.iconBg+";display:flex;align-items:center;justify-content:center;font-size:20px;"},a.emoji),m("div",null,m("div",{style:"font-size:15px;font-weight:700;color:var(--heading-color,var(--text-color));margin-bottom:2px;"},a.label),m("div",{style:"font-size:13px;color:var(--muted-color);line-height:1.4;"},a.description))),m("div",{style:"flex-shrink:0;cursor:pointer;margin-left:20px;",title:on?tr("ernestdefoe-digest-mail.admin.frequency.toggle_disable_title"):tr("ernestdefoe-digest-mail.admin.frequency.toggle_enable_title"),onclick:function(){FrequencyToggle.toggle(vnode);}},m("div",{style:"position:relative;width:46px;height:26px;border-radius:13px;background-color:"+trackBg+";transition:background-color .2s;"},m("div",{style:"position:absolute;top:3px;left:"+thumbLeft+";width:20px;height:20px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.3);transition:left .15s;"}))));}
 };
@@ -103,7 +103,7 @@ let ScheduleSection={
   },
   view:function(vnode){
     let s=vnode.state;
-    let tr=function(k,v){return app.translator.trans(k,v);};
+    let tr=function(k,v?){return app.translator.trans(k,v);};
     let hourOpts=buildHourOptions(s.tz);
     let tzOpts=TIMEZONES.map(function(z){
       return m("option",{value:z.tz,selected:s.tz===z.tz},tzOffsetLabel(z.tz)+" — "+z.label);
@@ -178,7 +178,7 @@ let OnboardingSection={
     let freqOpts={};
     let freqLabels={"daily":tr("ernestdefoe-digest-mail.admin.frequency.daily"),"weekly":tr("ernestdefoe-digest-mail.admin.frequency.weekly"),"monthly":tr("ernestdefoe-digest-mail.admin.frequency.monthly")};
     ["daily","weekly","monthly"].forEach(function(f){
-      let enabled=app.data.settings["ernestdefoe-digest-mail.allow_"+f];
+      let enabled: unknown=app.data.settings["ernestdefoe-digest-mail.allow_"+f];
       if(enabled==="1"||enabled===true||enabled===1)freqOpts[f]=freqLabels[f];
     });
     if(s.mode==="auto_enroll"&&freqOpts[s.frequency]===undefined){
@@ -300,7 +300,7 @@ let TestSendSection={
   oninit:function(vnode){vnode.state.email="";vnode.state.frequency="weekly";vnode.state.theme="light";vnode.state.loading=false;vnode.state.result=null;vnode.state.error=null;},
   send:function(state){let email=state.email.trim();if(!email){state.error=app.translator.trans("ernestdefoe-digest-mail.admin.test_send.error_empty_email");state.result=null;m.redraw();return;}state.loading=true;state.result=null;state.error=null;m.redraw();app.request({method:"POST",url:app.forum.attribute("apiUrl")+"/ernestdefoe/digest-mail/test-send",body:{email:email,frequency:state.frequency,theme:state.theme}}).then(function(data){state.loading=false;state.result=data;m.redraw();}).catch(function(e){state.loading=false;let serverMsg=(e&&e.response&&e.response.error)||(e&&e.message)||null;state.error=serverMsg||app.translator.trans("ernestdefoe-digest-mail.admin.test_send.error_generic");m.redraw();});},
   view:function(vnode){
-    let state=vnode.state;let themePickerEnabled=true;let tr=function(k,v){return app.translator.trans(k,v);};
+    let state=vnode.state;let themePickerEnabled=true;let tr=function(k,v?){return app.translator.trans(k,v);};
     let themeToggle=themePickerEnabled
       ?m("div",{style:"display:flex;align-items:center;gap:10px;margin-bottom:12px;"},m("label",{style:"font-size:13px;color:var(--muted-color);white-space:nowrap;"},tr("ernestdefoe-digest-mail.admin.test_send.theme_label")+":"),m("div",{style:"display:flex;gap:0;border:1px solid var(--control-bg);border-radius:6px;overflow:hidden;"},m("button",{style:"padding:6px 14px;font-size:13px;font-weight:500;border:none;cursor:pointer;"+(state.theme==="light"?"background:var(--body-bg,#fff);color:var(--text-color,#111827);box-shadow:inset 0 0 0 1px var(--control-bg);":"background:var(--control-bg);color:var(--muted-color);"),onclick:function(e){e.preventDefault();state.theme="light";m.redraw();}},m("span",{style:"margin-right:5px;"},"☀️"),tr("ernestdefoe-digest-mail.admin.test_send.theme_light")),m("button",{style:"padding:6px 14px;font-size:13px;font-weight:500;border:none;cursor:pointer;border-left:1px solid var(--control-bg);"+(state.theme==="dark"?"background:var(--header-bg,#1f2937);color:var(--header-color,#e5e7eb);":"background:var(--control-bg);color:var(--muted-color);"),onclick:function(e){e.preventDefault();state.theme="dark";m.redraw();}},m("span",{style:"margin-right:5px;"},"🌙"),tr("ernestdefoe-digest-mail.admin.test_send.theme_dark"))),m("span",{style:"font-size:12px;color:var(--muted-color);"},state.theme==="light"?tr("ernestdefoe-digest-mail.admin.test_send.theme_hint_light"):tr("ernestdefoe-digest-mail.admin.test_send.theme_hint_dark")))
       :m("div",{style:"display:flex;align-items:center;gap:8px;margin-bottom:12px;padding:8px 12px;background:var(--control-bg);border-radius:6px;"},m("span",{style:"font-size:13px;color:var(--muted-color);"},"☀️ "+tr("ernestdefoe-digest-mail.admin.test_send.theme_light_only")));
@@ -310,7 +310,7 @@ let TestSendSection={
 
 let SettingsTab={
   view:function(){
-    let exts=(app.forum.attribute("digestExtensions"))||{};
+    let exts=(app.forum.attribute<Record<string, any>>("digestExtensions"))||{};
     let tr=function(k){return app.translator.trans(k);};
     let sh=function(t){return m("h3",{style:"font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--muted-color);margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid var(--control-bg);"},t);};
     return m("div",null,
@@ -393,7 +393,7 @@ let DigestOrderTab={
     vnode.state.order=order;vnode.state.saving=false;vnode.state.saved=false;
   },
   activeSections:function(order){
-    let exts=(app.forum.attribute("digestExtensions"))||{};
+    let exts=(app.forum.attribute<Record<string, any>>("digestExtensions"))||{};
     let integrationEnabled={
       leaderboard:       getSettingVal("ernestdefoe-digest-mail.enable_leaderboard","1")==="1"&&!!(exts.leaderboard||{}).enabled,
       badges:            getSettingVal("ernestdefoe-digest-mail.enable_badges","1")==="1"     &&!!(exts.badges||{}).enabled,
@@ -497,7 +497,7 @@ let SubscriberList={
   },
   view:function(vnode){
     let s=vnode.state;
-    let tr=function(k,v){return app.translator.trans(k,v);};
+    let tr=function(k,v?){return app.translator.trans(k,v);};
     let color=vnode.attrs.color||"#f59e0b";
     let formatDate=function(str){
       if(!str)return tr("ernestdefoe-digest-mail.admin.stats.never");
@@ -539,7 +539,7 @@ let SubscriberList={
                 m("span",{style:"font-size:13px;font-weight:600;color:var(--heading-color,var(--text-color));display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"},user.username)
               ),
               m("span",{style:"font-size:11px;color:var(--muted-color);white-space:nowrap;flex-shrink:0;"},
-                tr("ernestdefoe-digest-mail.admin.stats.last_sent_prefix")+formatDate(user.last_sent)
+                tr("ernestdefoe-digest-mail.admin.stats.last_sent_prefix"),formatDate(user.last_sent)
               )
             );
           }),
@@ -572,9 +572,9 @@ let StatsTab={
   },
   view:function(vnode){
     let s=vnode.state;
-    let tr=function(k,v){return app.translator.trans(k,v);};
+    let tr=function(k,v?){return app.translator.trans(k,v);};
     let sh=function(t){return m("h3",{style:"font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--muted-color);margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid var(--control-bg);"},t);};
-    let card=function(label,value,sub){return m("div",{style:"background:var(--control-bg);border-radius:10px;padding:20px 24px;text-align:center;"},m("div",{style:"font-size:28px;font-weight:800;color:var(--heading-color,var(--text-color));line-height:1;margin-bottom:6px;"},value),m("div",{style:"font-size:13px;font-weight:600;color:var(--muted-color);margin-bottom:sub?4px:0;"},label),sub?m("div",{style:"font-size:12px;color:var(--muted-color);"},sub):null);};
+    let card=function(label,value,sub?){return m("div",{style:"background:var(--control-bg);border-radius:10px;padding:20px 24px;text-align:center;"},m("div",{style:"font-size:28px;font-weight:800;color:var(--heading-color,var(--text-color));line-height:1;margin-bottom:6px;"},value),m("div",{style:"font-size:13px;font-weight:600;color:var(--muted-color);margin-bottom:sub?4px:0;"},label),sub?m("div",{style:"font-size:12px;color:var(--muted-color);"},sub):null);};
     let freqColor={"daily":"#f59e0b","weekly":"#3b82f6","monthly":"#8b5cf6"};
     let freqLabel={"daily":tr("ernestdefoe-digest-mail.admin.frequency.daily"),"weekly":tr("ernestdefoe-digest-mail.admin.frequency.weekly"),"monthly":tr("ernestdefoe-digest-mail.admin.frequency.monthly")};
 
@@ -717,7 +717,7 @@ let ServerTab={
     vnode.state.cronLoaded=false;
     vnode.state.queueType="database";
     vnode.state.redisSubMode="horizon";
-    app.request({method:"GET",url:app.forum.attribute("apiUrl")+"/ernestdefoe/digest-mail/stats"})
+    app.request<{ cron?: Record<string, string> }>({method:"GET",url:app.forum.attribute("apiUrl")+"/ernestdefoe/digest-mail/stats"})
       .then(function(d){
         vnode.state.cron=(d&&d.cron)?d.cron:null;
         vnode.state.cronLoaded=true;
@@ -727,7 +727,7 @@ let ServerTab={
   },
   view:function(vnode){
     let s=vnode.state;
-    let tr=function(k,v){return app.translator.trans(k,v);};
+    let tr=function(k,v?){return app.translator.trans(k,v);};
     let sh=function(t){return m("h3",{style:"font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--muted-color);margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid var(--control-bg);"},t);};
     let qn=getSettingVal("ernestdefoe-digest-mail.queue_name","digest");
     let tries=getSettingVal("ernestdefoe-digest-mail.queue_tries","3");
