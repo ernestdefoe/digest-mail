@@ -123,8 +123,10 @@ class SendDigestCommand extends Command
         //
         // Single-hour mode (legacy): if send_window_end is not set or equals
         // send_window_start, behave exactly as before — fire once at that hour.
-        $windowStart = (int) $this->settings->get('ernestdefoe-digest-mail.send_window_start',
-            $this->settings->get('ernestdefoe-digest-mail.send_hour', 8));
+        $windowStart = (int) $this->settings->get(
+            'ernestdefoe-digest-mail.send_window_start',
+            $this->settings->get('ernestdefoe-digest-mail.send_hour', 8)
+        );
         $windowEnd = (int) $this->settings->get('ernestdefoe-digest-mail.send_window_end', $windowStart);
 
         $inWindow = ($windowEnd > $windowStart)
@@ -220,7 +222,8 @@ class SendDigestCommand extends Command
             ? (int) $this->option('delay')
             : (int) $this->settings->get('ernestdefoe-digest-mail.queue_delay', 0);
 
-        $chunkSize = max(50, min(10000,
+        $chunkSize = max(50, min(
+            10000,
             (int) $this->settings->get('ernestdefoe-digest-mail.queue_chunk_size', 200)
         ));
 
@@ -274,7 +277,11 @@ class SendDigestCommand extends Command
             if ($isDryRun) {
                 $theme = $this->mailer->resolveTheme($user);
                 $content = $this->query->buildForUser(
-                    $user, $since, $frequency, $theme, $sharedData
+                    $user,
+                    $since,
+                    $frequency,
+                    $theme,
+                    $sharedData
                 );
                 if ($content->isEmpty()) {
                     $this->line("  [skip]     {$user->username} (#{$user->id}) — no content");
@@ -293,8 +300,13 @@ class SendDigestCommand extends Command
             $stampedAt = Carbon::now()->toDateTimeString();
 
             $job = (new SendDigestJob(
-                $user, $frequency, $cacheKey, $since, $theme,
-                $stampedAt, $user->getRawOriginal('digest_last_sent_at'),
+                $user,
+                $frequency,
+                $cacheKey,
+                $since,
+                $theme,
+                $stampedAt,
+                $user->getRawOriginal('digest_last_sent_at'),
             ))->onQueue($queueName);
             $job->tries = $this->jobTries();
             $job->backoff = [30, 60, 120];

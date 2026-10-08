@@ -162,7 +162,8 @@ return [
             Schema\Str::make('digestFrequency')
                 ->nullable()
                 ->get(fn (User $user) => $user->digest_frequency)
-                ->writable(fn (User $user, Context $context) => $context->getActor()->id === $user->id || $context->getActor()->isAdmin()
+                ->writable(
+                    fn (User $user, Context $context) => $context->getActor()->id === $user->id || $context->getActor()->isAdmin()
                 )
                 ->in(['daily', 'weekly', 'monthly']),
         ]),

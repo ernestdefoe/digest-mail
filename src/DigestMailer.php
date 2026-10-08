@@ -136,8 +136,12 @@ class DigestMailer
                 [$r,$g,$b] = [$c, 0, $x];
             }
 
-            return sprintf('#%02x%02x%02x',
-                round(($r + $m) * 255), round(($g + $m) * 255), round(($b + $m) * 255));
+            return sprintf(
+                '#%02x%02x%02x',
+                round(($r + $m) * 255),
+                round(($g + $m) * 255),
+                round(($b + $m) * 255)
+            );
         };
 
         return [

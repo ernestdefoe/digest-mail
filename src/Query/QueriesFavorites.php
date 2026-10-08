@@ -109,7 +109,6 @@ trait QueriesFavorites
             uasort($scored, fn ($a, $b) => $b['score'] <=> $a['score']);
             $scored = array_slice($scored, 0, $limit, true);
             $mode = 'reactions';
-
         } else {
             // Likes-only mode (flarum-likes is always present if we reach here)
             // third-party table — no Eloquent model available.
