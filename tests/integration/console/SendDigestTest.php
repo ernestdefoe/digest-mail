@@ -25,6 +25,13 @@ class SendDigestTest extends ConsoleTestCase
         $this->seedDigest();
     }
 
+    protected function tearDown(): void
+    {
+        Carbon::setTestNow();
+
+        parent::tearDown();
+    }
+
     private function lastSent(int $userId): ?string
     {
         return $this->database()->table('users')->where('id', $userId)->value('digest_last_sent_at');
@@ -109,6 +116,12 @@ class SendDigestTest extends ConsoleTestCase
     #[Test]
     public function the_query_count_does_not_grow_with_the_discussions_listed()
     {
+        // The shared sections are cached under the period's start, to the
+        // second. Held still, every run here reads the same cache entry;
+        // otherwise a run that starts in the next second rebuilds it, and the
+        // count doubles.
+        Carbon::setTestNow(Carbon::now());
+
         $count = function (): int {
             $db = $this->database();
             $db->flushQueryLog();
