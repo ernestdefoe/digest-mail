@@ -48,17 +48,17 @@ class DigestOptInModal extends Modal {
     const user = app.session.user;
     if (!user) return null;
 
-    const allowed: Partial<Record<Frequency, boolean>> =
-      app.forum.attribute('digestAllowedFrequencies') || {};
+    const allowed: Partial<Record<Frequency, boolean>> = app.forum.attribute('digestAllowedFrequencies') || {};
 
     // Picking a frequency (or dismissing with `null`) clears the pending flag
     // and persists the choice, then closes the modal regardless of outcome.
     const choose = (frequency: Frequency | null): void => {
       const prefs: Record<string, unknown> = user.preferences() || {};
       prefs.digest_onboarding_pending = null;
-      user
-        .save({ digestFrequency: frequency, preferences: prefs })
-        .then(() => this.hide(), () => this.hide());
+      user.save({ digestFrequency: frequency, preferences: prefs }).then(
+        () => this.hide(),
+        () => this.hide()
+      );
     };
 
     const buttons = (['daily', 'weekly', 'monthly'] as Frequency[])
@@ -114,13 +114,10 @@ class DigestFrequencySetting extends Component<DigestFrequencyAttrs> {
   view(): Mithril.Children {
     const user = this.attrs.user;
     const value = (user.attribute('digestFrequency') as string) || 'off';
-    const allowed: Record<string, boolean> =
-      app.forum.attribute('digestAllowedFrequencies') || { daily: false, weekly: true, monthly: true };
+    const allowed: Record<string, boolean> = app.forum.attribute('digestAllowedFrequencies') || { daily: false, weekly: true, monthly: true };
     const effectiveValue = value !== 'off' && !allowed[value] ? 'off' : value;
 
-    const options: Mithril.Children[] = [
-      m('option', { value: 'off' }, trans('ernestdefoe-digest-mail.forum.settings.frequency_off')),
-    ];
+    const options: Mithril.Children[] = [m('option', { value: 'off' }, trans('ernestdefoe-digest-mail.forum.settings.frequency_off'))];
     if (allowed.daily) options.push(m('option', { value: 'daily' }, trans('ernestdefoe-digest-mail.forum.settings.frequency_daily')));
     if (allowed.weekly) options.push(m('option', { value: 'weekly' }, trans('ernestdefoe-digest-mail.forum.settings.frequency_weekly')));
     if (allowed.monthly) options.push(m('option', { value: 'monthly' }, trans('ernestdefoe-digest-mail.forum.settings.frequency_monthly')));
@@ -147,7 +144,11 @@ class DigestFrequencySetting extends Component<DigestFrequencyAttrs> {
         ),
         this.saving ? m('span', { class: 'LoadingIndicator', 'aria-hidden': 'true' }) : null,
         this.saved && !this.saving
-          ? m('span', { style: 'color:var(--control-success-color,#3d8b3d);font-size:13px;' }, '✓ ' + trans('ernestdefoe-digest-mail.forum.settings.saved'))
+          ? m(
+              'span',
+              { style: 'color:var(--control-success-color,#3d8b3d);font-size:13px;' },
+              '✓ ' + trans('ernestdefoe-digest-mail.forum.settings.saved')
+            )
           : null
       ),
       this.error ? m('div', { class: 'Alert Alert--error', style: 'margin-top:8px;padding:8px 12px;font-size:13px;' }, this.error) : null
@@ -192,9 +193,10 @@ app.initializers.add('ernestdefoe-digest-mail', () => {
   // own lazy resolver — DefaultResolver.onmatch() awaits `component()` and
   // mounts `.default`, so wrapping app.routes.settings.component targets the
   // exact class instance that renders. addDigestFrequencyItem() dedupes.
-  const addDigestFrequencyItem = function (
-    items: { add: (key: string, content: Mithril.Children, priority?: number) => void; has: (key: string) => boolean }
-  ) {
+  const addDigestFrequencyItem = function (items: {
+    add: (key: string, content: Mithril.Children, priority?: number) => void;
+    has: (key: string) => boolean;
+  }) {
     const user = app.session.user;
     if (!user || items.has('digestFrequency')) return;
     items.add('digestFrequency', m(DigestFrequencySetting, { user }), 50);
