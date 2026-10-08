@@ -164,15 +164,21 @@ trait QueriesDiscussions
 
     public function getStats(Carbon $since): array
     {
+        // is_approved belongs to flarum/approval, which a forum may not have:
+        // filtering on it unconditionally failed every digest there.
+        $schema = $this->db->getSchemaBuilder();
+        $postsApproved = $schema->hasColumn('posts', 'is_approved');
+        $discussionsApproved = $schema->hasColumn('discussions', 'is_approved');
+
         $posts = \Flarum\Post\Post::where('created_at', '>=', $since)
             ->where('type', 'comment')
             ->whereNull('hidden_at')
-            ->where('is_approved', true)
+            ->when($postsApproved, fn ($q) => $q->where('is_approved', true))
             ->count();
 
         $discussions = Discussion::where('created_at', '>=', $since)
             ->whereNull('hidden_at')
-            ->where('is_approved', true)
+            ->when($discussionsApproved, fn ($q) => $q->where('is_approved', true))
             ->count();
 
         $newMembers = User::where('joined_at', '>=', $since)
@@ -182,7 +188,7 @@ trait QueriesDiscussions
         $activeUsers = \Flarum\Post\Post::where('created_at', '>=', $since)
             ->where('type', 'comment')
             ->whereNull('hidden_at')
-            ->where('is_approved', true)
+            ->when($postsApproved, fn ($q) => $q->where('is_approved', true))
             ->whereNotNull('user_id')
             ->distinct()
             ->count('user_id');
