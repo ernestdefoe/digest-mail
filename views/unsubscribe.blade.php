@@ -2,8 +2,8 @@
 @php
     $forumTitle   = $settings->get('forum_title', 'Forum');
 
-    $weekDayNames   = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
-    $weeklyDayLabel = $weekDayNames[(int) $settings->get('ernestdefoe-digest-mail.weekly_day', 1)] ?? 'Monday';
+    $weekDayNames   = ['sunday','monday','tuesday','wednesday','thursday','friday','saturday'];
+    $weeklyDayLabel = $translator->trans('ernestdefoe-digest-mail.lib.weekdays.' . ($weekDayNames[(int) $settings->get('ernestdefoe-digest-mail.weekly_day', 1)] ?? 'monday'));
 
     $monthlyDayInt = (int) $settings->get('ernestdefoe-digest-mail.monthly_day', 1);
     $suffix = match (true) {
@@ -13,7 +13,7 @@
         ($monthlyDayInt % 10 === 3) => 'rd',
         default => 'th',
     };
-    $monthlyDayLabel = $monthlyDayInt . $suffix;
+    $monthlyDayLabel = $translator->trans('ernestdefoe-digest-mail.lib.ordinal_' . $suffix, ['{n}' => $monthlyDayInt]);
 
     // Only show frequencies the admin has enabled
     $allowDaily   = $settings->get('ernestdefoe-digest-mail.allow_daily',   '0') === '1';

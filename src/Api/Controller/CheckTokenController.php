@@ -4,6 +4,7 @@ namespace Resofire\DigestMail\Api\Controller;
 
 use Carbon\Carbon;
 use Flarum\Http\RequestUtil;
+use Flarum\Locale\TranslatorInterface;
 use Flarum\User\Exception\PermissionDeniedException;
 use Laminas\Diactoros\Response\JsonResponse;
 use Psr\Http\Message\ResponseInterface;
@@ -25,6 +26,11 @@ use Resofire\DigestMail\Token\UnsubscribeToken;
  */
 class CheckTokenController implements RequestHandlerInterface
 {
+    public function __construct(
+        private TranslatorInterface $translator,
+    ) {
+    }
+
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
         $actor = RequestUtil::getActor($request);
@@ -36,7 +42,7 @@ class CheckTokenController implements RequestHandlerInterface
 
         if ($rawToken === '') {
             return new JsonResponse(
-                ['errors' => [['detail' => 'No token provided.']]],
+                ['errors' => [['detail' => $this->translator->trans('ernestdefoe-digest-mail.api.no_token')]]],
                 400
             );
         }
@@ -45,7 +51,7 @@ class CheckTokenController implements RequestHandlerInterface
 
         if ($token === null) {
             return new JsonResponse(
-                ['errors' => [['detail' => 'Token not found or expired.']]],
+                ['errors' => [['detail' => $this->translator->trans('ernestdefoe-digest-mail.api.token_not_found')]]],
                 404
             );
         }

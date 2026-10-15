@@ -4,6 +4,7 @@ namespace Resofire\DigestMail\Api\Controller;
 
 use Carbon\Carbon;
 use Flarum\Http\RequestUtil;
+use Flarum\Locale\TranslatorInterface;
 use Flarum\User\Exception\PermissionDeniedException;
 use Flarum\User\User;
 use Illuminate\Support\Arr;
@@ -47,6 +48,7 @@ class SendTestDigestController implements RequestHandlerInterface
         private DigestMailer $mailer,
         private UnsubscribeTokenGenerator $tokenGenerator,
         private LoggerInterface $log,
+        private TranslatorInterface $translator,
     ) {
     }
 
@@ -69,14 +71,14 @@ class SendTestDigestController implements RequestHandlerInterface
         // Validate inputs.
         if ($email === '' || ! filter_var($email, FILTER_VALIDATE_EMAIL)) {
             return new JsonResponse(
-                ['error' => 'A valid email address is required.'],
+                ['error' => $this->translator->trans('ernestdefoe-digest-mail.api.email_required')],
                 400
             );
         }
 
         if (! in_array($frequency, self::VALID_FREQUENCIES, true)) {
             return new JsonResponse(
-                ['error' => 'frequency must be daily, weekly, or monthly.'],
+                ['error' => $this->translator->trans('ernestdefoe-digest-mail.api.frequency_invalid')],
                 400
             );
         }
@@ -121,7 +123,7 @@ class SendTestDigestController implements RequestHandlerInterface
             $this->log->error('[digest-mail] test send failed: '.$e->getMessage(), ['exception' => $e]);
 
             return new JsonResponse(
-                ['error' => 'Mail sending failed. Check the server logs for details.'],
+                ['error' => $this->translator->trans('ernestdefoe-digest-mail.api.mail_failed')],
                 500
             );
         }

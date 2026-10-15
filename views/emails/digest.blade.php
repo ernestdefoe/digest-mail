@@ -262,7 +262,7 @@
 <tr>
     <td class="pad" style="padding:30px 48px 26px; text-align:center; border-bottom:0.5px solid {{ $c['border'] }};">
         <h1 class="t-main" style="margin:0 0 10px; font-size:26px; font-weight:600; color:{{ $c['text'] }}; letter-spacing:-0.5px; line-height:1.3;">{{ $headingText }}</h1>
-        <p class="t-muted" style="margin:0; font-size:15px; color:{{ $c['textMuted'] }};">{{ $content->periodStart->format('F j') }} – {{ $periodEnd->format('F j, Y') }}</p>
+        <p class="t-muted" style="margin:0; font-size:15px; color:{{ $c['textMuted'] }};">{{ $content->periodStart->translatedFormat('F j') }} – {{ $periodEnd->translatedFormat('F j, Y') }}</p>
     </td>
 </tr>
 
@@ -696,7 +696,7 @@ $discRow = function ($disc, string $metaHtml) use ($url, $c, $renderAvatar) {
                 <td style="vertical-align:middle; text-align:right; width:38%;">{!! $renderTeam($ev['awayTeam'], 'right') !!}</td>
             </tr></table>
             <table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="margin-top:10px;"><tr>
-                <td class="t-muted" style="font-size:13px; color:{{ $c['textMuted'] }};">&#128197; {{ $translator->trans('ernestdefoe-digest-mail.email.pickem.match_time', ['{time}' => $ev['matchDate']->format('D, M j g:i A')]) }}</td>
+                <td class="t-muted" style="font-size:13px; color:{{ $c['textMuted'] }};">&#128197; {{ $translator->trans('ernestdefoe-digest-mail.email.pickem.match_time', ['{time}' => $ev['matchDate']->translatedFormat('D, M j g:i A')]) }}</td>
                 <td class="t-muted" style="font-size:13px; color:{{ $c['textMuted'] }}; text-align:right;">&#9200; {{ $translator->trans('ernestdefoe-digest-mail.email.pickem.picks_close', ['{when}' => $ev['cutoff']->diffForHumans()]) }}</td>
             </tr></table>
         </td>
@@ -734,7 +734,7 @@ $discRow = function ($disc, string $metaHtml) use ($url, $c, $renderAvatar) {
                     @if ($awayWon)<div style="font-size:13px; margin-top:5px; text-align:right;">&#127942; {{ $translator->trans('ernestdefoe-digest-mail.email.pickem.winner') }}</div>@endif
                 </td>
             </tr></table>
-            <p class="t-muted" style="margin:8px 0 0; font-size:13px; color:{{ $c['textMuted'] }};">{{ $res['matchDate']->format('D, M j') }}</p>
+            <p class="t-muted" style="margin:8px 0 0; font-size:13px; color:{{ $c['textMuted'] }};">{{ $res['matchDate']->translatedFormat('D, M j') }}</p>
         </td>
     </tr>
     @endforeach
@@ -869,7 +869,7 @@ $discRow = function ($disc, string $metaHtml) use ($url, $c, $renderAvatar) {
                 </td>
             </tr></table>
             <table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="margin-top:10px;"><tr>
-                <td class="t-muted" style="font-size:13px; color:{{ $c['textMuted'] }};">&#128197; {{ $translator->trans('ernestdefoe-digest-mail.email.pickem.match_time', ['{time}' => $ev['matchDate']->format('D, M j g:i A')]) }}</td>
+                <td class="t-muted" style="font-size:13px; color:{{ $c['textMuted'] }};">&#128197; {{ $translator->trans('ernestdefoe-digest-mail.email.pickem.match_time', ['{time}' => $ev['matchDate']->translatedFormat('D, M j g:i A')]) }}</td>
                 <td class="t-muted" style="font-size:13px; color:{{ $c['textMuted'] }}; text-align:right;">&#9200; {{ $translator->trans('ernestdefoe-digest-mail.email.pickem.picks_close', ['{when}' => $ev['cutoff']->diffForHumans()]) }}</td>
             </tr></table>
         </td>
@@ -926,7 +926,7 @@ $discRow = function ($disc, string $metaHtml) use ($url, $c, $renderAvatar) {
                     @if ($pksAwayWon)<div style="font-size:13px; margin-top:4px; text-align:right;">&#127942; <span style="color:#16a34a; font-weight:500;">{{ $translator->trans('ernestdefoe-digest-mail.email.picks.winner') }}</span></div>@endif
                 </td>
             </tr></table>
-            <p class="t-muted" style="margin:8px 0 0; font-size:13px; color:{{ $c['textMuted'] }};">{{ $res['matchDate']->format('D, M j') }}</p>
+            <p class="t-muted" style="margin:8px 0 0; font-size:13px; color:{{ $c['textMuted'] }};">{{ $res['matchDate']->translatedFormat('D, M j') }}</p>
         </td>
     </tr>
     @endforeach
@@ -1349,13 +1349,13 @@ $discRow = function ($disc, string $metaHtml) use ($url, $c, $renderAvatar) {
     $awStartsIn     = null;
     if ($aww->ends_at) {
         $awEndsAt   = \Carbon\Carbon::parse($aww->ends_at);
-        $awDeadline = $awEndsAt->format('F j, Y');
+        $awDeadline = $awEndsAt->translatedFormat('F j, Y');
         $awDaysLeft = max(0, (int) \Carbon\Carbon::now()->diffInDays($awEndsAt, false));
     }
     if ($awStatus === 'upcoming' && $aww->starts_at) {
         $awStartsAt = \Carbon\Carbon::parse($aww->starts_at);
         $awStartsIn = max(0, (int) \Carbon\Carbon::now()->diffInDays($awStartsAt, false));
-        $awDeadline = $awStartsAt->format('F j, Y');
+        $awDeadline = $awStartsAt->translatedFormat('F j, Y');
     }
 @endphp
 <table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="margin-bottom:48px;">

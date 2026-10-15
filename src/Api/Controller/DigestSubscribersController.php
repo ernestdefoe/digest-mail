@@ -3,6 +3,7 @@
 namespace Resofire\DigestMail\Api\Controller;
 
 use Flarum\Http\RequestUtil;
+use Flarum\Locale\TranslatorInterface;
 use Flarum\User\Exception\PermissionDeniedException;
 use Flarum\User\User;
 use Illuminate\Contracts\Filesystem\Factory;
@@ -42,6 +43,7 @@ class DigestSubscribersController implements RequestHandlerInterface
 
     public function __construct(
         private Factory $filesystem,
+        private TranslatorInterface $translator,
     ) {
     }
 
@@ -58,7 +60,7 @@ class DigestSubscribersController implements RequestHandlerInterface
         $perPage = min(self::MAX_PER_PAGE, max(1, (int) ($params['per_page'] ?? self::DEFAULT_PER_PAGE)));
 
         if (! in_array($frequency, self::VALID_FREQUENCIES, true)) {
-            return new JsonResponse(['error' => 'Invalid frequency.'], 400);
+            return new JsonResponse(['error' => $this->translator->trans('ernestdefoe-digest-mail.api.invalid_frequency')], 400);
         }
 
         $base = User::query()

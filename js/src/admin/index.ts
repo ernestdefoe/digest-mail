@@ -3,7 +3,7 @@ import app from 'flarum/admin/app';
 function ordinal(n) {
   let s = ['th', 'st', 'nd', 'rd'];
   let v = n % 100;
-  return n + (s[(v - 20) % 10] || s[v] || s[0]);
+  return app.translator.trans('ernestdefoe-digest-mail.lib.ordinal_' + (s[(v - 20) % 10] || s[v] || s[0]), { n: n });
 }
 function saveSetting(key, val) {
   return app.request({ method: 'POST', url: app.forum.attribute('apiUrl') + '/settings', body: { [key]: val } }).then(function () {
@@ -16,27 +16,27 @@ function getSettingVal(key, fallback) {
 }
 
 let TIMEZONES = [
-  { tz: 'Pacific/Honolulu', label: 'Hawaii' },
-  { tz: 'America/Anchorage', label: 'Alaska' },
-  { tz: 'America/Los_Angeles', label: 'Pacific Time (US & Canada)' },
-  { tz: 'America/Denver', label: 'Mountain Time (US & Canada)' },
-  { tz: 'America/Chicago', label: 'Central Time (US & Canada)' },
-  { tz: 'America/New_York', label: 'Eastern Time (US & Canada)' },
-  { tz: 'America/Halifax', label: 'Atlantic Time (Canada)' },
-  { tz: 'America/Sao_Paulo', label: 'Brasilia' },
-  { tz: 'Atlantic/Azores', label: 'Azores' },
-  { tz: 'Europe/London', label: 'London' },
-  { tz: 'Europe/Paris', label: 'Paris / Berlin / Rome' },
-  { tz: 'Europe/Helsinki', label: 'Helsinki / Kyiv' },
-  { tz: 'Europe/Moscow', label: 'Moscow' },
-  { tz: 'Asia/Dubai', label: 'Dubai' },
-  { tz: 'Asia/Karachi', label: 'Karachi' },
-  { tz: 'Asia/Kolkata', label: 'Mumbai / New Delhi' },
-  { tz: 'Asia/Bangkok', label: 'Bangkok / Jakarta' },
-  { tz: 'Asia/Shanghai', label: 'Beijing / Singapore' },
-  { tz: 'Asia/Tokyo', label: 'Tokyo / Seoul' },
-  { tz: 'Australia/Sydney', label: 'Sydney' },
-  { tz: 'Pacific/Auckland', label: 'Auckland' },
+  { tz: 'Pacific/Honolulu', key: 'honolulu' },
+  { tz: 'America/Anchorage', key: 'anchorage' },
+  { tz: 'America/Los_Angeles', key: 'los_angeles' },
+  { tz: 'America/Denver', key: 'denver' },
+  { tz: 'America/Chicago', key: 'chicago' },
+  { tz: 'America/New_York', key: 'new_york' },
+  { tz: 'America/Halifax', key: 'halifax' },
+  { tz: 'America/Sao_Paulo', key: 'sao_paulo' },
+  { tz: 'Atlantic/Azores', key: 'azores' },
+  { tz: 'Europe/London', key: 'london' },
+  { tz: 'Europe/Paris', key: 'paris' },
+  { tz: 'Europe/Helsinki', key: 'helsinki' },
+  { tz: 'Europe/Moscow', key: 'moscow' },
+  { tz: 'Asia/Dubai', key: 'dubai' },
+  { tz: 'Asia/Karachi', key: 'karachi' },
+  { tz: 'Asia/Kolkata', key: 'kolkata' },
+  { tz: 'Asia/Bangkok', key: 'bangkok' },
+  { tz: 'Asia/Shanghai', key: 'shanghai' },
+  { tz: 'Asia/Tokyo', key: 'tokyo' },
+  { tz: 'Australia/Sydney', key: 'sydney' },
+  { tz: 'Pacific/Auckland', key: 'auckland' },
 ];
 function tzOffsetLabel(tz) {
   try {
@@ -56,23 +56,32 @@ function buildHourOptions(tz) {
   for (let h = 0; h < 24; h++) {
     let padded = h < 10 ? '0' + h : '' + h;
     let lbl = padded + ':00 ' + label;
-    if (h === 0) lbl += ' (midnight)';
-    if (h === 12) lbl += ' (noon)';
+    if (h === 0) lbl += ' ' + app.translator.trans('ernestdefoe-digest-mail.admin.schedule.midnight');
+    if (h === 12) lbl += ' ' + app.translator.trans('ernestdefoe-digest-mail.admin.schedule.noon');
     opts[String(h)] = lbl;
   }
   return opts;
 }
-let weekDayOptions = { '0': 'Sunday', '1': 'Monday', '2': 'Tuesday', '3': 'Wednesday', '4': 'Thursday', '5': 'Friday', '6': 'Saturday' };
-let monthDayOptions = {};
-for (let d = 1; d <= 28; d++) {
-  monthDayOptions[String(d)] = ordinal(d);
+let WEEKDAYS = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+function weekDayOptions() {
+  let opts = {};
+  WEEKDAYS.forEach(function (d, i) {
+    opts[String(i)] = app.translator.trans('ernestdefoe-digest-mail.lib.weekdays.' + d);
+  });
+  return opts;
+}
+function monthDayOptions() {
+  let opts = {};
+  for (let d = 1; d <= 28; d++) {
+    opts[String(d)] = ordinal(d);
+  }
+  return opts;
 }
 
 let FIXED_SECTIONS = [
   {
     key: 'discussions',
     labelKey: 'ernestdefoe-digest-mail.admin.integrations.section_discussions',
-    label: 'Discussions',
     icon: 'fas fa-comments',
     iconBg: '#3b82f6',
     iconColor: '#fff',
@@ -80,7 +89,6 @@ let FIXED_SECTIONS = [
   {
     key: 'members',
     labelKey: 'ernestdefoe-digest-mail.admin.integrations.section_members',
-    label: 'New Members',
     icon: 'fas fa-user-plus',
     iconBg: '#10b981',
     iconColor: '#fff',
@@ -88,7 +96,6 @@ let FIXED_SECTIONS = [
   {
     key: 'stats',
     labelKey: 'ernestdefoe-digest-mail.admin.integrations.section_stats',
-    label: 'Community Stats',
     icon: 'fas fa-chart-bar',
     iconBg: '#6366f1',
     iconColor: '#fff',
@@ -98,7 +105,6 @@ let INTEGRATION_SECTIONS = {
   leaderboard: {
     key: 'leaderboard',
     labelKey: 'ernestdefoe-digest-mail.admin.integrations.section_leaderboard',
-    label: 'Leaderboard',
     icon: 'fas fa-trophy',
     iconBg: '#3498db',
     iconColor: '#fff',
@@ -106,7 +112,6 @@ let INTEGRATION_SECTIONS = {
   badges: {
     key: 'badges',
     labelKey: 'ernestdefoe-digest-mail.admin.integrations.section_badges',
-    label: 'Badges',
     icon: 'fas fa-award',
     iconBg: '#8b5cf6',
     iconColor: '#fff',
@@ -114,7 +119,6 @@ let INTEGRATION_SECTIONS = {
   pickem: {
     key: 'pickem',
     labelKey: 'ernestdefoe-digest-mail.admin.integrations.section_pickem',
-    label: "Pick'em",
     icon: 'fas fa-football-ball',
     iconBg: '#16a34a',
     iconColor: '#fff',
@@ -122,7 +126,6 @@ let INTEGRATION_SECTIONS = {
   picks: {
     key: 'picks',
     labelKey: 'ernestdefoe-digest-mail.admin.integrations.section_picks',
-    label: 'CFB Picks',
     icon: 'fas fa-football',
     iconBg: '#69c6b9',
     iconColor: '#1A2744',
@@ -130,7 +133,6 @@ let INTEGRATION_SECTIONS = {
   gamepedia: {
     key: 'gamepedia',
     labelKey: 'ernestdefoe-digest-mail.admin.integrations.section_gamepedia',
-    label: 'Gamepedia',
     icon: 'fas fa-gamepad',
     iconBg: '#e85d04',
     iconColor: '#fff',
@@ -138,7 +140,6 @@ let INTEGRATION_SECTIONS = {
   resofireGamepedia: {
     key: 'resofireGamepedia',
     labelKey: 'ernestdefoe-digest-mail.admin.integrations.section_resofire_gamepedia',
-    label: 'Resofire Gamepedia',
     icon: 'fas fa-gamepad',
     iconBg: '#1a1a2e',
     iconColor: '#e94560',
@@ -146,7 +147,6 @@ let INTEGRATION_SECTIONS = {
   favorites: {
     key: 'favorites',
     labelKey: 'ernestdefoe-digest-mail.admin.integrations.section_favorites',
-    label: 'Favorites',
     icon: 'fas fa-heart',
     iconBg: '#e11d48',
     iconColor: '#fff',
@@ -154,7 +154,6 @@ let INTEGRATION_SECTIONS = {
   awards: {
     key: 'awards',
     labelKey: 'ernestdefoe-digest-mail.admin.integrations.section_awards',
-    label: 'Awards',
     icon: 'fas fa-star',
     iconBg: '#f59e0b',
     iconColor: '#fff',
@@ -485,7 +484,11 @@ let ScheduleSection = {
     };
     let hourOpts = buildHourOptions(s.tz);
     let tzOpts = TIMEZONES.map(function (z) {
-      return m('option', { value: z.tz, selected: s.tz === z.tz }, tzOffsetLabel(z.tz) + ' — ' + z.label);
+      return m(
+        'option',
+        { value: z.tz, selected: s.tz === z.tz },
+        tzOffsetLabel(z.tz) + ' — ' + app.translator.trans('ernestdefoe-digest-mail.admin.schedule.timezones.' + z.key)
+      );
     });
     let isWindow = parseInt(s.windowEnd, 10) > parseInt(s.windowStart, 10);
     let windowSummary = isWindow
@@ -1191,13 +1194,13 @@ let SettingsTab = {
           m(ScheduleSection),
           m(SelectSetting, {
             settingKey: 'ernestdefoe-digest-mail.weekly_day',
-            options: weekDayOptions,
+            options: weekDayOptions(),
             label: tr('ernestdefoe-digest-mail.admin.settings.weekly_day_label'),
             help: tr('ernestdefoe-digest-mail.admin.settings.weekly_day_help'),
           }),
           m(SelectSetting, {
             settingKey: 'ernestdefoe-digest-mail.monthly_day',
-            options: monthDayOptions,
+            options: monthDayOptions(),
             label: tr('ernestdefoe-digest-mail.admin.settings.monthly_day_label'),
             help: tr('ernestdefoe-digest-mail.admin.settings.monthly_day_help'),
           })
@@ -1260,57 +1263,59 @@ let SettingsTab = {
             settingKey: 'ernestdefoe-digest-mail.enable_leaderboard',
             extData: exts.leaderboard || {},
             description: tr('ernestdefoe-digest-mail.admin.integrations.leaderboard_desc'),
-            installedNote: 'huseyinfiliz/leaderboard is installed and active',
-            notInstalledNote: 'huseyinfiliz/leaderboard is not installed or is disabled',
+            installedNote: app.translator.trans('ernestdefoe-digest-mail.admin.integrations.ext_installed', { ext: 'huseyinfiliz/leaderboard' }),
+            notInstalledNote: app.translator.trans('ernestdefoe-digest-mail.admin.integrations.ext_not_installed', {
+              ext: 'huseyinfiliz/leaderboard',
+            }),
           }),
           m(IntegrationToggle, {
             settingKey: 'ernestdefoe-digest-mail.enable_badges',
             extData: exts.badges || {},
             description: tr('ernestdefoe-digest-mail.admin.integrations.badges_desc'),
-            installedNote: 'fof/badges is installed and active',
-            notInstalledNote: 'fof/badges is not installed or is disabled',
+            installedNote: app.translator.trans('ernestdefoe-digest-mail.admin.integrations.ext_installed', { ext: 'fof/badges' }),
+            notInstalledNote: app.translator.trans('ernestdefoe-digest-mail.admin.integrations.ext_not_installed', { ext: 'fof/badges' }),
           }),
           m(IntegrationToggle, {
             settingKey: 'ernestdefoe-digest-mail.enable_pickem',
             extData: exts.pickem || {},
             description: tr('ernestdefoe-digest-mail.admin.integrations.pickem_desc'),
-            installedNote: 'huseyinfiliz/pickem is installed and active',
-            notInstalledNote: 'huseyinfiliz/pickem is not installed or is disabled',
+            installedNote: app.translator.trans('ernestdefoe-digest-mail.admin.integrations.ext_installed', { ext: 'huseyinfiliz/pickem' }),
+            notInstalledNote: app.translator.trans('ernestdefoe-digest-mail.admin.integrations.ext_not_installed', { ext: 'huseyinfiliz/pickem' }),
           }),
           m(IntegrationToggle, {
             settingKey: 'ernestdefoe-digest-mail.enable_picks',
             extData: exts.picks || {},
             description: tr('ernestdefoe-digest-mail.admin.integrations.picks_desc'),
-            installedNote: 'ernestdefoe/picks is installed and active',
-            notInstalledNote: 'ernestdefoe/picks is not installed or is disabled',
+            installedNote: app.translator.trans('ernestdefoe-digest-mail.admin.integrations.ext_installed', { ext: 'ernestdefoe/picks' }),
+            notInstalledNote: app.translator.trans('ernestdefoe-digest-mail.admin.integrations.ext_not_installed', { ext: 'ernestdefoe/picks' }),
           }),
           m(IntegrationToggle, {
             settingKey: 'ernestdefoe-digest-mail.enable_gamepedia',
             extData: exts.gamepedia || {},
             description: tr('ernestdefoe-digest-mail.admin.integrations.gamepedia_desc'),
-            installedNote: 'huseyinfiliz/gamepedia is installed and active',
-            notInstalledNote: 'huseyinfiliz/gamepedia is not installed or is disabled',
+            installedNote: app.translator.trans('ernestdefoe-digest-mail.admin.integrations.ext_installed', { ext: 'huseyinfiliz/gamepedia' }),
+            notInstalledNote: app.translator.trans('ernestdefoe-digest-mail.admin.integrations.ext_not_installed', { ext: 'huseyinfiliz/gamepedia' }),
           }),
           m(IntegrationToggle, {
             settingKey: 'ernestdefoe-digest-mail.enable_resofire_gamepedia',
             extData: exts.resofireGamepedia || {},
             description: tr('ernestdefoe-digest-mail.admin.integrations.resofire_gamepedia_desc'),
-            installedNote: 'resofire/gamepedia is installed and active',
-            notInstalledNote: 'resofire/gamepedia is not installed or is disabled',
+            installedNote: app.translator.trans('ernestdefoe-digest-mail.admin.integrations.ext_installed', { ext: 'resofire/gamepedia' }),
+            notInstalledNote: app.translator.trans('ernestdefoe-digest-mail.admin.integrations.ext_not_installed', { ext: 'resofire/gamepedia' }),
           }),
           m(IntegrationToggle, {
             settingKey: 'ernestdefoe-digest-mail.enable_reactions',
             extData: exts.reactions || {},
             description: tr('ernestdefoe-digest-mail.admin.integrations.reactions_desc'),
-            installedNote: 'fof/reactions is installed and active',
-            notInstalledNote: 'fof/reactions is not installed or is disabled',
+            installedNote: app.translator.trans('ernestdefoe-digest-mail.admin.integrations.ext_installed', { ext: 'fof/reactions' }),
+            notInstalledNote: app.translator.trans('ernestdefoe-digest-mail.admin.integrations.ext_not_installed', { ext: 'fof/reactions' }),
           }),
           m(IntegrationToggle, {
             settingKey: 'ernestdefoe-digest-mail.enable_awards',
             extData: exts.awards || {},
             description: tr('ernestdefoe-digest-mail.admin.integrations.awards_desc'),
-            installedNote: 'huseyinfiliz/awards is installed and active',
-            notInstalledNote: 'huseyinfiliz/awards is not installed or is disabled',
+            installedNote: app.translator.trans('ernestdefoe-digest-mail.admin.integrations.ext_installed', { ext: 'huseyinfiliz/awards' }),
+            notInstalledNote: app.translator.trans('ernestdefoe-digest-mail.admin.integrations.ext_not_installed', { ext: 'huseyinfiliz/awards' }),
           }),
           m(
             'div',
@@ -1516,11 +1521,7 @@ let DigestOrderTab = {
                   m(
                     'div',
                     { style: 'display:flex;align-items:center;gap:8px;' },
-                    m(
-                      'span',
-                      { style: 'font-size:15px;font-weight:700;color:var(--heading-color,var(--text-color));' },
-                      section.labelKey ? tr(section.labelKey) : section.label
-                    ),
+                    m('span', { style: 'font-size:15px;font-weight:700;color:var(--heading-color,var(--text-color));' }, tr(section.labelKey)),
                     fixed
                       ? m(
                           'span',
@@ -2264,9 +2265,12 @@ let ServerTab = {
         ',default --max-time=55 --tries=' +
         tries +
         ' --backoff=30 >> /dev/null 2>&1';
-    let lineWorkers3 = '# Add one line per worker \u2014 e.g. 3 workers:\n' + lineWorker + '\n' + lineWorker + '\n' + lineWorker;
+    let lineWorkers3 =
+      '# ' + tr('ernestdefoe-digest-mail.admin.server.cron_comment_workers') + '\n' + lineWorker + '\n' + lineWorker + '\n' + lineWorker;
     let lineEnqueue =
-      '# Optional: pre-build jobs before the window opens (large forums only):\n' +
+      '# ' +
+      tr('ernestdefoe-digest-mail.admin.server.cron_comment_enqueue') +
+      '\n' +
       (c.enqueue || '50 12 * * * cd ' + ph + ' && php flarum digest:enqueue --frequency=daily --delay=600 >> /dev/null 2>&1');
     let supervisorConf =
       c.supervisor ||
@@ -3081,7 +3085,7 @@ let DigestAdminPage = {
               m.redraw();
             },
           },
-          '\u2699\uFE0F Settings'
+          '\u2699\uFE0F ' + app.translator.trans('ernestdefoe-digest-mail.admin.tabs.settings')
         ),
         m(
           'button',
@@ -3092,7 +3096,7 @@ let DigestAdminPage = {
               m.redraw();
             },
           },
-          '\u2195 Digest Order'
+          '\u2195 ' + app.translator.trans('ernestdefoe-digest-mail.admin.tabs.order')
         ),
         m(
           'button',
@@ -3103,7 +3107,7 @@ let DigestAdminPage = {
               m.redraw();
             },
           },
-          '\uD83D\uDCCA Statistics'
+          '\uD83D\uDCCA ' + app.translator.trans('ernestdefoe-digest-mail.admin.tabs.stats')
         ),
         m(
           'button',
@@ -3114,7 +3118,7 @@ let DigestAdminPage = {
               m.redraw();
             },
           },
-          '\uD83D\uDDA5\uFE0F Server Settings'
+          '\uD83D\uDDA5\uFE0F ' + app.translator.trans('ernestdefoe-digest-mail.admin.tabs.server')
         )
       ),
       s.tab === 'settings' ? m(SettingsTab) : s.tab === 'order' ? m(DigestOrderTab) : s.tab === 'stats' ? m(StatsTab) : m(ServerTab)
