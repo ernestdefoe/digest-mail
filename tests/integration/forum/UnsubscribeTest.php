@@ -79,4 +79,20 @@ class UnsubscribeTest extends TestCase
 
         $this->assertSame('monthly', $this->frequency(6));
     }
+
+    #[Test]
+    public function an_unknown_token_on_a_save_is_looked_up_once()
+    {
+        $this->app();
+        $db = $this->database();
+        $db->flushQueryLog();
+        $db->enableQueryLog();
+
+        $this->send($this->requestUrl('GET', '/digest/unsubscribe?token='.str_repeat('e', 64).'&frequency=off'));
+
+        $lookups = array_filter($db->getQueryLog(), fn (array $q) => str_contains($q['query'], 'digest_unsubscribe_tokens'));
+        $db->disableQueryLog();
+
+        $this->assertCount(1, $lookups);
+    }
 }

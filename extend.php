@@ -4,7 +4,6 @@ use Flarum\Api\Context;
 use Flarum\Api\Resource;
 use Flarum\Api\Schema;
 use Flarum\Extend;
-use Flarum\Extension\ExtensionManager;
 use Flarum\User\Event\Activated;
 use Flarum\User\User;
 use Illuminate\Console\Scheduling\Event;
@@ -12,6 +11,7 @@ use Resofire\DigestMail\Api\Controller\CheckTokenController;
 use Resofire\DigestMail\Api\Controller\DigestStatsController;
 use Resofire\DigestMail\Api\Controller\DigestSubscribersController;
 use Resofire\DigestMail\Api\Controller\SendTestDigestController;
+use Resofire\DigestMail\Api\ForumResourceFields;
 use Resofire\DigestMail\Console\EnqueueDigestCommand;
 use Resofire\DigestMail\Console\SendDigestCommand;
 use Resofire\DigestMail\Controller\UnsubscribeController;
@@ -171,116 +171,7 @@ return [
     // Expose optional-integration availability to the admin JS so toggles
     // can be grayed out when an integration extension is not installed.
     (new Extend\ApiResource(Resource\ForumResource::class))
-        ->fields(function () {
-            // INTENTIONAL resolve(): documented exception to the prefer-DI rule.
-            // (1) ApiResource->fields() callbacks are invoked by core with no
-            //     arguments — ContainerUtil::wrapCallback does not inject typed
-            //     closure parameters for this extender, so constructor-style DI
-            //     is unavailable here.
-            // (2) Capturing services at REGISTRATION time (a `use` closure over
-            //     values resolved while extend.php is evaluated) is not safe:
-            //     extend.php is loaded before the container finishes booting,
-            //     so resolution must stay lazy — inside the callback, at
-            //     request time, which is exactly what resolve() does below.
-            /** @var ExtensionManager $manager */
-            $manager = resolve(ExtensionManager::class);
-
-            /** @var \Flarum\Settings\SettingsRepositoryInterface $settings */
-            $settings = resolve(\Flarum\Settings\SettingsRepositoryInterface::class);
-            $raw = fn (string $key, string $fallback) => ($v = $settings->get($key)) === null || $v === '' ? $fallback : $v;
-
-            return [
-                // Admin-only: reveals which optional integrations are installed.
-                // Consumed solely by the admin panel, so it is hidden from the
-                // public forum payload (guests + regular members).
-                Schema\Arr::make('digestExtensions')
-                    ->visible(fn ($model, Context $context) => $context->getActor()->isAdmin())
-                    ->get(function () use ($manager) {
-                        return [
-                            'leaderboard' => [
-                                'enabled' => $manager->isEnabled('huseyinfiliz-leaderboard'),
-                                'title' => 'Leaderboard',
-                                'iconName' => 'fas fa-trophy',
-                                'iconColor' => '#ffffff',
-                                'iconBg' => '#3498db',
-                            ],
-                            'badges' => [
-                                'enabled' => $manager->isEnabled('fof-badges'),
-                                'title' => 'Badges',
-                                'iconName' => 'fas fa-award',
-                                'iconColor' => '#ffffff',
-                                'iconBg' => '#8b5cf6',
-                            ],
-                            'pickem' => [
-                                'enabled' => $manager->isEnabled('huseyinfiliz-pickem'),
-                                'title' => "Pick'em",
-                                'iconName' => 'fas fa-football-ball',
-                                'iconColor' => '#ffffff',
-                                'iconBg' => '#16a34a',
-                            ],
-                            'picks' => [
-                                'enabled' => $manager->isEnabled('ernestdefoe-picks'),
-                                'title' => 'CFB Picks',
-                                'iconName' => 'fas fa-football',
-                                'iconColor' => '#ffffff',
-                                'iconBg' => '#69c6b9',
-                            ],
-                            'giveaways' => [
-                                'enabled' => $manager->isEnabled('ernestdefoe-giveaways'),
-                                'title' => 'Giveaways',
-                                'iconName' => 'fas fa-gift',
-                                'iconColor' => '#ffffff',
-                                'iconBg' => '#69c6b9',
-                            ],
-                            'nightmode' => [
-                                'enabled' => false,
-                            ],
-                            'cosmos-theme' => [
-                                'enabled' => false,
-                            ],
-                            'gamepedia' => [
-                                'enabled' => $manager->isEnabled('huseyinfiliz-gamepedia'),
-                                'title' => 'Gamepedia',
-                                'iconName' => 'fas fa-gamepad',
-                                'iconColor' => '#ffffff',
-                                'iconBg' => '#e85d04',
-                            ],
-                            'resofireGamepedia' => [
-                                'enabled' => $manager->isEnabled('resofire-gamepedia'),
-                                'title' => 'Resofire Gamepedia',
-                                'iconName' => 'fas fa-gamepad',
-                                'iconColor' => '#ffffff',
-                                'iconBg' => '#1a1a2e',
-                            ],
-                            'likes' => [
-                                'enabled' => $manager->isEnabled('flarum-likes'),
-                            ],
-                            'reactions' => [
-                                'enabled' => $manager->isEnabled('fof-reactions') || $manager->isEnabled('resofire-reactions'),
-                                'title' => 'Reactions',
-                                'iconName' => 'fas fa-smile',
-                                'iconColor' => '#ffffff',
-                                'iconBg' => '#f59e0b',
-                            ],
-                            'awards' => [
-                                'enabled' => $manager->isEnabled('huseyinfiliz-awards'),
-                                'title' => 'Awards',
-                                'iconName' => 'fas fa-star',
-                                'iconColor' => '#ffffff',
-                                'iconBg' => '#f59e0b',
-                            ],
-                        ];
-                    }),
-                Schema\Arr::make('digestAllowedFrequencies')
-                    ->get(function () use ($raw) {
-                        return [
-                            'daily' => $raw('ernestdefoe-digest-mail.allow_daily', '0') === '1',
-                            'weekly' => $raw('ernestdefoe-digest-mail.allow_weekly', '1') === '1',
-                            'monthly' => $raw('ernestdefoe-digest-mail.allow_monthly', '1') === '1',
-                        ];
-                    }),
-            ];
-        }),
+        ->fields(ForumResourceFields::class),
 
     // Settings defaults — returned by Flarum before the admin saves for the
     // first time, so the extension behaves sensibly out of the box.

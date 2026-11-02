@@ -28,6 +28,9 @@ class UnsubscribeController extends AbstractHtmlController
 {
     private const VALID_FREQUENCIES = ['daily', 'weekly', 'monthly'];
 
+    /** @var array<string, UnsubscribeToken|null> token lookups already made this request */
+    private array $tokens = [];
+
     public function __construct(
         private ViewFactory $view,
         private UrlGenerator $url,
@@ -54,7 +57,7 @@ class UnsubscribeController extends AbstractHtmlController
 
         // If a frequency param is present, save and redirect.
         if ($frequency !== null) {
-            $token = UnsubscribeToken::findValid($rawToken);
+            $token = $this->findToken($rawToken);
 
             if ($token === null) {
                 return parent::handle($request); // will render invalid-token view
@@ -93,7 +96,7 @@ class UnsubscribeController extends AbstractHtmlController
                 ->with('translator', $this->translator);
         }
 
-        $token = UnsubscribeToken::findValid($rawToken);
+        $token = $this->findToken($rawToken);
 
         if ($token === null) {
             return $this->view->make('ernestdefoe-digest-mail::unsubscribe-invalid')
@@ -113,5 +116,18 @@ class UnsubscribeController extends AbstractHtmlController
             ->with('postUrl', $baseUrl)
             ->with('settings', $this->settings)
             ->with('translator', $this->translator);
+    }
+
+    /**
+     * An invalid token on a save falls through to render(), which needs the
+     * same lookup: remember it so the token table is read once per request.
+     */
+    private function findToken(string $rawToken): ?UnsubscribeToken
+    {
+        if (! array_key_exists($rawToken, $this->tokens)) {
+            $this->tokens[$rawToken] = UnsubscribeToken::findValid($rawToken);
+        }
+
+        return $this->tokens[$rawToken];
     }
 }

@@ -95,4 +95,26 @@ class AdminEndpointsTest extends TestCase
         $this->assertSame(['inbox@machine.local'], $this->recipients());
         $this->assertStringContainsString('Fresh this week', self::$sent[0]['html']);
     }
+
+    #[Test]
+    public function the_forum_payload_lists_integrations_for_admins_only()
+    {
+        $admin = $this->getJson('/api')['data']['attributes'];
+
+        $this->assertSame(['daily' => false, 'weekly' => true, 'monthly' => true], $admin['digestAllowedFrequencies']);
+        $this->assertSame([
+            'leaderboard', 'badges', 'pickem', 'picks', 'giveaways', 'nightmode', 'cosmos-theme',
+            'gamepedia', 'resofireGamepedia', 'likes', 'reactions', 'awards',
+        ], array_keys($admin['digestExtensions']));
+        $this->assertSame(['enabled' => false], $admin['digestExtensions']['likes']);
+        $this->assertSame(
+            ['enabled' => false, 'title' => 'Badges', 'iconName' => 'fas fa-award', 'iconColor' => '#ffffff', 'iconBg' => '#8b5cf6'],
+            $admin['digestExtensions']['badges']
+        );
+
+        $member = json_decode((string) $this->send($this->requestUrl('GET', '/api', ['authenticatedAs' => 2]))->getBody(), true);
+
+        $this->assertArrayNotHasKey('digestExtensions', $member['data']['attributes']);
+        $this->assertArrayHasKey('digestAllowedFrequencies', $member['data']['attributes']);
+    }
 }

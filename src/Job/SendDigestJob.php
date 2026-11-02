@@ -132,6 +132,9 @@ class SendDigestJob extends AbstractJob
                 ->update(['digest_last_sent_at' => $this->previousSentAt]);
         }
 
+        // resolve() on purpose: Laravel calls failed() directly with only the
+        // exception (no method injection), and a logger held as a property
+        // would be serialized into the queued payload.
         resolve(LoggerInterface::class)->error(sprintf(
             '[digest-mail] %s digest to user #%d was NOT delivered after %d attempts: %s',
             $this->frequency,

@@ -6,6 +6,8 @@ use Illuminate\Database\Schema\Builder;
 return [
     'up' => function (Builder $schema) {
         $schema->table('users', function (Blueprint $table) use ($schema) {
+            // ->after() only orders columns on MySQL/MariaDB; the SQLite and
+            // Postgres grammars ignore it, so it is safe on every driver.
             // NULL  = opted out
             // 'daily' | 'weekly' | 'monthly' = opted in at that cadence
             if (! $schema->hasColumn('users', 'digest_frequency')) {
