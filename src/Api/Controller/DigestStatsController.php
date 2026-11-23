@@ -28,7 +28,9 @@ class DigestStatsController implements RequestHandlerInterface
             throw new PermissionDeniedException();
         }
 
-        // Subscription counts
+        // Subscription counts. Only members with a confirmed email can get a
+        // digest, so the rate is worked out against them.
+        $totalAll = User::query()->count();
         $totalMembers = User::query()
             ->where('is_email_confirmed', true)
             ->count();
@@ -79,6 +81,8 @@ class DigestStatsController implements RequestHandlerInterface
         return new JsonResponse([
             'subscriptions' => [
                 'total_members' => $totalMembers,
+                'total_all' => $totalAll,
+                'unconfirmed' => $totalAll - $totalMembers,
                 'total_subscribed' => $totalSubscribed,
                 'subscription_rate' => $subscriptionRate,
                 'by_frequency' => $byFrequency,

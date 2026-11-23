@@ -1844,9 +1844,16 @@ let StatsTab = {
           sh(tr('ernestdefoe-digest-mail.admin.sections.subscription_overview')),
           m(
             'div',
-            { style: 'display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:24px;' },
-            card(tr('ernestdefoe-digest-mail.admin.stats.total_members'), sub.total_members),
-            card(tr('ernestdefoe-digest-mail.admin.stats.subscribers'), sub.total_subscribed),
+            { style: 'display:grid;grid-template-columns:repeat(auto-fit,minmax(min(180px,100%),1fr));gap:12px;margin-bottom:24px;' },
+            card(
+              tr('ernestdefoe-digest-mail.admin.stats.can_get_digests'),
+              sub.total_members,
+              [
+                tr('ernestdefoe-digest-mail.admin.stats.members_of_total', { confirmed: sub.total_members, total: sub.total_all }),
+                sub.unconfirmed > 0 ? [' ', tr('ernestdefoe-digest-mail.admin.stats.unconfirmed_members', { count: sub.unconfirmed })] : null,
+              ]
+            ),
+            card(tr('ernestdefoe-digest-mail.admin.stats.subscribers'), sub.total_subscribed, tr('ernestdefoe-digest-mail.admin.stats.subscribers_hint')),
             card(
               tr('ernestdefoe-digest-mail.admin.stats.subscription_rate'),
               sub.subscription_rate + '%',

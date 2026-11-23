@@ -66,6 +66,18 @@ class AdminEndpointsTest extends TestCase
     }
 
     #[Test]
+    public function stats_count_who_can_get_digests_out_of_all_members()
+    {
+        $sub = $this->getJson('/api/ernestdefoe/digest-mail/stats')['subscriptions'];
+
+        // Admin, normal user and three confirmed members; one unconfirmed.
+        $this->assertSame(6, $sub['total_all']);
+        $this->assertSame(5, $sub['total_members']);
+        $this->assertSame(1, $sub['unconfirmed']);
+        $this->assertSame(60.0, (float) $sub['subscription_rate']);
+    }
+
+    #[Test]
     public function subscribers_lists_confirmed_members_of_one_frequency()
     {
         $list = $this->getJson('/api/ernestdefoe/digest-mail/subscribers?frequency=weekly');
